@@ -6,14 +6,25 @@ sidebar.innerHTML = `
   <div id="mySidebarContent">
     <h2>Time Predictor</h2>
     <p>Here you will see all the time information that we have gathered to gain a rough estimate of the amount of time this assignment will take you.</p>
-    <p>Mean: </p>
-    <p>Median: </p>
-    <p>Mode: </p>
+    <p>Mean:   1:42:02</p>
+    <p>Median:   1:37:56</p>
+    <p>Mode:   1:40:40</p>
   </div>
 `;
 
 // Append the sidebar to the body
 document.body.appendChild(sidebar);
+
+const bellCurve = document.createElement("div");
+bellCurve.id = "myBellCurve"
+const imgSrc = chrome.runtime.getURL("bell-curve.webp")
+
+bellCurve.innerHTML = `
+  <img src="${imgSrc}" alt="Image of a bell curve" style="width:100%">
+`;
+
+document.getElementById("mySidebarContent").appendChild(bellCurve);
+
 
 const form = document.createElement("form");
 form.id = "timeForm";

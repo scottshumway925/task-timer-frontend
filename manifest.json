@@ -9,5 +9,12 @@
             "js": ["content.js"],
             "css": ["content.css"]
         }
-    ]
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["bell-curve.webp"],
+            "matches": ["https://*.instructure.com/*"]
+        }
+    ],
+    "permissions": []
 }
