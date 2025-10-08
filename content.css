@@ -1,16 +1,26 @@
-/* Sidebar styles */
 #mySidebar {
   width: 20rem;
   padding: 20px;
   box-sizing: border-box;
-  position: fixed;   /* Fix it to the side */
+  position: fixed;
   top: 0;
   right: 0;
-  height: 100vh;     /* Full viewport height */
-  overflow-y: auto;  /* Scroll inside sidebar if needed */
-  z-index: 1000;     /* Stay above most elements */
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 1000;
 }
 
 body {
   margin-right: 20rem !important;
+}
+
+@media (max-width: 1400px) {
+
+  #mySidebar {
+      width: 0rem;
+  }
+
+  body {
+    margin-right: 0rem !important;
+  }
 }
