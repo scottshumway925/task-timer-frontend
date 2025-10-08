@@ -1,0 +1,16 @@
+/* Sidebar styles */
+#mySidebar {
+  width: 20rem;
+  padding: 20px;
+  box-sizing: border-box;
+  position: fixed;   /* Fix it to the side */
+  top: 0;
+  right: 0;
+  height: 100vh;     /* Full viewport height */
+  overflow-y: auto;  /* Scroll inside sidebar if needed */
+  z-index: 1000;     /* Stay above most elements */
+}
+
+body {
+  margin-right: 20rem !important;
+}
