@@ -17,7 +17,9 @@ body {
 @media (max-width: 1400px) {
 
   #mySidebar {
-      width: 0rem;
+      width: 0;
+      padding: 0;
+      overflow: hidden;
   }
 
   body {
