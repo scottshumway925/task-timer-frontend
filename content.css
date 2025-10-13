@@ -35,7 +35,7 @@ body {
 }
 
 /* Making the sidebar disappear on a smaller screen */
-@media (max-width: 1400px) {
+@media (max-width: 900px) {
 
   #mySidebar {
       width: 0;
