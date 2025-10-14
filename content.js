@@ -1,3 +1,4 @@
+import displayGraph from "./bell_curve.mjs";
 // Create sidebar
 const sidebar = document.createElement("div");
 sidebar.id = "mySidebar";
@@ -20,7 +21,9 @@ bellCurve.id = "myBellCurve"
 const imgSrc = chrome.runtime.getURL("bell-curve.webp")
 
 bellCurve.innerHTML = `
-  <img src="${imgSrc}" alt="Image of a bell curve" style="width:100%">
+    <div>
+        <canvas id="bell_curve"></canvas>
+    </div>
 `;
 
 document.getElementById("mySidebarContent").appendChild(bellCurve);
@@ -147,3 +150,5 @@ function formatTime(totalSeconds) {
   const secs = Math.floor(totalSeconds % 60);
   return `${hrs}h ${mins}m ${secs}s`;
 }
+
+displayGraph();
