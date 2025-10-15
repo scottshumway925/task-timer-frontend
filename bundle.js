@@ -1601,7 +1601,7 @@
     font.string = toFontString(font);
     return font;
   }
-  function resolve(inputs, context, index, info) {
+  function resolve(inputs, context2, index, info) {
     let cacheable = true;
     let i, ilen, value;
     for (i = 0, ilen = inputs.length; i < ilen; ++i) {
@@ -1609,8 +1609,8 @@
       if (value === void 0) {
         continue;
       }
-      if (context !== void 0 && typeof value === "function") {
-        value = value(context);
+      if (context2 !== void 0 && typeof value === "function") {
+        value = value(context2);
         cacheable = false;
       }
       if (index !== void 0 && isArray(value)) {
@@ -1634,8 +1634,8 @@
       max: keepZero(max, change)
     };
   }
-  function createContext(parentContext, context) {
-    return Object.assign(Object.create(parentContext), context);
+  function createContext(parentContext, context2) {
+    return Object.assign(Object.create(parentContext), context2);
   }
   function _createResolver(scopes, prefixes = [
     ""
@@ -1708,16 +1708,16 @@
       }
     });
   }
-  function _attachContext(proxy, context, subProxy, descriptorDefaults) {
+  function _attachContext(proxy, context2, subProxy, descriptorDefaults) {
     const cache = {
       _cacheable: false,
       _proxy: proxy,
-      _context: context,
+      _context: context2,
       _subProxy: subProxy,
       _stack: /* @__PURE__ */ new Set(),
       _descriptors: _descriptors(proxy, descriptorDefaults),
       setContext: (ctx) => _attachContext(proxy, ctx, subProxy, descriptorDefaults),
-      override: (scope) => _attachContext(proxy.override(scope), context, subProxy, descriptorDefaults)
+      override: (scope) => _attachContext(proxy.override(scope), context2, subProxy, descriptorDefaults)
     };
     return new Proxy(cache, {
       /**
@@ -2799,7 +2799,7 @@
           this.borderColor = "rgba(0,0,0,0.1)";
           this.color = "#666";
           this.datasets = {};
-          this.devicePixelRatio = (context) => context.chart.platform.getDevicePixelRatio();
+          this.devicePixelRatio = (context2) => context2.chart.platform.getDevicePixelRatio();
           this.elements = {};
           this.events = [
             "mousemove",
@@ -4037,7 +4037,7 @@
   }
   function createDescriptors(chart, { plugins, localIds }, options, all) {
     const result = [];
-    const context = chart.getContext();
+    const context2 = chart.getContext();
     for (const plugin of plugins) {
       const id = plugin.id;
       const opts = getOpts(options[id], all);
@@ -4049,18 +4049,18 @@
         options: pluginOpts(chart.config, {
           plugin,
           local: localIds[id]
-        }, opts, context)
+        }, opts, context2)
       });
     }
     return result;
   }
-  function pluginOpts(config, { plugin, local }, opts, context) {
+  function pluginOpts(config, { plugin, local }, opts, context2) {
     const keys = config.pluginScopeKeys(plugin);
     const scopes = config.getOptionScopes(opts, keys);
     if (local && plugin.defaults) {
       scopes.push(plugin.defaults);
     }
-    return config.createResolver(scopes, context, [
+    return config.createResolver(scopes, context2, [
       ""
     ], {
       scriptable: false,
@@ -4244,19 +4244,19 @@
       return a[l1] === b[l1] ? a[l2] - b[l2] : a[l1] - b[l1];
     };
   }
-  function onAnimationsComplete(context) {
-    const chart = context.chart;
+  function onAnimationsComplete(context2) {
+    const chart = context2.chart;
     const animationOptions = chart.options.animation;
     chart.notifyPlugins("afterRender");
     callback(animationOptions && animationOptions.onComplete, [
-      context
+      context2
     ], chart);
   }
-  function onAnimationProgress(context) {
-    const chart = context.chart;
+  function onAnimationProgress(context2) {
+    const chart = context2.chart;
     const animationOptions = chart.options.animation;
     callback(animationOptions && animationOptions.onProgress, [
-      context
+      context2
     ], chart);
   }
   function getCanvas(item) {
@@ -4669,8 +4669,8 @@
       type: "tooltip"
     });
   }
-  function overrideCallbacks(callbacks, context) {
-    const override = context && context.dataset && context.dataset.tooltip && context.dataset.tooltip.callbacks;
+  function overrideCallbacks(callbacks, context2) {
+    const override = context2 && context2.dataset && context2.dataset.tooltip && context2.dataset.tooltip.callbacks;
     return override ? callbacks.override(override) : callbacks;
   }
   function invokeCallbackWithFallback(callbacks, name, ctx, arg) {
@@ -5925,21 +5925,21 @@
         }
         getContext(index, active, mode) {
           const dataset = this.getDataset();
-          let context;
+          let context2;
           if (index >= 0 && index < this._cachedMeta.data.length) {
             const element = this._cachedMeta.data[index];
-            context = element.$context || (element.$context = createDataContext(this.getContext(), index, element));
-            context.parsed = this.getParsed(index);
-            context.raw = dataset.data[index];
-            context.index = context.dataIndex = index;
+            context2 = element.$context || (element.$context = createDataContext(this.getContext(), index, element));
+            context2.parsed = this.getParsed(index);
+            context2.raw = dataset.data[index];
+            context2.index = context2.dataIndex = index;
           } else {
-            context = this.$context || (this.$context = createDatasetContext(this.chart.getContext(), this.index));
-            context.dataset = dataset;
-            context.index = context.datasetIndex = this.index;
+            context2 = this.$context || (this.$context = createDatasetContext(this.chart.getContext(), this.index));
+            context2.dataset = dataset;
+            context2.index = context2.datasetIndex = this.index;
           }
-          context.active = !!active;
-          context.mode = mode;
-          return context;
+          context2.active = !!active;
+          context2.mode = mode;
+          return context2;
         }
         resolveDatasetElementOptions(mode) {
           return this._resolveElementOptions(this.datasetElementType.id, mode);
@@ -5969,8 +5969,8 @@
           ];
           const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
           const names2 = Object.keys(defaults.elements[elementType]);
-          const context = () => this.getContext(index, active, mode);
-          const values = config.resolveNamedOptions(scopes, names2, context, prefixes);
+          const context2 = () => this.getContext(index, active, mode);
+          const values = config.resolveNamedOptions(scopes, names2, context2, prefixes);
           if (values.$shared) {
             values.$shared = sharing;
             cache[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
@@ -6490,7 +6490,7 @@
       BasePlatform = class {
         acquireContext(canvas, aspectRatio) {
         }
-        releaseContext(context) {
+        releaseContext(context2) {
           return false;
         }
         addEventListener(chart, type, listener) {
@@ -6542,15 +6542,15 @@
       oldDevicePixelRatio = 0;
       DomPlatform = class extends BasePlatform {
         acquireContext(canvas, aspectRatio) {
-          const context = canvas && canvas.getContext && canvas.getContext("2d");
-          if (context && context.canvas === canvas) {
+          const context2 = canvas && canvas.getContext && canvas.getContext("2d");
+          if (context2 && context2.canvas === canvas) {
             initCanvas(canvas, aspectRatio);
-            return context;
+            return context2;
           }
           return null;
         }
-        releaseContext(context) {
-          const canvas = context.canvas;
+        releaseContext(context2) {
+          const canvas = context2.canvas;
           if (!canvas[EXPANDO_KEY]) {
             return false;
           }
@@ -7269,9 +7269,9 @@
           const limit = valueOrDefault(options.ticks.maxTicksLimit, ticksLength);
           const step = Math.max(1, Math.ceil(ticksLength / limit));
           for (i = 0; i < ticksLength; i += step) {
-            const context = this.getContext(i);
-            const optsAtIndex = grid.setContext(context);
-            const optsAtIndexBorder = border.setContext(context);
+            const context2 = this.getContext(i);
+            const optsAtIndex = grid.setContext(context2);
+            const optsAtIndexBorder = border.setContext(context2);
             const lineWidth = optsAtIndex.lineWidth;
             const lineColor = optsAtIndex.color;
             const borderDash = optsAtIndexBorder.dash || [];
@@ -8145,7 +8145,7 @@
             descriptors
           ];
         }
-        resolveNamedOptions(scopes, names2, context, prefixes = [
+        resolveNamedOptions(scopes, names2, context2, prefixes = [
           ""
         ]) {
           const result = {
@@ -8155,20 +8155,20 @@
           let options = resolver;
           if (needContext(resolver, names2)) {
             result.$shared = false;
-            context = isFunction(context) ? context() : context;
-            const subResolver = this.createResolver(scopes, context, subPrefixes);
-            options = _attachContext(resolver, context, subResolver);
+            context2 = isFunction(context2) ? context2() : context2;
+            const subResolver = this.createResolver(scopes, context2, subPrefixes);
+            options = _attachContext(resolver, context2, subResolver);
           }
           for (const prop of names2) {
             result[prop] = options[prop];
           }
           return result;
         }
-        createResolver(scopes, context, prefixes = [
+        createResolver(scopes, context2, prefixes = [
           ""
         ], descriptorDefaults) {
           const { resolver } = getResolver(this._resolverCache, scopes, prefixes);
-          return isObject(context) ? _attachContext(resolver, context, void 0, descriptorDefaults) : resolver;
+          return isObject(context2) ? _attachContext(resolver, context2, void 0, descriptorDefaults) : resolver;
         }
       };
       hasFunction = (value) => isObject(value) && Object.getOwnPropertyNames(value).some((key) => isFunction(value[key]));
@@ -8210,12 +8210,12 @@
           const options = config.createResolver(config.chartOptionScopes(), this.getContext());
           this.platform = new (config.platform || _detectPlatform(initialCanvas))();
           this.platform.updateConfig(config);
-          const context = this.platform.acquireContext(initialCanvas, options.aspectRatio);
-          const canvas = context && context.canvas;
+          const context2 = this.platform.acquireContext(initialCanvas, options.aspectRatio);
+          const canvas = context2 && context2.canvas;
           const height = canvas && canvas.height;
           const width = canvas && canvas.width;
           this.id = uid();
-          this.ctx = context;
+          this.ctx = context2;
           this.canvas = canvas;
           this.width = width;
           this.height = height;
@@ -8242,7 +8242,7 @@
           this._doResize = debounce((mode) => this.update(mode), options.resizeDelay || 0);
           this._dataChanges = [];
           instances[this.id] = this;
-          if (!context || !canvas) {
+          if (!context2 || !canvas) {
             console.error("Failed to create chart: can't acquire context from the given item");
             return;
           }
@@ -9910,11 +9910,11 @@
         getContext() {
           return this.$context || (this.$context = createTooltipContext(this.chart.getContext(), this, this._tooltipItems));
         }
-        getTitle(context, options) {
+        getTitle(context2, options) {
           const { callbacks } = options;
-          const beforeTitle = invokeCallbackWithFallback(callbacks, "beforeTitle", this, context);
-          const title = invokeCallbackWithFallback(callbacks, "title", this, context);
-          const afterTitle = invokeCallbackWithFallback(callbacks, "afterTitle", this, context);
+          const beforeTitle = invokeCallbackWithFallback(callbacks, "beforeTitle", this, context2);
+          const title = invokeCallbackWithFallback(callbacks, "title", this, context2);
+          const afterTitle = invokeCallbackWithFallback(callbacks, "afterTitle", this, context2);
           let lines = [];
           lines = pushOrConcat(lines, splitNewlines(beforeTitle));
           lines = pushOrConcat(lines, splitNewlines(title));
@@ -9927,16 +9927,16 @@
         getBody(tooltipItems, options) {
           const { callbacks } = options;
           const bodyItems = [];
-          each(tooltipItems, (context) => {
+          each(tooltipItems, (context2) => {
             const bodyItem = {
               before: [],
               lines: [],
               after: []
             };
-            const scoped = overrideCallbacks(callbacks, context);
-            pushOrConcat(bodyItem.before, splitNewlines(invokeCallbackWithFallback(scoped, "beforeLabel", this, context)));
-            pushOrConcat(bodyItem.lines, invokeCallbackWithFallback(scoped, "label", this, context));
-            pushOrConcat(bodyItem.after, splitNewlines(invokeCallbackWithFallback(scoped, "afterLabel", this, context)));
+            const scoped = overrideCallbacks(callbacks, context2);
+            pushOrConcat(bodyItem.before, splitNewlines(invokeCallbackWithFallback(scoped, "beforeLabel", this, context2)));
+            pushOrConcat(bodyItem.lines, invokeCallbackWithFallback(scoped, "label", this, context2));
+            pushOrConcat(bodyItem.after, splitNewlines(invokeCallbackWithFallback(scoped, "afterLabel", this, context2)));
             bodyItems.push(bodyItem);
           });
           return bodyItems;
@@ -9972,11 +9972,11 @@
           if (options.itemSort) {
             tooltipItems = tooltipItems.sort((a, b) => options.itemSort(a, b, data));
           }
-          each(tooltipItems, (context) => {
-            const scoped = overrideCallbacks(options.callbacks, context);
-            labelColors.push(invokeCallbackWithFallback(scoped, "labelColor", this, context));
-            labelPointStyles.push(invokeCallbackWithFallback(scoped, "labelPointStyle", this, context));
-            labelTextColors.push(invokeCallbackWithFallback(scoped, "labelTextColor", this, context));
+          each(tooltipItems, (context2) => {
+            const scoped = overrideCallbacks(options.callbacks, context2);
+            labelColors.push(invokeCallbackWithFallback(scoped, "labelColor", this, context2));
+            labelPointStyles.push(invokeCallbackWithFallback(scoped, "labelPointStyle", this, context2));
+            labelTextColors.push(invokeCallbackWithFallback(scoped, "labelTextColor", this, context2));
           });
           this.labelColors = labelColors;
           this.labelPointStyles = labelPointStyles;
@@ -11052,9 +11052,9 @@
             this.ticks.forEach((tick, index) => {
               if (index !== 0 || index === 0 && this.min < 0) {
                 offset = this.getDistanceFromCenterForValue(tick.value);
-                const context = this.getContext(index);
-                const optsAtIndex = grid.setContext(context);
-                const optsAtIndexBorder = border.setContext(context);
+                const context2 = this.getContext(index);
+                const optsAtIndex = grid.setContext(context2);
+                const optsAtIndexBorder = border.setContext(context2);
                 drawRadiusLine(this, optsAtIndex, offset, labelCount, optsAtIndexBorder);
               }
             });
@@ -11548,42 +11548,102 @@
   });
 
   // bell_curve.mjs
-  function makeBellCurvePoints(stdDev, mean, points) {
+  function makeBellCurvePoints(stdDev2, mean2, points) {
     const data = [];
-    const start = mean - stdDev * 4;
-    const end = mean + stdDev * 4;
+    const start = mean2 - stdDev2 * 4;
+    const end = mean2 + stdDev2 * 4;
     const step = (end - start) / points;
     for (let x = start; x < end; x += step) {
-      const exponent = -1 * (x - mean) ** 2 / (2 * stdDev ** 2);
-      const y = 1 / (stdDev * Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
-      data.push({ x, y });
+      data.push(getBellCurveY(x, mean2, stdDev2));
     }
     return data;
   }
+  function getBellCurveY(x, mean2, stdDev2) {
+    const exponent = -1 * (x - mean2) ** 2 / (2 * stdDev2 ** 2);
+    const y = 1 / (stdDev2 * Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
+    return { x, y };
+  }
   function displayGraph() {
-    const data = makeBellCurvePoints(1, 0, 100);
+    const data = makeBellCurvePoints(stdDev, mean, 100);
+    const frequencies = {};
+    dataPoints.forEach((num) => {
+      frequencies[num] = (frequencies[num] || 0) + 1;
+    });
+    console.log(frequencies);
+    const dataset = Object.entries(frequencies).map(([num, freq]) => ({
+      x: Number(num),
+      y: freq / dataPoints.length
+    }));
+    const personalData = [getBellCurveY(youScored, mean, stdDev)];
+    console.log(personalData);
     const graphData = {
       labels: data.map((point) => point.x.toFixed(2)),
-      datasets: [{
-        data: data.map((point) => point.y),
-        fill: false,
-        tension: 0.1,
-        borderColor: "rgb(75, 192, 192)",
-        borderWidth: 2
-      }]
+      datasets: [
+        {
+          label: "You Scored",
+          data: personalData,
+          fill: true,
+          tension: 0.1,
+          borderColor: "rgba(255, 255, 255, 1)",
+          borderWidth: 0,
+          pointBorderWidth: 3
+        },
+        {
+          label: "",
+          data: data.map((point) => point.y),
+          fill: true,
+          tension: 0.1,
+          borderColor: "rgb(75, 192, 192)",
+          borderWidth: 2,
+          pointBorderWidth: 0
+        },
+        {
+          data: dataset,
+          fill: true,
+          tension: 0.1,
+          borderColor: "rgba(199, 86, 52, 1)",
+          borderWidth: 0,
+          pointBorderWidth: 2
+        }
+      ]
     };
     new Chart(
       document.querySelector("#bell_curve"),
       {
         type: "line",
-        data: graphData
+        data: graphData,
+        options: {
+          scales: {
+            x: {
+              type: "linear"
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          tooltips: {
+            callbacks: {
+              label: function(tooltipItem) {
+                console.log(tooltipItem);
+                return context.parsed.y.toFixed(5);
+              }
+            }
+          }
+        }
       }
     );
   }
+  var dataPoints, youScored, mean, stdDev;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
       Chart.register(LineController, LinearScale, CategoryScale, plugin_legend, plugin_tooltip, LineElement, PointElement);
+      dataPoints = [28, 29, 29, 29, 30, 30, 30, 30, 30, 31, 31, 31, 32];
+      youScored = 28;
+      mean = 30;
+      stdDev = 1;
     }
   });
 
@@ -11675,10 +11735,10 @@
         secondInput.value = "";
       });
       function updateStats() {
-        const mean = times.reduce((a, b) => a + b, 0) / times.length;
+        const mean2 = times.reduce((a, b) => a + b, 0) / times.length;
         const median = calculateMedian(times);
         const mode = calculateMode(times);
-        document.getElementById("meanTime").textContent = formatTime(mean);
+        document.getElementById("meanTime").textContent = formatTime(mean2);
         document.getElementById("medianTime").textContent = formatTime(median);
         document.getElementById("modeTime").textContent = formatTime(mode);
       }
