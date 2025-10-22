@@ -121,6 +121,9 @@ export default function displayGraph() {
             ]
         },
         options: {
+            interaction: {
+                mode: null // disables hover interactions entirely
+            },
             scales: {
                 x: {
                     type: "linear",
@@ -150,6 +153,29 @@ export default function displayGraph() {
                     }
                 }
             }
-        }
+        },
+        plugins: [emojiMarker("🔥")]
     });
 }
+
+
+const emojiMarker = (emoji) => ({
+    id: "emojiMarker",
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const dsIndex = chart.data.datasets.findIndex(ds => ds.label === "You Scored");
+        if (dsIndex === -1) return;
+
+        const meta = chart.getDatasetMeta(dsIndex);
+        if (!meta.data[0]) return; // just in case chart not rendered yet
+
+        const { x, y } = meta.data[0].tooltipPosition(); // get pixel position
+
+        ctx.save();
+        ctx.font = "20px sans-serif"; // adjust size as needed
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(emoji, x, y-2); // draw emoji slightly above the point
+        ctx.restore();
+    }
+});

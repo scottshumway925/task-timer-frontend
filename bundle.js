@@ -12298,6 +12298,10 @@
         ]
       },
       options: {
+        interaction: {
+          mode: null
+          // disables hover interactions entirely
+        },
         scales: {
           x: {
             type: "linear",
@@ -12326,10 +12330,11 @@
             }
           }
         }
-      }
+      },
+      plugins: [emojiMarker("\u{1F525}")]
     });
   }
-  var dataPoints, youScored, mean, stdDev;
+  var dataPoints, youScored, mean, stdDev, emojiMarker;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
@@ -12377,6 +12382,23 @@
       youScored = 28;
       mean = 29.8929;
       stdDev = 2.6771424759872;
+      emojiMarker = (emoji) => ({
+        id: "emojiMarker",
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const dsIndex = chart.data.datasets.findIndex((ds) => ds.label === "You Scored");
+          if (dsIndex === -1) return;
+          const meta = chart.getDatasetMeta(dsIndex);
+          if (!meta.data[0]) return;
+          const { x, y } = meta.data[0].tooltipPosition();
+          ctx.save();
+          ctx.font = "20px sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(emoji, x, y - 2);
+          ctx.restore();
+        }
+      });
     }
   });
 
@@ -12398,11 +12420,11 @@
       document.body.appendChild(sidebar);
       var bellCurve = document.createElement("div");
       bellCurve.id = "myBellCurve";
-      var imgSrc = chrome.runtime.getURL("bell-curve.webp");
       bellCurve.innerHTML = `
     <div>
         <canvas id="bell_curve"></canvas>
     </div>
+    <p id="userTime"></p>
 `;
       document.getElementById("mySidebarContent").appendChild(bellCurve);
       var form = document.createElement("form");

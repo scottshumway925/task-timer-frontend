@@ -18,15 +18,18 @@ document.body.appendChild(sidebar);
 
 const bellCurve = document.createElement("div");
 bellCurve.id = "myBellCurve"
-const imgSrc = chrome.runtime.getURL("bell-curve.webp")
 
 bellCurve.innerHTML = `
     <div>
         <canvas id="bell_curve"></canvas>
     </div>
+    <p id="userTime"></p>
 `;
 
 document.getElementById("mySidebarContent").appendChild(bellCurve);
+
+
+// sidebar.appendChild(`<p>Your Time: <span id="userTime">30</span></p>`);
 
 
 const form = document.createElement("form");
