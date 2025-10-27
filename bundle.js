@@ -12406,21 +12406,19 @@
   });
 
   // timer.js
-  function incrementSeconds() {
-    seconds++;
-    updateTimer();
-  }
-  function updateTimer() {
-    let tempSeconds;
-    let hours = Math.floor(seconds / 3600);
-    tempSeconds = seconds - hours * 3600;
-    let minutes = Math.floor(tempSeconds / 60);
-    tempSeconds = seconds - minutes * 60;
-    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#seconds").innerHTML = output;
-  }
   function timerInit() {
-    let button = document.querySelector("#pause");
+    const button = document.querySelector("#pause");
+    chrome.storage.sync.get(["seconds", "isRunning"], (data) => {
+      seconds = data.seconds || 0;
+      isRunning = data.isRunning || false;
+      updateTimer();
+      if (isRunning) {
+        intervalId = setInterval(incrementSeconds, 1e3);
+        button.innerText = "Pause";
+      } else {
+        button.innerText = "Resume";
+      }
+    });
     button.addEventListener("click", () => {
       if (isRunning) {
         isRunning = false;
@@ -12431,7 +12429,22 @@
         intervalId = setInterval(incrementSeconds, 1e3);
         button.innerText = "Pause";
       }
+      chrome.storage.sync.set({ isRunning });
     });
+  }
+  function incrementSeconds() {
+    seconds++;
+    updateTimer();
+    chrome.storage.sync.set({ seconds });
+  }
+  function updateTimer() {
+    let tempSeconds = seconds;
+    let hours = Math.floor(tempSeconds / 3600);
+    tempSeconds -= hours * 3600;
+    let minutes = Math.floor(tempSeconds / 60);
+    tempSeconds -= minutes * 60;
+    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
+    document.querySelector("#seconds").innerText = output;
   }
   var seconds, isRunning, intervalId;
   var init_timer = __esm({
