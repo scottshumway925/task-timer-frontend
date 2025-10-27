@@ -12278,7 +12278,7 @@
             type: "line",
             label: "Bell Curve",
             data: bellCurve,
-            borderColor: "rgb(75, 192, 192)",
+            borderColor: primaryColor,
             borderWidth: 2,
             fill: false,
             pointRadius: 0,
@@ -12289,8 +12289,8 @@
             type: "bar",
             label: "Histogram",
             data: histogram,
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            borderColor: "rgba(255, 99, 132, 1)",
+            backgroundColor: secondaryColor,
+            //borderColor: "rgba(255, 99, 132, 1)",
             borderWidth: 1,
             barPercentage: 1,
             categoryPercentage: 1
@@ -12309,14 +12309,14 @@
             max: Math.ceil(maxX),
             title: {
               display: true,
-              text: "Score"
+              text: "Time"
             }
           },
           y: {
             beginAtZero: true,
             title: {
               display: true,
-              text: "Frequency / Probability"
+              text: "Frequency"
             }
           }
         },
@@ -12331,10 +12331,10 @@
           }
         }
       },
-      plugins: [emojiMarker("\u{1F525}")]
+      plugins: [emojiMarker(emoji)]
     });
   }
-  var dataPoints, youScored, mean, stdDev, emojiMarker;
+  var dataPoints, youScored, mean, stdDev, primaryColor, secondaryColor, emoji, emojiMarker;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
@@ -12382,7 +12382,10 @@
       youScored = 28;
       mean = 29.8929;
       stdDev = 2.6771424759872;
-      emojiMarker = (emoji) => ({
+      primaryColor = "rgba(198, 38, 38, 1)";
+      secondaryColor = "rgba(100, 255, 50, 1)";
+      emoji = "\u{1F605}";
+      emojiMarker = (emoji2) => ({
         id: "emojiMarker",
         afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
@@ -12395,10 +12398,40 @@
           ctx.font = "20px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(emoji, x, y - 2);
+          ctx.fillText(emoji2, x, y - 2);
           ctx.restore();
         }
       });
+    }
+  });
+
+  // timer.js
+  function incrementSeconds() {
+    seconds++;
+    updateTimer();
+  }
+  function updateTimer() {
+    document.querySelector("#seconds").innerHTML = seconds.toString();
+  }
+  function timerInit() {
+    let button = document.querySelector("#pause");
+    button.addEventListener("click", () => {
+      if (isRunning) {
+        isRunning = false;
+        clearInterval(intervalId);
+        button.innerText = "Resume";
+      } else {
+        isRunning = true;
+        intervalId = setInterval(incrementSeconds, 1e3);
+        button.innerText = "Pause";
+      }
+    });
+  }
+  var seconds, isRunning, intervalId;
+  var init_timer = __esm({
+    "timer.js"() {
+      seconds = 0;
+      isRunning = false;
     }
   });
 
@@ -12406,6 +12439,7 @@
   var require_content = __commonJS({
     "content.js"() {
       init_bell_curve();
+      init_timer();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
@@ -12418,6 +12452,14 @@
   </div>
 `;
       document.body.appendChild(sidebar);
+      var timer = document.createElement("div");
+      timer.id = "timer";
+      timer.innerHTML = `
+    <h2>Timer</h2>
+    <p id="seconds">0</p>
+    <button id="pause">Start</button>
+`;
+      document.getElementById("mySidebarContent").appendChild(timer);
       var bellCurve = document.createElement("div");
       bellCurve.id = "myBellCurve";
       bellCurve.innerHTML = `
@@ -12476,12 +12518,12 @@
         const assignment = nameInput.value.trim();
         const hours = parseInt(hourInput.value) || 0;
         const minutes = parseInt(minuteInput.value) || 0;
-        const seconds = parseInt(secondInput.value) || 0;
-        if (!assignment || hours === 0 && minutes === 0 && seconds === 0) {
+        const seconds2 = parseInt(secondInput.value) || 0;
+        if (!assignment || hours === 0 && minutes === 0 && seconds2 === 0) {
           alert("Please enter an assignment name and a valid time.");
           return;
         }
-        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        const totalSeconds = hours * 3600 + minutes * 60 + seconds2;
         times.push(totalSeconds);
         updateStats();
         nameInput.value = "";
@@ -12516,6 +12558,7 @@
         return `${hrs}h ${mins}m ${secs}s`;
       }
       displayGraph();
+      timerInit();
     }
   });
   require_content();

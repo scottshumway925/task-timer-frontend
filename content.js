@@ -1,4 +1,5 @@
 import displayGraph from "./bell_curve.mjs";
+import {timerInit} from "./timer";
 // Create sidebar
 const sidebar = document.createElement("div");
 sidebar.id = "mySidebar";
@@ -15,6 +16,17 @@ sidebar.innerHTML = `
 
 // Append the sidebar to the body
 document.body.appendChild(sidebar);
+
+const timer = document.createElement("div");
+timer.id = "timer";
+
+timer.innerHTML = `
+    <h2>Timer</h2>
+    <p id="seconds">0</p>
+    <button id="pause">Start</button>
+`;
+
+document.getElementById("mySidebarContent").appendChild(timer);
 
 const bellCurve = document.createElement("div");
 bellCurve.id = "myBellCurve"
@@ -155,3 +167,4 @@ function formatTime(totalSeconds) {
 }
 
 displayGraph();
+timerInit();

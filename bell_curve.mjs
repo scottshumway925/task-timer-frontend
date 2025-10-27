@@ -36,6 +36,10 @@ let youScored = 28;
 let mean = 29.8929;
 let stdDev = 2.6771424759872;
 
+let primaryColor = "rgba(198, 38, 38, 1)";
+let secondaryColor = "rgba(100, 255, 50, 1)";
+let emoji = "😅";
+
 function getBellCurveY(x, mean, stdDev) {
     const exponent = -1 * (x - mean) ** 2 / (2 * (stdDev ** 2));
     const y =
@@ -101,7 +105,7 @@ export default function displayGraph() {
                     type: "line",
                     label: "Bell Curve",
                     data: bellCurve,
-                    borderColor: "rgb(75, 192, 192)",
+                    borderColor: primaryColor,
                     borderWidth: 2,
                     fill: false,
                     pointRadius: 0,
@@ -112,8 +116,8 @@ export default function displayGraph() {
                     type: "bar",
                     label: "Histogram",
                     data: histogram,
-                    backgroundColor: "rgba(255, 99, 132, 0.5)",
-                    borderColor: "rgba(255, 99, 132, 1)",
+                    backgroundColor: secondaryColor,
+                    //borderColor: "rgba(255, 99, 132, 1)",
                     borderWidth: 1,
                     barPercentage: 1.0,
                     categoryPercentage: 1.0
@@ -131,14 +135,14 @@ export default function displayGraph() {
                     max: Math.ceil(maxX),
                     title: {
                         display: true,
-                        text: "Score"
+                        text: "Time"
                     }
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: "Frequency / Probability"
+                        text: "Frequency"
                     }
                 }
             },
@@ -154,7 +158,7 @@ export default function displayGraph() {
                 }
             }
         },
-        plugins: [emojiMarker("🔥")]
+        plugins: [emojiMarker(emoji)]
     });
 }
 
