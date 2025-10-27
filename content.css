@@ -34,6 +34,22 @@ body {
   margin-right: 20rem !important;
 }
 
+.timeData {
+    display: flex;
+    width: 100%;
+    div {
+        flex: 1;
+        text-align: center;
+    }
+    div:first-of-type {
+        border-right: 1px solid darkgray;
+    }
+}
+
+#mySidebarContent {
+    text-align: center;
+}
+
 /* Making the sidebar disappear on a smaller screen */
 @media (max-width: 900px) {
 

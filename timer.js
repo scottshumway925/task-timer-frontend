@@ -9,10 +9,15 @@ export function incrementSeconds() {
 }
 
 function updateTimer() {
-    document.querySelector("#seconds").innerHTML = seconds.toString();
+    let tempSeconds
+    let hours = Math.floor(seconds / 3600);
+    tempSeconds = seconds - hours * 3600;
+    let minutes = Math.floor(tempSeconds / 60);
+    tempSeconds = seconds - minutes * 60;
+    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
+
+    document.querySelector("#seconds").innerHTML = output;
 }
-
-
 
 export function timerInit() {
     let button = document.querySelector("#pause");

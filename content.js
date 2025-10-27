@@ -6,11 +6,18 @@ sidebar.id = "mySidebar";
 
 sidebar.innerHTML = `
   <div id="mySidebarContent">
-    <h2>Time Predictor</h2>
-    <p>Here you will see all the time information that we have gathered to gain a rough estimate of the amount of time this assignment will take you.</p>
-    <p>Mean:   1:42:02</p>
-    <p>Median:   1:37:56</p>
-    <p>Mode:   1:40:40</p>
+    <h2>Mean Time:</h2>
+    <h2>00:00:00</h2>
+    <div class="timeData">
+        <div>
+            <p>Median:</p>
+            <p id="medianTime">00:00:00</p>
+        </div>
+        <div>
+            <p>Mode:</p>
+            <p id="modeTime">00:00:00</p>
+        </div>
+    </div>
   </div>
 `;
 
