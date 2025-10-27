@@ -8,7 +8,6 @@
 </head>
 <body>
   <h1>Canvas Timer Settings</h1>
-
   <form id="settings-form">
     <h2>Theme Colors</h2>
 
@@ -20,20 +19,26 @@
 
     <label>
       Secondary Color:
-      <input type="color" id="secondaryColor" name="secondaryColor" value="#00ff00">
+      <input type="color" id="secondaryColor" value="#00ff00">
       <input type="text" id="secondaryHex" value="#00ff00" maxlength="7">
     </label>
 
     <label>
       Accent Color:
-      <input type="color" id="accentColor" name="accentColor" value="#0000ff">
+      <input type="color" id="accentColor" value="#0000ff">
       <input type="text" id="accentHex" value="#0000ff" maxlength="7">
     </label>
 
-    <button type="submit">Save</button>
+    <h2>Personal Emoji</h2>
+    <label>
+      Choose Emoji:
+      <input type="text" id="chosenEmoji" readonly placeholder="🙂">
+    </label>
+    <emoji-picker id="emojiPicker"></emoji-picker>
 
   </form>
 
-  <script type="module" src="settings.js"></script>
+  <!-- Only load the bundled JS -->
+  <script type="module" src="settings/settings.bundle.js" defer></script>
 </body>
 </html>

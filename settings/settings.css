@@ -1,15 +1,13 @@
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  border: 0.2rem solid black;
+  border-radius: 1rem;
+  text-align: center;
 }
 
 form {
   display: flex;
   flex-direction: column;
   gap: 15px;
-}
-
-button {
-  width: 100px;
-  padding: 5px;
 }

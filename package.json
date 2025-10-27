@@ -18,7 +18,8 @@
     "test": "npx esbuild content.js --bundle --outfile=bundle.js"
   },
   "dependencies": {
-    "chart.js": "^4.5.1"
+    "chart.js": "^4.5.1",
+    "emoji-picker-element": "^1.27.0"
   },
   "devDependencies": {
     "esbuild": "^0.25.10"
