@@ -12406,15 +12406,19 @@
   });
 
   // timer.js
-  function incrementSeconds() {
-    seconds++;
-    updateTimer();
-  }
-  function updateTimer() {
-    document.querySelector("#seconds").innerHTML = seconds.toString();
-  }
   function timerInit() {
-    let button = document.querySelector("#pause");
+    const button = document.querySelector("#pause");
+    chrome.storage.sync.get(["seconds", "isRunning"], (data) => {
+      seconds = data.seconds || 0;
+      isRunning = data.isRunning || false;
+      updateTimer();
+      if (isRunning) {
+        intervalId = setInterval(incrementSeconds, 1e3);
+        button.innerText = "Pause";
+      } else {
+        button.innerText = "Resume";
+      }
+    });
     button.addEventListener("click", () => {
       if (isRunning) {
         isRunning = false;
@@ -12425,7 +12429,22 @@
         intervalId = setInterval(incrementSeconds, 1e3);
         button.innerText = "Pause";
       }
+      chrome.storage.sync.set({ isRunning });
     });
+  }
+  function incrementSeconds() {
+    seconds++;
+    updateTimer();
+    chrome.storage.sync.set({ seconds });
+  }
+  function updateTimer() {
+    let tempSeconds = seconds;
+    let hours = Math.floor(tempSeconds / 3600);
+    tempSeconds -= hours * 3600;
+    let minutes = Math.floor(tempSeconds / 60);
+    tempSeconds -= minutes * 60;
+    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
+    document.querySelector("#seconds").innerText = output;
   }
   var seconds, isRunning, intervalId;
   var init_timer = __esm({
@@ -12444,14 +12463,69 @@
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
   <div id="mySidebarContent">
-    <h2>Time Predictor</h2>
-    <p>Here you will see all the time information that we have gathered to gain a rough estimate of the amount of time this assignment will take you.</p>
-    <p>Mean:   1:42:02</p>
-    <p>Median:   1:37:56</p>
-    <p>Mode:   1:40:40</p>
+    <h2>Mean Time:</h2>
+    <h2>00:00:00</h2>
+    <div class="timeData">
+        <div>
+            <p>Median:</p>
+            <p id="medianTime">00:00:00</p>
+        </div>
+        <div>
+            <p>Mode:</p>
+            <p id="modeTime">00:00:00</p>
+        </div>
+    </div>
   </div>
 `;
       document.body.appendChild(sidebar);
+      var toggle = document.createElement("button");
+      toggle.id = "sidebarToggle";
+      toggle.className = "sidebar-toggle";
+      toggle.type = "button";
+      toggle.setAttribute("aria-label", "Toggle time predictor sidebar");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.title = "Collapse sidebar";
+      toggle.textContent = "\u203A";
+      sidebar.appendChild(toggle);
+      var STORAGE_KEY = "taskTimerSidebarCollapsed";
+      function updateToggleVisual(collapsed) {
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+        toggle.textContent = collapsed ? "\u2039" : "\u203A";
+        toggle.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+      }
+      function setCollapsed(collapsed) {
+        if (collapsed) {
+          sidebar.classList.add("collapsed");
+          document.body.classList.add("sidebar-collapsed");
+        } else {
+          sidebar.classList.remove("collapsed");
+          document.body.classList.remove("sidebar-collapsed");
+        }
+        updateToggleVisual(collapsed);
+      }
+      toggle.addEventListener("click", () => {
+        const collapsed = !sidebar.classList.contains("collapsed");
+        setCollapsed(collapsed);
+        try {
+          localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+        } catch (e) {
+        }
+      });
+      toggle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle.click();
+        }
+      });
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === "1") {
+          setCollapsed(true);
+        } else {
+          setCollapsed(false);
+        }
+      } catch (e) {
+      }
       var timer = document.createElement("div");
       timer.id = "timer";
       timer.innerHTML = `

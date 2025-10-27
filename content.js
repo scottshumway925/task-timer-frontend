@@ -6,16 +6,119 @@ sidebar.id = "mySidebar";
 
 sidebar.innerHTML = `
   <div id="mySidebarContent">
-    <h2>Time Predictor</h2>
-    <p>Here you will see all the time information that we have gathered to gain a rough estimate of the amount of time this assignment will take you.</p>
-    <p>Mean:   1:42:02</p>
-    <p>Median:   1:37:56</p>
-    <p>Mode:   1:40:40</p>
+    <h2>Mean Time:</h2>
+    <h2>00:00:00</h2>
+    <div class="timeData">
+        <div>
+            <p>Median:</p>
+            <p id="medianTime">00:00:00</p>
+        </div>
+        <div>
+            <p>Mode:</p>
+            <p id="modeTime">00:00:00</p>
+        </div>
+    </div>
   </div>
 `;
 
 // Append the sidebar to the body
 document.body.appendChild(sidebar);
+
+// --- Sidebar toggle button (collapse/expand) ---
+const toggle = document.createElement("button");
+toggle.id = "sidebarToggle";
+toggle.className = "sidebar-toggle";
+toggle.type = "button";
+toggle.setAttribute("aria-label", "Toggle time predictor sidebar");
+toggle.setAttribute("aria-expanded", "true");
+toggle.title = "Collapse sidebar";
+// Visual arrow — when collapsed will change
+toggle.textContent = "›";
+// append as a direct child of the sidebar so it remains visible when content is hidden
+sidebar.appendChild(toggle);
+
+const STORAGE_KEY = "taskTimerSidebarCollapsed";
+
+function updateToggleVisual(collapsed) {
+  // aria-expanded should reflect whether the region is expanded
+  toggle.setAttribute("aria-expanded", String(!collapsed));
+  toggle.textContent = collapsed ? "‹" : "›";
+  toggle.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+}
+
+function setCollapsed(collapsed) {
+  if (collapsed) {
+    sidebar.classList.add("collapsed");
+    document.body.classList.add("sidebar-collapsed");
+  } else {
+    sidebar.classList.remove("collapsed");
+    document.body.classList.remove("sidebar-collapsed");
+  }
+  updateToggleVisual(collapsed);
+}
+
+// click handler
+toggle.addEventListener("click", () => {
+  const collapsed = !sidebar.classList.contains("collapsed");
+  setCollapsed(collapsed);
+  try {
+    localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+  } catch (e) {
+    // localStorage might be unavailable; ignore silently
+  }
+});
+
+// Trigger chart resize when sidebar expands
+toggle.addEventListener("click", () => {
+  // Wait a bit for the sidebar animation/layout to finish
+  setTimeout(() => {
+    if (window._taskTimerChart) {
+      window._taskTimerChart.resize();
+    } else {
+      // fallback for safety
+      window.dispatchEvent(new Event("resize"));
+    }
+  }, 300); // adjust delay to match your CSS transition
+});
+
+// Detect when the sidebar finishes expanding transition
+sidebar.addEventListener('transitionend', (e) => {
+  // only respond to width changes
+  if (e.propertyName !== 'width') return;
+
+  // Only trigger when sidebar is expanded (not collapsed)
+  if (!sidebar.classList.contains('collapsed')) {
+    const chart = window._taskTimerChart;
+    if (chart) {
+      // Force Chart.js to reflow now that width > 0
+      chart.resize();
+      chart.update('none'); // redraw instantly
+    } else {
+      // fallback if chart not yet defined
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+});
+
+// keyboard support (space/enter) — button element already handles Enter/Space by default
+toggle.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    toggle.click();
+  }
+});
+
+// restore persisted state
+try {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "1") {
+    setCollapsed(true);
+  } else {
+    setCollapsed(false);
+  }
+} catch (e) {
+  // ignore if unavailable
+}
 
 const timer = document.createElement("div");
 timer.id = "timer";
