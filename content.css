@@ -47,3 +47,54 @@ body {
     margin-right: 0rem !important;
   }
 }
+
+/* Collapsed sidebar styles and transitions for smooth UX */
+#mySidebar {
+  transition: width 0.22s ease, padding 0.22s ease;
+  box-sizing: border-box;
+}
+
+#mySidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+
+/* Keep the content area hidden when collapsed but keep the toggle visible */
+#mySidebar.collapsed #mySidebarContent {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Small button that remains visible to toggle the sidebar */
+.sidebar-toggle {
+  position: absolute;
+  left: 0.4rem;
+  top: 0.6rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.sidebar-toggle:focus {
+  outline: 2px solid #2186f3;
+}
+
+/* shift body margin when collapsed so content doesn't jump under the sidebar */
+body.sidebar-collapsed {
+  margin-right: 3.6rem !important;
+  transition: margin-right 0.22s ease;
+}
+
+#bell_curve {
+  width: 100% !important;
+  height: auto !important;
+}

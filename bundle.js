@@ -12452,6 +12452,54 @@
   </div>
 `;
       document.body.appendChild(sidebar);
+      var toggle = document.createElement("button");
+      toggle.id = "sidebarToggle";
+      toggle.className = "sidebar-toggle";
+      toggle.type = "button";
+      toggle.setAttribute("aria-label", "Toggle time predictor sidebar");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.title = "Collapse sidebar";
+      toggle.textContent = "\u203A";
+      sidebar.appendChild(toggle);
+      var STORAGE_KEY = "taskTimerSidebarCollapsed";
+      function updateToggleVisual(collapsed) {
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+        toggle.textContent = collapsed ? "\u2039" : "\u203A";
+        toggle.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+      }
+      function setCollapsed(collapsed) {
+        if (collapsed) {
+          sidebar.classList.add("collapsed");
+          document.body.classList.add("sidebar-collapsed");
+        } else {
+          sidebar.classList.remove("collapsed");
+          document.body.classList.remove("sidebar-collapsed");
+        }
+        updateToggleVisual(collapsed);
+      }
+      toggle.addEventListener("click", () => {
+        const collapsed = !sidebar.classList.contains("collapsed");
+        setCollapsed(collapsed);
+        try {
+          localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+        } catch (e) {
+        }
+      });
+      toggle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle.click();
+        }
+      });
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === "1") {
+          setCollapsed(true);
+        } else {
+          setCollapsed(false);
+        }
+      } catch (e) {
+      }
       var timer = document.createElement("div");
       timer.id = "timer";
       timer.innerHTML = `

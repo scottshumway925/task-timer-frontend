@@ -86,8 +86,13 @@ export default function displayGraph() {
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
 
+    // Destroy previous instance if it exists
+if (window._taskTimerChart) {
+  window._taskTimerChart.destroy();
+}
 
-    new Chart(ctx, {
+    // Store the chart instance so other scripts can trigger a resize/update after show/hide
+    window._taskTimerChart = new Chart(ctx, {
         type: "bar", // Base chart type
         data: {
             datasets: [
