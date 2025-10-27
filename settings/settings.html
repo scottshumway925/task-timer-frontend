@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
-  <h1>Canvas Timer Settings</h1>
   <form id="settings-form">
+    <h1>Canvas Timer Settings</h1>
+
     <h2>Theme Colors</h2>
 
     <label>
@@ -30,15 +31,15 @@
     </label>
 
     <h2>Personal Emoji</h2>
-    <label>
-      Choose Emoji:
+    <div class="emoji-wrapper">
       <input type="text" id="chosenEmoji" readonly placeholder="🙂">
-    </label>
-    <emoji-picker id="emojiPicker"></emoji-picker>
+      <div id="emojiContainer">
+        <emoji-picker id="emojiPicker"></emoji-picker>
+      </div>
+    </div>
 
   </form>
 
-  <!-- Only load the bundled JS -->
-  <script type="module" src="settings/settings.bundle.js" defer></script>
+  <script type="module" src="settings.bundle.js" defer></script>
 </body>
 </html>

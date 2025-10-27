@@ -12259,7 +12259,10 @@
     ];
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
-    new Chart(ctx, {
+    if (window._taskTimerChart) {
+      window._taskTimerChart.destroy();
+    }
+    window._taskTimerChart = new Chart(ctx, {
       type: "bar",
       // Base chart type
       data: {
@@ -12509,6 +12512,27 @@
         try {
           localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
         } catch (e) {
+        }
+      });
+      toggle.addEventListener("click", () => {
+        setTimeout(() => {
+          if (window._taskTimerChart) {
+            window._taskTimerChart.resize();
+          } else {
+            window.dispatchEvent(new Event("resize"));
+          }
+        }, 300);
+      });
+      sidebar.addEventListener("transitionend", (e) => {
+        if (e.propertyName !== "width") return;
+        if (!sidebar.classList.contains("collapsed")) {
+          const chart = window._taskTimerChart;
+          if (chart) {
+            chart.resize();
+            chart.update("none");
+          } else {
+            window.dispatchEvent(new Event("resize"));
+          }
         }
       });
       toggle.addEventListener("keydown", (e) => {
