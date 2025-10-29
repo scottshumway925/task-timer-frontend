@@ -12259,7 +12259,10 @@
     ];
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
-    new Chart(ctx, {
+    if (window._taskTimerChart) {
+      window._taskTimerChart.destroy();
+    }
+    window._taskTimerChart = new Chart(ctx, {
       type: "bar",
       // Base chart type
       data: {
@@ -12511,6 +12514,27 @@
         } catch (e) {
         }
       });
+      toggle.addEventListener("click", () => {
+        setTimeout(() => {
+          if (window._taskTimerChart) {
+            window._taskTimerChart.resize();
+          } else {
+            window.dispatchEvent(new Event("resize"));
+          }
+        }, 300);
+      });
+      sidebar.addEventListener("transitionend", (e) => {
+        if (e.propertyName !== "width") return;
+        if (!sidebar.classList.contains("collapsed")) {
+          const chart = window._taskTimerChart;
+          if (chart) {
+            chart.resize();
+            chart.update("none");
+          } else {
+            window.dispatchEvent(new Event("resize"));
+          }
+        }
+      });
       toggle.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -12529,8 +12553,8 @@
       var timer = document.createElement("div");
       timer.id = "timer";
       timer.innerHTML = `
-    <h2>Timer</h2>
-    <p id="seconds">0</p>
+    <p>Timer</p>
+    <h2 id="seconds">0</h2>
     <button id="pause">Start</button>
 `;
       document.getElementById("mySidebarContent").appendChild(timer);

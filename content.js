@@ -124,8 +124,8 @@ const timer = document.createElement("div");
 timer.id = "timer";
 
 timer.innerHTML = `
-    <h2>Timer</h2>
-    <p id="seconds">0</p>
+    <p>Timer</p>
+    <h2 id="seconds">0</h2>
     <button id="pause">Start</button>
 `;
 
