@@ -11,7 +11,13 @@
         }
     ],
     "options_page": "settings/settings.html",
-    "permissions": ["storage"],
+    "permissions": ["storage",
+"activeTab",
+  "scripting"
+  ],
+  "host_permissions": [
+  "https://us-central1-assignment-time.cloudfunctions.net/*"
+],
     "action": {
         "default_popup": "settings/popup.html",
         "default_title": "Canvas Timer Settings"

@@ -6,8 +6,7 @@ sidebar.id = "mySidebar";
 
 sidebar.innerHTML = `
   <div id="mySidebarContent">
-    <h2>Mean Time:</h2>
-    <h2>00:00:00</h2>
+    <h2>Mean Time: <span id="meanTime">00:00:00</span></h2>
     <div class="timeData">
         <div>
             <p>Median:</p>
@@ -20,6 +19,7 @@ sidebar.innerHTML = `
     </div>
   </div>
 `;
+
 
 // Append the sidebar to the body
 document.body.appendChild(sidebar);
@@ -125,7 +125,7 @@ timer.id = "timer";
 
 timer.innerHTML = `
     <p>Timer</p>
-    <h2 id="seconds">0</h2>
+    <h2 id="timerSeconds">0</h2>
     <button id="pause">Start</button>
 `;
 
@@ -182,7 +182,7 @@ secondInput.type = "number";
 secondInput.min = "0";
 secondInput.max = "59";
 secondInput.placeholder = "sec";
-secondInput.id = "seconds";
+secondInput.id = "inputSeconds";
 
 // Submit button
 const submitButton = document.createElement("button");
@@ -233,16 +233,37 @@ form.addEventListener("submit", (event) => {
   secondInput.value = "";
 });
 
-// --- Calculate and display stats ---
-function updateStats() {
-  const mean = (times.reduce((a, b) => a + b, 0) / times.length);
-  const median = calculateMedian(times);
-  const mode = calculateMode(times);
 
-  document.getElementById("meanTime").textContent = formatTime(mean);
-  document.getElementById("medianTime").textContent = formatTime(median);
-  document.getElementById("modeTime").textContent = formatTime(mode);
+// --- Calculate and display stats (new version connected to backend)
+async function updateStats() {
+  // Only continue if there’s actually data to send
+  if (!times || times.length === 0) return;
+
+  try {
+    const response = await fetch(
+      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ times }),
+      }
+    );
+
+    const result = await response.json();
+
+    // Update each element only if it exists
+    const meanElem = document.getElementById("meanTime");
+    const medianElem = document.getElementById("medianTime");
+    const modeElem = document.getElementById("modeTime");
+
+    if (meanElem) meanElem.textContent = formatTime(result.mean);
+    if (medianElem) medianElem.textContent = formatTime(result.median);
+    if (modeElem) modeElem.textContent = formatTime(result.mode);
+  } catch (err) {
+    console.error("Error updating stats:", err);
+  }
 }
+
 
 // --- Helper functions ---
 function calculateMedian(arr) {
@@ -271,3 +292,10 @@ function formatTime(totalSeconds) {
 
 displayGraph();
 timerInit();
+
+
+
+
+
+
+

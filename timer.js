@@ -52,5 +52,5 @@ function updateTimer() {
     let minutes = Math.floor(tempSeconds / 60);
     tempSeconds -= minutes * 60;
     let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#seconds").innerText = output;
+    document.querySelector("#timerSeconds").innerText = output;
 }
