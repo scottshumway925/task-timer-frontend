@@ -1,5 +1,6 @@
 import displayGraph from "./bell_curve.mjs";
 import {timerInit} from "./timer";
+import {getInfo} from "./classInfo";
 // Create sidebar
 const sidebar = document.createElement("div");
 sidebar.id = "mySidebar";
@@ -245,7 +246,7 @@ async function updateStats() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ times }),
+        body: JSON.stringify({ times }),times
       }
     );
 
@@ -292,6 +293,7 @@ function formatTime(totalSeconds) {
 
 displayGraph();
 timerInit();
+getInfo();
 
 
 

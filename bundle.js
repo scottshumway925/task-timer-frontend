@@ -12457,11 +12457,34 @@
     }
   });
 
+  // classInfo.js
+  function getInfo() {
+    assignmentName = document.querySelectorAll("#breadcrumbs li")[3].innerText;
+    console.log(assignmentName);
+    const classStr = document.querySelectorAll("#breadcrumbs li")[1].innerText;
+    const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+    const match = classStr.match(classCodeRegex);
+    if (match) {
+      className = match[1] + match[2];
+    } else {
+      className = classStr;
+    }
+    console.log(className);
+  }
+  var className, assignmentName;
+  var init_classInfo = __esm({
+    "classInfo.js"() {
+      className = "";
+      assignmentName = "";
+    }
+  });
+
   // content.js
   var require_content = __commonJS({
     "content.js"() {
       init_bell_curve();
       init_timer();
+      init_classInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
@@ -12636,7 +12659,8 @@
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ times })
+              body: JSON.stringify({ times }),
+              times
             }
           );
           const result = await response.json();
@@ -12658,6 +12682,7 @@
       }
       displayGraph();
       timerInit();
+      getInfo();
     }
   });
   require_content();
