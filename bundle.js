@@ -12239,7 +12239,7 @@
     }
     return data;
   }
-  function displayGraph() {
+  function displayGraph(primaryColor, secondaryColor, chosenEmoji) {
     const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
     const frequencies = {};
     dataPoints.forEach((num) => {
@@ -12334,10 +12334,10 @@
           }
         }
       },
-      plugins: [emojiMarker(emoji)]
+      plugins: [emojiMarker(chosenEmoji)]
     });
   }
-  var dataPoints, youScored, mean, stdDev, primaryColor, secondaryColor, emoji, emojiMarker;
+  var dataPoints, youScored, mean, stdDev, emojiMarker;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
@@ -12385,10 +12385,7 @@
       youScored = 28;
       mean = 29.8929;
       stdDev = 2.6771424759872;
-      primaryColor = "rgba(198, 38, 38, 1)";
-      secondaryColor = "rgba(100, 255, 50, 1)";
-      emoji = "\u{1F605}";
-      emojiMarker = (emoji2) => ({
+      emojiMarker = (chosenEmoji) => ({
         id: "emojiMarker",
         afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
@@ -12401,7 +12398,7 @@
           ctx.font = "20px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(emoji2, x, y - 2);
+          ctx.fillText(chosenEmoji, x, y - 2);
           ctx.restore();
         }
       });
@@ -12655,8 +12652,16 @@
         const secs = Math.floor(totalSeconds % 60);
         return `${hrs}h ${mins}m ${secs}s`;
       }
-      displayGraph();
-      timerInit();
+      chrome.storage.sync.get(
+        ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+        (data) => {
+          const primaryColor = data.primaryColor || "rgba(12, 0, 240, 1)";
+          const secondaryColor = data.secondaryColor || "rgba(152, 254, 234, 1)";
+          const chosenEmoji = data.chosenEmoji || "\u{1F605}";
+          displayGraph(primaryColor, secondaryColor, chosenEmoji);
+          timerInit();
+        }
+      );
     }
   });
   require_content();

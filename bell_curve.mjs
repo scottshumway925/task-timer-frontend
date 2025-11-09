@@ -36,10 +36,6 @@ let youScored = 28;
 let mean = 29.8929;
 let stdDev = 2.6771424759872;
 
-let primaryColor = "rgba(198, 38, 38, 1)";
-let secondaryColor = "rgba(100, 255, 50, 1)";
-let emoji = "😅";
-
 function getBellCurveY(x, mean, stdDev) {
     const exponent = -1 * (x - mean) ** 2 / (2 * (stdDev ** 2));
     const y =
@@ -59,7 +55,7 @@ function makeBellCurvePoints(stdDev, mean, points) {
     return data;
 }
 
-export default function displayGraph() {
+export default function displayGraph(primaryColor, secondaryColor, chosenEmoji) {
     const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
 
     // Build histogram data
@@ -163,12 +159,12 @@ if (window._taskTimerChart) {
                 }
             }
         },
-        plugins: [emojiMarker(emoji)]
+        plugins: [emojiMarker(chosenEmoji)]
     });
 }
 
 
-const emojiMarker = (emoji) => ({
+const emojiMarker = (chosenEmoji) => ({
     id: "emojiMarker",
     afterDatasetsDraw(chart) {
         const ctx = chart.ctx;
@@ -184,7 +180,7 @@ const emojiMarker = (emoji) => ({
         ctx.font = "20px sans-serif"; // adjust size as needed
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(emoji, x, y-2); // draw emoji slightly above the point
+        ctx.fillText(chosenEmoji, x, y-2); // draw emoji slightly above the point
         ctx.restore();
     }
 });

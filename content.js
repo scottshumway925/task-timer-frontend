@@ -269,5 +269,18 @@ function formatTime(totalSeconds) {
   return `${hrs}h ${mins}m ${secs}s`;
 }
 
-displayGraph();
-timerInit();
+// Load settings first, then display the graph
+chrome.storage.sync.get(
+  ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+  (data) => {
+    const primaryColor = data.primaryColor || "rgba(12, 0, 240, 1)";
+    const secondaryColor = data.secondaryColor || "rgba(152, 254, 234, 1)";
+    const chosenEmoji = data.chosenEmoji || "😅";
+
+    // Call displayGraph() with user settings
+    displayGraph(primaryColor, secondaryColor, chosenEmoji);
+
+    // Then start the timer
+    timerInit();
+  }
+);

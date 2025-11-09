@@ -1,4 +1,2124 @@
-(()=>{var J=(t,e)=>()=>(t&&(e=t(t=0)),e);var gt=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);function U(t){if(typeof t!="string"||!t)throw new Error("expected a non-empty string, got: "+t)}function Q(t){if(typeof t!="number")throw new Error("expected a number, got: "+t)}function xt(t,e){let n=new Set,i=[];for(let r of t){let o=e(r);n.has(o)||(n.add(o),i.push(r))}return i}function je(t){return xt(t,e=>e.unicode)}function Ct(t){function e(n,i,r){let o=i?t.createObjectStore(n,{keyPath:i}):t.createObjectStore(n);if(r)for(let[a,[u,m]]of Object.entries(r))o.createIndex(a,u,{multiEntry:m});return o}e($),e(A,Et,{[Se]:[kt,!0],[Ce]:[[vt,wt]],[Ie]:[jt,!0]}),e(oe,void 0,{[xe]:[""]})}function _e(t,e,n){n.onerror=()=>e(n.error),n.onblocked=()=>e(new Error("IDB blocked")),n.onsuccess=()=>t(n.result)}async function It(t){let e=await new Promise((n,i)=>{let r=indexedDB.open(t,bt);te[t]=r,r.onupgradeneeded=o=>{o.oldVersion<yt&&Ct(r.result)},_e(n,i,r)});return e.onclose=()=>re(t),e}function _t(t){return K[t]||(K[t]=It(t)),K[t]}function _(t,e,n,i){return new Promise((r,o)=>{let a=t.transaction(e,n,{durability:"relaxed"}),u=typeof e=="string"?a.objectStore(e):e.map(d=>a.objectStore(d)),m;i(u,a,d=>{m=d}),a.oncomplete=()=>r(m),a.onerror=()=>o(a.error)})}function re(t){let e=te[t],n=e&&e.result;if(n){n.close();let i=V[t];if(i)for(let r of i)r()}delete te[t],delete K[t],delete V[t]}function Lt(t){return new Promise((e,n)=>{re(t);let i=indexedDB.deleteDatabase(t);_e(e,n,i)})}function At(t,e){let n=V[t];n||(n=V[t]=[]),n.push(e)}function O(t){return t.split(/[\s_]+/).map(e=>!e.match(/\w/)||Dt.has(e)?e.toLowerCase():e.replace(/[)(:,]/g,"").replace(/’/g,"'").toLowerCase()).filter(Boolean)}function Le(t){return t.filter(Boolean).map(e=>e.toLowerCase()).filter(e=>e.length>=Ot)}function $t(t){return t.map(({annotation:n,emoticon:i,group:r,order:o,shortcodes:a,skins:u,tags:m,emoji:d,version:l})=>{let p=[...new Set(Le([...(a||[]).map(O).flat(),...(m||[]).map(O).flat(),...O(n),i]))].sort(),f={annotation:n,group:r,order:o,tags:m,tokens:p,unicode:d,version:l};if(i&&(f.emoticon=i),a&&(f.shortcodes=a),u){f.skinTones=[],f.skinUnicodes=[],f.skinVersions=[];for(let{tone:b,emoji:j,version:T}of u)f.skinTones.push(b),f.skinUnicodes.push(j),f.skinVersions.push(T)}return f})}function Ae(t,e,n,i){t[e](n).onsuccess=r=>i&&i(r.target.result)}function L(t,e,n){Ae(t,"get",e,n)}function De(t,e,n){Ae(t,"getAll",e,n)}function se(t){t.commit&&t.commit()}function Mt(t,e){let n=t[0];for(let i=1;i<t.length;i++){let r=t[i];e(n)>e(r)&&(n=r)}return n}function Oe(t,e){let n=Mt(t,r=>r.length),i=[];for(let r of n)t.some(o=>o.findIndex(a=>e(a)===e(r))===-1)||i.push(r);return i}async function Bt(t){return!await ae(t,$,W)}async function Ft(t,e,n){let[i,r]=await Promise.all([ee,W].map(o=>ae(t,$,o)));return i===n&&r===e}async function Rt(t,e){return _(t,A,M,(i,r,o)=>{let a,u=()=>{i.getAll(a&&IDBKeyRange.lowerBound(a,!0),50).onsuccess=m=>{let d=m.target.result;for(let l of d)if(a=l.unicode,e(l))return o(l);if(d.length<50)return o();u()}};u()})}async function $e(t,e,n,i){try{let r=$t(e);await _(t,[A,$],ie,([o,a],u)=>{let m,d,l=0;function p(){++l===2&&f()}function f(){if(!(m===i&&d===n)){o.clear();for(let b of r)o.put(b);a.put(i,ee),a.put(n,W),se(u)}}L(a,ee,b=>{m=b,p()}),L(a,W,b=>{d=b,p()})})}finally{}}async function Nt(t,e){return _(t,A,M,(n,i,r)=>{let o=IDBKeyRange.bound([e,0],[e+1,0],!1,!0);De(n.index(Ce),o,r)})}async function Me(t,e){let n=Le(O(e));return n.length?_(t,A,M,(i,r,o)=>{let a=[],u=()=>{a.length===n.length&&m()},m=()=>{let d=Oe(a,l=>l.unicode);o(d.sort((l,p)=>l.order<p.order?-1:1))};for(let d=0;d<n.length;d++){let l=n[d],p=d===n.length-1?IDBKeyRange.bound(l,l+"\uFFFF",!1,!0):IDBKeyRange.only(l);De(i.index(Se),p,f=>{a.push(f),u()})}}):[]}async function Pt(t,e){let n=await Me(t,e);return n.length?n.filter(i=>(i.shortcodes||[]).map(o=>o.toLowerCase()).includes(e.toLowerCase()))[0]||null:await Rt(t,r=>(r.shortcodes||[]).includes(e.toLowerCase()))||null}async function zt(t,e){return _(t,A,M,(n,i,r)=>L(n,e,o=>{if(o)return r(o);L(n.index(Ie),e,a=>r(a||null))}))}function ae(t,e,n){return _(t,e,M,(i,r,o)=>L(i,n,o))}function Ut(t,e,n,i){return _(t,e,ie,(r,o)=>{r.put(i,n),se(o)})}function Gt(t,e){return _(t,oe,ie,(n,i)=>L(n,e,r=>{n.put((r||0)+1,e),se(i)}))}function Kt(t,e,n){return n===0?[]:_(t,[oe,A],M,([i,r],o,a)=>{let u=[];i.index(xe).openCursor(void 0,"prev").onsuccess=m=>{let d=m.target.result;if(!d)return a(u);function l(b){if(u.push(b),u.length===n)return a(u);d.continue()}let p=d.primaryKey,f=e.byName(p);if(f)return l(f);L(r,p,b=>{if(b)return l(b);d.continue()})}})}function Wt(t,e){let n=new Map;for(let r of t){let o=e(r);for(let a of o){let u=n;for(let d=0;d<a.length;d++){let l=a.charAt(d),p=u.get(l);p||(p=new Map,u.set(l,p)),u=p}let m=u.get(G);m||(m=[],u.set(G,m)),m.push(r)}}return(r,o)=>{let a=n;for(let d=0;d<r.length;d++){let l=r.charAt(d),p=a.get(l);if(p)a=p;else return[]}if(o)return a.get(G)||[];let u=[],m=[a];for(;m.length;){let l=[...m.shift().entries()].sort((p,f)=>p[0]<f[0]?-1:1);for(let[p,f]of l)p===G?u.push(...f):m.push(f)}return u}}function Ht(t){let e=t&&Array.isArray(t),n=e&&t.length&&(!t[0]||Vt.some(i=>!(i in t[0])));if(!e||n)throw new Error("Custom emojis are in the wrong format")}function Te(t){Ht(t);let e=(f,b)=>f.name.toLowerCase()<b.name.toLowerCase()?-1:1,n=t.sort(e),r=Wt(t,f=>{let b=new Set;if(f.shortcodes)for(let j of f.shortcodes)for(let T of O(j))b.add(T);return b}),o=f=>r(f,!0),a=f=>r(f,!1),u=f=>{let b=O(f),j=b.map((T,x)=>(x<b.length-1?o:a)(T));return Oe(j,T=>T.name).sort(e)},m=new Map,d=new Map;for(let f of t){d.set(f.name.toLowerCase(),f);for(let b of f.shortcodes||[])m.set(b.toLowerCase(),f)}return{all:n,search:u,byShortcode:f=>m.get(f.toLowerCase()),byName:f=>d.get(f.toLowerCase())}}function F(t){if(!t)return t;if(qt&&(t=structuredClone(t)),delete t.tokens,t.skinTones){let e=t.skinTones.length;t.skins=Array(e);for(let n=0;n<e;n++)t.skins[n]={tone:t.skinTones[n],unicode:t.skinUnicodes[n],version:t.skinVersions[n]};delete t.skinTones,delete t.skinUnicodes,delete t.skinVersions}return t}function Be(t){t||console.warn("emoji-picker-element is more efficient if the dataSource server exposes an ETag header.")}function Yt(t){if(!t||!Array.isArray(t)||!t[0]||typeof t[0]!="object"||Xt.some(e=>!(e in t[0])))throw new Error("Emoji data is in the wrong format")}function Fe(t,e){if(Math.floor(t.status/100)!==2)throw new Error("Failed to fetch: "+e+":  "+t.status)}async function Zt(t){let e=await fetch(t,{method:"HEAD"});Fe(e,t);let n=e.headers.get("etag");return Be(n),n}async function ne(t){let e=await fetch(t);Fe(e,t);let n=e.headers.get("etag");Be(n);let i=await e.json();return Yt(i),[n,i]}function Jt(t){for(var e="",n=new Uint8Array(t),i=n.byteLength,r=-1;++r<i;)e+=String.fromCharCode(n[r]);return e}function Qt(t){for(var e=t.length,n=new ArrayBuffer(e),i=new Uint8Array(n),r=-1;++r<e;)i[r]=t.charCodeAt(r);return n}async function Re(t){let e=JSON.stringify(t),n=Qt(e),i=await crypto.subtle.digest("SHA-1",n),r=Jt(i);return btoa(r)}async function en(t,e){let n,i=await Zt(e);if(!i){let r=await ne(e);i=r[0],n=r[1],i||(i=await Re(n))}await Ft(t,e,i)||(n||(n=(await ne(e))[1]),await $e(t,n,e,i))}async function tn(t,e){let[n,i]=await ne(e);n||(n=await Re(i)),await $e(t,i,e,n)}async function nn(t,e){try{await en(t,e)}catch(n){if(n.name!=="InvalidStateError")throw n}}var bt,yt,A,$,oe,kt,Se,Et,xe,vt,wt,Ce,ee,W,we,M,ie,Ie,jt,Tt,St,te,K,V,Dt,Ot,G,Vt,qt,Xt,R,ce=J(()=>{bt=1,yt=1,A="emoji",$="keyvalue",oe="favorites",kt="tokens",Se="tokens",Et="unicode",xe="count",vt="group",wt="order",Ce="group-order",ee="eTag",W="url",we="skinTone",M="readonly",ie="readwrite",Ie="skinUnicodes",jt="skinUnicodes",Tt="https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json",St="en";te={},K={},V={};Dt=new Set([":D","XD",":'D","O:)",":X",":P",";P","XP",":L",":Z",":j","8D","XO","8)",":B",":O",":S",":'o","Dx","X(","D:",":C",">0)",":3","</3","<3","\\M/",":E","8#"]);Ot=2;G="";Vt=["name","url"];qt=typeof wrappedJSObject<"u";Xt=["annotation","emoji","group","order","version"];R=class{constructor({dataSource:e=Tt,locale:n=St,customEmoji:i=[]}={}){this.dataSource=e,this.locale=n,this._dbName=`emoji-picker-element-${this.locale}`,this._db=void 0,this._lazyUpdate=void 0,this._custom=Te(i),this._clear=this._clear.bind(this),this._ready=this._init()}async _init(){let e=this._db=await _t(this._dbName);At(this._dbName,this._clear);let n=this.dataSource;await Bt(e)?await tn(e,n):this._lazyUpdate=nn(e,n)}async ready(){let e=async()=>(this._ready||(this._ready=this._init()),this._ready);await e(),this._db||await e()}async getEmojiByGroup(e){return Q(e),await this.ready(),je(await Nt(this._db,e)).map(F)}async getEmojiBySearchQuery(e){U(e),await this.ready();let n=this._custom.search(e),i=je(await Me(this._db,e)).map(F);return[...n,...i]}async getEmojiByShortcode(e){U(e),await this.ready();let n=this._custom.byShortcode(e);return n||F(await Pt(this._db,e))}async getEmojiByUnicodeOrName(e){U(e),await this.ready();let n=this._custom.byName(e);return n||F(await zt(this._db,e))}async getPreferredSkinTone(){return await this.ready(),await ae(this._db,$,we)||0}async setPreferredSkinTone(e){return Q(e),await this.ready(),Ut(this._db,$,we,e)}async incrementFavoriteEmojiCount(e){return U(e),await this.ready(),Gt(this._db,e)}async getTopFavoriteEmoji(e){return Q(e),await this.ready(),(await Kt(this._db,this._custom,e)).map(F)}set customEmoji(e){this._custom=Te(e)}get customEmoji(){return this._custom.all}async _shutdown(){await this.ready();try{await this._lazyUpdate}catch{}}_clear(){this._db=this._ready=this._lazyUpdate=void 0}async close(){await this._shutdown(),await re(this._dbName)}async delete(){await this._shutdown(),await Lt(this._dbName)}}});function Pe(t){return t.unicode.includes("\u200D")}function fn(t){let e=ze(t,"#000"),n=ze(t,"#fff");return e&&n&&un(e,n)}function mn(){let t=Object.entries(rn);try{for(let[e,n]of t)if(fn(e))return n}catch{}finally{}return t[0][1]}function kn(t,e){if(e===0)return t;let n=t.indexOf(gn);return n!==-1?t.substring(0,n)+String.fromCodePoint(bn+e-1)+t.substring(n):(t.endsWith(pn)&&(t=t.substring(0,t.length-1)),t+hn+String.fromCodePoint(yn+e-1))}function I(t){t.preventDefault(),t.stopPropagation()}function fe(t,e,n){return e+=t?-1:1,e<0?e=n.length-1:e>=n.length&&(e=0),e}function qe(t,e){let n=new Set,i=[];for(let r of t){let o=e(r);n.has(o)||(n.add(o),i.push(r))}return i}function En(t,e){let n=i=>{let r={};for(let o of i)typeof o.tone=="number"&&o.version<=e&&(r[o.tone]=o.unicode);return r};return t.map(({unicode:i,skins:r,shortcodes:o,url:a,name:u,category:m,annotation:d})=>({unicode:i,name:u,shortcodes:o,url:a,category:m,annotation:d,id:i||u,skins:r&&n(r)}))}function wn(t,e,n){let i;vn?(i=new ResizeObserver(n),i.observe(t)):q(n),e.addEventListener("abort",()=>{i&&i.disconnect()})}function Ue(t){{let e=document.createRange();return e.selectNode(t.firstChild),e.getBoundingClientRect().width}}function jn(t,e,n){let i=!0;for(let r of t){let o=n(r);if(!o)continue;let a=Ue(o);typeof me>"u"&&(me=Ue(e));let u=a/1.8<me;be.set(r.unicode,u),u||(i=!1)}return i}function Tn(t){return qe(t,e=>e)}function Sn(t){t&&(t.scrollTop=0)}function N(t,e,n){let i=t.get(e);return i||(i=n(),t.set(e,i)),i}function Ge(t){return""+t}function xn(t){let e=document.createElement("template");return e.innerHTML=t,e}function An(t,e){Ln?t.replaceChildren(...e):(t.innerHTML="",t.append(...e))}function Dn(t,e){let n=t.firstChild,i=0;for(;n;){if(e[i]!==n)return!0;n=n.nextSibling,i++}return i!==e.length}function On(t,e){let{targetNode:n}=e,{targetParentNode:i}=e,r=!1;i?r=Dn(i,t):(r=!0,e.targetNode=void 0,e.targetParentNode=i=n.parentNode),r&&An(i,t)}function $n(t,e){for(let n of e){let{targetNode:i,currentExpression:r,binding:{expressionIndex:o,attributeName:a,attributeValuePre:u,attributeValuePost:m}}=n,d=t[o];if(r!==d)if(n.currentExpression=d,a)if(d===null)i.removeAttribute(a);else{let l=u+Ge(d)+m;i.setAttribute(a,l)}else{let l;Array.isArray(d)?On(d,n):d instanceof Element?(l=d,i.replaceWith(l)):i.nodeValue=Ge(d),l&&(n.targetNode=l)}}}function Mn(t){let e="",n=!1,i=!1,r=-1,o=new Map,a=[],u=0;for(let d=0,l=t.length;d<l;d++){let p=t[d];if(e+=p.slice(u),d===l-1)break;for(let h=0;h<p.length;h++)switch(p.charAt(h)){case"<":{p.charAt(h+1)==="/"?a.pop():(n=!0,a.push(++r));break}case">":{n=!1,i=!1;break}case"=":{i=!0;break}}let f=a[a.length-1],b=N(o,f,()=>[]),j,T,x;if(i){let h=/(\S+)="?([^"=]*)$/.exec(p);j=h[1],T=h[2];let k=/^([^">]*)("?)/.exec(t[d+1]);x=k[1],e=e.slice(0,-1*h[0].length),u=k[0].length}else u=0;let D={attributeName:j,attributeValuePre:T,attributeValuePost:x,expressionIndex:d};b.push(D),!n&&!i&&(e+=" ")}return{template:xn(e),elementsToBindings:o}}function Ke(t,e,n){for(let i=0;i<t.length;i++){let r=t[i],o=r.attributeName?e:e.firstChild,a={binding:r,targetNode:o,targetParentNode:void 0,currentExpression:void 0};n.push(a)}}function Bn(t,e){let n=[],i;if(e.size===1&&(i=e.get(0)))Ke(i,t,n);else{let r=document.createTreeWalker(t,NodeFilter.SHOW_ELEMENT),o=t,a=-1;do{let u=e.get(++a);u&&Ke(u,o,n)}while(o=r.nextNode())}return n}function Fn(t){let{template:e,elementsToBindings:n}=N(Cn,t,()=>Mn(t)),i=e.cloneNode(!0).content.firstElementChild,r=Bn(i,n);return function(a){return $n(a,r),i}}function Rn(t){let e=N(In,t,()=>new Map),n=_n;function i(o,...a){let u=N(e,o,()=>new Map);return N(u,n,()=>Fn(o))(a)}function r(o,a,u){return o.map((m,d)=>{let l=n;n=u(m);try{return a(m,d)}finally{n=l}})}return{map:r,html:i}}function Nn(t,e,n,i,r,o,a,u,m){let{labelWithSkin:d,titleForEmoji:l,unicodeWithSkin:p}=n,{html:f,map:b}=Rn(e);function j(h,k,w){return b(h,(S,B)=>f`<button role="${k?"option":"menuitem"}" aria-selected="${k?B===e.activeSearchItem:null}" aria-label="${d(S,e.currentSkinTone)}" title="${l(S)}" class="${"emoji"+(k&&B===e.activeSearchItem?" active":"")+(S.unicode?"":" custom-emoji")}" id="${`${w}-${S.id}`}" style="${S.unicode?null:`--custom-emoji-background: url(${JSON.stringify(S.url)})`}">${S.unicode?p(S,e.currentSkinTone):""}</button>`,S=>`${w}-${S.id}`)}let x=f`<section data-ref="rootElement" class="picker" aria-label="${e.i18n.regionLabel}" style="${e.pickerStyle||""}"><div class="pad-top"></div><div class="search-row"><div class="search-wrapper"><input id="search" class="search" type="search" role="combobox" enterkeyhint="search" placeholder="${e.i18n.searchLabel}" autocapitalize="none" autocomplete="off" spellcheck="true" aria-expanded="${!!(e.searchMode&&e.currentEmojis.length)}" aria-controls="search-results" aria-describedby="search-description" aria-autocomplete="list" aria-activedescendant="${e.activeSearchItemId?`emo-${e.activeSearchItemId}`:null}" data-ref="searchElement" data-on-input="onSearchInput" data-on-keydown="onSearchKeydown"><label class="sr-only" for="search">${e.i18n.searchLabel}</label> <span id="search-description" class="sr-only">${e.i18n.searchDescription}</span></div><div class="skintone-button-wrapper ${e.skinTonePickerExpandedAfterAnimation?"expanded":""}"><button id="skintone-button" class="emoji ${e.skinTonePickerExpanded?"hide-focus":""}" aria-label="${e.skinToneButtonLabel}" title="${e.skinToneButtonLabel}" aria-describedby="skintone-description" aria-haspopup="listbox" aria-expanded="${e.skinTonePickerExpanded}" aria-controls="skintone-list" data-on-click="onClickSkinToneButton">${e.skinToneButtonText||""}</button></div><span id="skintone-description" class="sr-only">${e.i18n.skinToneDescription}</span><div data-ref="skinToneDropdown" id="skintone-list" class="skintone-list hide-focus ${e.skinTonePickerExpanded?"":"hidden no-animate"}" style="transform:translateY(${e.skinTonePickerExpanded?0:"calc(-1 * var(--num-skintones) * var(--total-emoji-size))"})" role="listbox" aria-label="${e.i18n.skinTonesLabel}" aria-activedescendant="skintone-${e.activeSkinTone}" aria-hidden="${!e.skinTonePickerExpanded}" tabIndex="-1" data-on-focusout="onSkinToneOptionsFocusOut" data-on-click="onSkinToneOptionsClick" data-on-keydown="onSkinToneOptionsKeydown" data-on-keyup="onSkinToneOptionsKeyup">${b(e.skinTones,(h,k)=>f`<div id="skintone-${k}" class="emoji ${k===e.activeSkinTone?"active":""}" aria-selected="${k===e.activeSkinTone}" role="option" title="${e.i18n.skinTones[k]}" aria-label="${e.i18n.skinTones[k]}">${h}</div>`,h=>h)}</div></div><div class="nav" role="tablist" style="grid-template-columns:repeat(${e.groups.length},1fr)" aria-label="${e.i18n.categoriesLabel}" data-on-keydown="onNavKeydown" data-on-click="onNavClick">${b(e.groups,h=>f`<button role="tab" class="nav-button" aria-controls="tab-${h.id}" aria-label="${e.i18n.categories[h.name]}" aria-selected="${!e.searchMode&&e.currentGroup.id===h.id}" title="${e.i18n.categories[h.name]}" data-group-id="${h.id}"><div class="nav-emoji emoji">${h.emoji}</div></button>`,h=>h.id)}</div><div class="indicator-wrapper"><div class="indicator" style="transform:translateX(${(e.isRtl?-1:1)*e.currentGroupIndex*100}%)"></div></div><div class="message ${e.message?"":"gone"}" role="alert" aria-live="polite">${e.message||""}</div><div data-ref="tabpanelElement" class="tabpanel ${!e.databaseLoaded||e.message?"gone":""}" role="${e.searchMode?"region":"tabpanel"}" aria-label="${e.searchMode?e.i18n.searchResultsLabel:e.i18n.categories[e.currentGroup.name]}" id="${e.searchMode?null:`tab-${e.currentGroup.id}`}" tabIndex="0" data-on-click="onEmojiClick"><div data-action="calculateEmojiGridStyle">${b(e.currentEmojisWithCategories,(h,k)=>f`<div><div id="menu-label-${k}" class="category ${e.currentEmojisWithCategories.length===1&&e.currentEmojisWithCategories[0].category===""?"gone":""}" aria-hidden="true">${e.searchMode?e.i18n.searchResultsLabel:h.category?h.category:e.currentEmojisWithCategories.length>1?e.i18n.categories.custom:e.i18n.categories[e.currentGroup.name]}</div><div class="emoji-menu ${k!==0&&!e.searchMode&&e.currentGroup.id===-1?"visibility-auto":""}" style="${`--num-rows: ${Math.ceil(h.emojis.length/e.numColumns)}`}" data-action="updateOnIntersection" role="${e.searchMode?"listbox":"menu"}" aria-labelledby="menu-label-${k}" id="${e.searchMode?"search-results":null}">${j(h.emojis,e.searchMode,"emo")}</div></div>`,h=>h.category)}</div></div><div class="favorites onscreen emoji-menu ${e.message?"gone":""}" role="menu" aria-label="${e.i18n.favoritesLabel}" data-on-click="onEmojiClick">${j(e.currentFavorites,!1,"fav")}</div><button data-ref="baselineEmoji" aria-hidden="true" tabindex="-1" class="abs-pos hidden emoji baseline-emoji">😀</button></section>`,D=(h,k)=>{for(let w of t.querySelectorAll(`[${h}]`))k(w,w.getAttribute(h))};if(m){t.appendChild(x);for(let h of["click","focusout","input","keydown","keyup"])D(`data-on-${h}`,(k,w)=>{k.addEventListener(h,i[w])});D("data-ref",(h,k)=>{o[k]=h}),a.addEventListener("abort",()=>{t.removeChild(x)})}D("data-action",(h,k)=>{let w=u.get(k);w||u.set(k,w=new WeakSet),w.has(h)||(w.add(h),r[k](h))})}function Pn(t){let e=!1,n,i=new Map,r=new Set,o,a=()=>{if(e)return;let d=[...r];r.clear();try{for(let l of d)l()}finally{o=!1,r.size&&(o=!0,X(a))}},u=new Proxy({},{get(d,l){if(n){let p=i.get(l);p||(p=new Set,i.set(l,p)),p.add(n)}return d[l]},set(d,l,p){if(d[l]!==p){d[l]=p;let f=i.get(l);if(f){for(let b of f)r.add(b);o||(o=!0,X(a))}}return!0}}),m=d=>{let l=()=>{let p=n;n=l;try{return d()}finally{n=p}};return l()};return t.addEventListener("abort",()=>{e=!0}),{state:u,createEffect:m}}function pe(t,e,n){if(t.length!==e.length)return!1;for(let i=0;i<t.length;i++)if(!n(t[i],e[i]))return!1;return!0}function zn(t,e,n){{let i=t.closest(".tabpanel"),r=We.get(i);r||(r=new IntersectionObserver(n,{root:i,rootMargin:"50% 0px 50% 0px",threshold:0}),We.set(i,r),e.addEventListener("abort",()=>{r.disconnect()})),r.observe(t)}}function Un(t,e){let n={},i=new AbortController,r=i.signal,{state:o,createEffect:a}=Pn(r),u=new Map;H(o,{skinToneEmoji:void 0,i18n:void 0,database:void 0,customEmoji:void 0,customCategorySorting:void 0,emojiVersion:void 0}),H(o,e),H(o,{initialLoad:!0,currentEmojis:[],currentEmojisWithCategories:[],rawSearchText:"",searchText:"",searchMode:!1,activeSearchItem:-1,message:void 0,skinTonePickerExpanded:!1,skinTonePickerExpandedAfterAnimation:!1,currentSkinTone:0,activeSkinTone:0,skinToneButtonText:void 0,pickerStyle:void 0,skinToneButtonLabel:"",skinTones:[],currentFavorites:[],defaultFavoriteEmojis:void 0,numColumns:cn,isRtl:!1,currentGroupIndex:0,groups:de,databaseLoaded:!1,activeSearchItemId:void 0}),a(()=>{o.currentGroup!==o.groups[o.currentGroupIndex]&&(o.currentGroup=o.groups[o.currentGroupIndex])});let m=s=>{t.getElementById(s).focus()},d=s=>t.getElementById(`emo-${s.id}`),l=(s,c)=>{n.rootElement.dispatchEvent(new CustomEvent(s,{detail:c,bubbles:!0,composed:!0}))},p=(s,c)=>s.id===c.id,f=(s,c)=>{let{category:g,emojis:y}=s,{category:E,emojis:v}=c;return g!==E?!1:pe(y,v,p)},b=s=>{pe(o.currentEmojis,s,p)||(o.currentEmojis=s)},j=s=>{o.searchMode!==s&&(o.searchMode=s)},T=s=>{pe(o.currentEmojisWithCategories,s,f)||(o.currentEmojisWithCategories=s)},x=(s,c)=>c&&s.skins&&s.skins[c]||s.unicode,k={labelWithSkin:(s,c)=>Tn([s.name||x(s,c),s.annotation,...s.shortcodes||he].filter(Boolean)).join(", "),titleForEmoji:s=>s.annotation||(s.shortcodes||he).join(", "),unicodeWithSkin:x},w={onClickSkinToneButton:ut,onEmojiClick:dt,onNavClick:st,onNavKeydown:at,onSearchKeydown:rt,onSkinToneOptionsClick:lt,onSkinToneOptionsFocusOut:pt,onSkinToneOptionsKeydown:ft,onSkinToneOptionsKeyup:mt,onSearchInput:ht},S={calculateEmojiGridStyle:Qe,updateOnIntersection:et},B=!0;a(()=>{Nn(t,o,k,w,S,n,r,u,B),B=!1}),o.emojiVersion||ue().then(s=>{s||(o.message=o.i18n.emojiUnsupportedMessage)}),a(()=>{async function s(){let c=!1,g=setTimeout(()=>{c=!0,o.message=o.i18n.loadingMessage},sn);try{await o.database.ready(),o.databaseLoaded=!0}catch(y){console.error(y),o.message=o.i18n.networkErrorMessage}finally{clearTimeout(g),c&&(c=!1,o.message="")}}o.database&&s()}),a(()=>{o.pickerStyle=`
-      --num-groups: ${o.groups.length}; 
-      --indicator-opacity: ${o.searchMode?0:1}; 
-      --num-skintones: ${Ne};`}),a(()=>{o.customEmoji&&o.database&&ye()}),a(()=>{o.customEmoji&&o.customEmoji.length?o.groups!==ge&&(o.groups=ge):o.groups!==de&&(o.currentGroupIndex&&o.currentGroupIndex--,o.groups=de)}),a(()=>{async function s(){o.databaseLoaded&&(o.currentSkinTone=await o.database.getPreferredSkinTone())}s()}),a(()=>{o.skinTones=Array(Ne).fill().map((s,c)=>kn(o.skinToneEmoji,c))}),a(()=>{o.skinToneButtonText=o.skinTones[o.currentSkinTone]}),a(()=>{o.skinToneButtonLabel=o.i18n.skinToneLabel.replace("{skinTone}",o.i18n.skinTones[o.currentSkinTone])}),a(()=>{async function s(){let{database:c}=o,g=(await Promise.all(dn.map(y=>c.getEmojiByUnicodeOrName(y)))).filter(Boolean);o.defaultFavoriteEmojis=g}o.databaseLoaded&&s()});function ye(){let{customEmoji:s,database:c}=o,g=s||he;c.customEmoji!==g&&(c.customEmoji=g)}a(()=>{async function s(){ye();let{database:c,defaultFavoriteEmojis:g,numColumns:y}=o,E=await c.getTopFavoriteEmoji(y),v=await Y(qe([...E,...g],C=>C.unicode||C.name).slice(0,y));o.currentFavorites=v}o.databaseLoaded&&o.defaultFavoriteEmojis&&s()});function Qe(s){wn(s,r,()=>{{let c=getComputedStyle(n.rootElement),g=parseInt(c.getPropertyValue("--num-columns"),10),y=c.getPropertyValue("direction")==="rtl";o.numColumns=g,o.isRtl=y}})}function et(s){zn(s,r,c=>{for(let{target:g,isIntersecting:y}of c)g.classList.toggle("onscreen",y)})}a(()=>{async function s(){let{searchText:c,currentGroup:g,databaseLoaded:y,customEmoji:E}=o;if(!y)o.currentEmojis=[],o.searchMode=!1;else if(c.length>=on){let v=await it(c);o.searchText===c&&(b(v),j(!0))}else{let{id:v}=g;if(v!==-1||E&&E.length){let C=await ot(v);o.currentGroup.id===v&&(b(C),j(!1))}}}s()});let ke=()=>{q(()=>Sn(n.tabpanelElement))};a(()=>{let{currentEmojis:s,emojiVersion:c}=o,g=s.filter(y=>y.unicode).filter(y=>Pe(y)&&!be.has(y.unicode));if(!c&&g.length)b(s),q(()=>tt(g));else{let y=c?s:s.filter(nt);b(y),ke()}});function tt(s){jn(s,n.baselineEmoji,d)?ke():o.currentEmojis=[...o.currentEmojis]}function nt(s){return!s.unicode||!Pe(s)||be.get(s.unicode)}async function Ee(s){let c=o.emojiVersion||await ue();return s.filter(({version:g})=>!g||g<=c)}async function Y(s){return En(s,o.emojiVersion||await ue())}async function ot(s){let c=s===-1?o.customEmoji:await o.database.getEmojiByGroup(s);return Y(await Ee(c))}async function it(s){return Y(await Ee(await o.database.getEmojiBySearchQuery(s)))}a(()=>{}),a(()=>{function s(){let{searchMode:g,currentEmojis:y}=o;if(g)return[{category:"",emojis:y}];let E=new Map;for(let v of y){let C=v.category||"",z=E.get(C);z||(z=[],E.set(C,z)),z.push(v)}return[...E.entries()].map(([v,C])=>({category:v,emojis:C})).sort((v,C)=>o.customCategorySorting(v.category,C.category))}let c=s();T(c)}),a(()=>{o.activeSearchItemId=o.activeSearchItem!==-1&&o.currentEmojis[o.activeSearchItem].id}),a(()=>{let{rawSearchText:s}=o;Ve(()=>{o.searchText=(s||"").trim(),o.activeSearchItem=-1})});function rt(s){if(!o.searchMode||!o.currentEmojis.length)return;let c=g=>{I(s),o.activeSearchItem=fe(g,o.activeSearchItem,o.currentEmojis)};switch(s.key){case"ArrowDown":return c(!1);case"ArrowUp":return c(!0);case"Enter":if(o.activeSearchItem===-1)o.activeSearchItem=0;else return I(s),ve(o.currentEmojis[o.activeSearchItem].id)}}function st(s){let{target:c}=s,g=c.closest(".nav-button");if(!g)return;let y=parseInt(g.dataset.groupId,10);n.searchElement.value="",o.rawSearchText="",o.searchText="",o.activeSearchItem=-1,o.currentGroupIndex=o.groups.findIndex(E=>E.id===y)}function at(s){let{target:c,key:g}=s,y=E=>{E&&(I(s),E.focus())};switch(g){case"ArrowLeft":return y(c.previousElementSibling);case"ArrowRight":return y(c.nextElementSibling);case"Home":return y(c.parentElement.firstElementChild);case"End":return y(c.parentElement.lastElementChild)}}async function ct(s){let c=await o.database.getEmojiByUnicodeOrName(s),g=[...o.currentEmojis,...o.currentFavorites].find(E=>E.id===s),y=g.unicode&&x(g,o.currentSkinTone);return await o.database.incrementFavoriteEmojiCount(s),{emoji:c,skinTone:o.currentSkinTone,...y&&{unicode:y},...g.name&&{name:g.name}}}async function ve(s){let c=ct(s);l("emoji-click-sync",c),l("emoji-click",await c)}function dt(s){let{target:c}=s;if(!c.classList.contains("emoji"))return;I(s);let g=c.id.substring(4);ve(g)}function Z(s){o.currentSkinTone=s,o.skinTonePickerExpanded=!1,m("skintone-button"),l("skin-tone-change",{skinTone:s}),o.database.setPreferredSkinTone(s)}function lt(s){let{target:{id:c}}=s,g=c&&c.match(/^skintone-(\d)/);if(!g)return;I(s);let y=parseInt(g[1],10);Z(y)}function ut(s){o.skinTonePickerExpanded=!o.skinTonePickerExpanded,o.activeSkinTone=o.currentSkinTone,o.skinTonePickerExpanded&&(I(s),q(()=>m("skintone-list")))}a(()=>{o.skinTonePickerExpanded?n.skinToneDropdown.addEventListener("transitionend",()=>{o.skinTonePickerExpandedAfterAnimation=!0},{once:!0}):o.skinTonePickerExpandedAfterAnimation=!1});function ft(s){if(!o.skinTonePickerExpanded)return;let c=async g=>{I(s),o.activeSkinTone=g};switch(s.key){case"ArrowUp":return c(fe(!0,o.activeSkinTone,o.skinTones));case"ArrowDown":return c(fe(!1,o.activeSkinTone,o.skinTones));case"Home":return c(0);case"End":return c(o.skinTones.length-1);case"Enter":return I(s),Z(o.activeSkinTone);case"Escape":return I(s),o.skinTonePickerExpanded=!1,m("skintone-button")}}function mt(s){if(o.skinTonePickerExpanded)switch(s.key){case" ":return I(s),Z(o.activeSkinTone)}}async function pt(s){let{relatedTarget:c}=s;(!c||c.id!=="skintone-list")&&(o.skinTonePickerExpanded=!1)}function ht(s){o.rawSearchText=s.target.value}return{$set(s){H(o,s)},$destroy(){i.abort()}}}var ge,de,on,Ne,Ve,rn,sn,an,cn,dn,He,ln,ze,un,le,ue,be,pn,hn,gn,bn,yn,q,vn,me,Cn,In,_n,Ln,X,We,he,H,Gn,Kn,Wn,Vn,Xe,Hn,P,Ye,Ze=J(()=>{ce();ge=[[-1,"\u2728","custom"],[0,"\u{1F600}","smileys-emotion"],[1,"\u{1F44B}","people-body"],[3,"\u{1F431}","animals-nature"],[4,"\u{1F34E}","food-drink"],[5,"\u{1F3E0}\uFE0F","travel-places"],[6,"\u26BD","activities"],[7,"\u{1F4DD}","objects"],[8,"\u26D4\uFE0F","symbols"],[9,"\u{1F3C1}","flags"]].map(([t,e,n])=>({id:t,emoji:e,name:n})),de=ge.slice(1),on=2,Ne=6,Ve=typeof requestIdleCallback=="function"?requestIdleCallback:setTimeout;rn={"\u{1FAE9}":16,"\u{1FAE8}":15.1,"\u{1FAE0}":14,"\u{1F972}":13.1,"\u{1F97B}":12.1,"\u{1F970}":11,"\u{1F929}":5,"\u{1F471}\u200D\u2640\uFE0F":4,"\u{1F923}":3,"\u{1F441}\uFE0F\u200D\u{1F5E8}\uFE0F":2,"\u{1F600}":1,"\u{1F610}\uFE0F":.7,"\u{1F603}":.6},sn=1e3,an="\u{1F590}\uFE0F",cn=8,dn=["\u{1F60A}","\u{1F612}","\u2764\uFE0F","\u{1F44D}\uFE0F","\u{1F60D}","\u{1F602}","\u{1F62D}","\u263A\uFE0F","\u{1F614}","\u{1F629}","\u{1F60F}","\u{1F495}","\u{1F64C}","\u{1F618}"],He='"Twemoji Mozilla","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji","EmojiOne Color","Android Emoji",sans-serif',ln=(t,e)=>t<e?-1:t>e?1:0,ze=(t,e)=>{let n=document.createElement("canvas");n.width=n.height=1;let i=n.getContext("2d",{willReadFrequently:!0});return i.textBaseline="top",i.font=`100px ${He}`,i.fillStyle=e,i.scale(.01,.01),i.fillText(t,0,0),i.getImageData(0,0,1,1).data},un=(t,e)=>{let n=[...t].join(","),i=[...e].join(",");return n===i&&!n.startsWith("0,0,0,")};ue=()=>(le||(le=new Promise(t=>Ve(()=>t(mn())))),le),be=new Map,pn="\uFE0F",hn="\uD83C",gn="\u200D",bn=127995,yn=57339;q=requestAnimationFrame,vn=typeof ResizeObserver=="function";Cn=new WeakMap,In=new WeakMap,_n=Symbol("un-keyed"),Ln="replaceChildren"in Element.prototype;X=typeof queueMicrotask=="function"?queueMicrotask:t=>Promise.resolve().then(t);We=new WeakMap;he=[],{assign:H}=Object;Gn="https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json",Kn="en",Wn={categoriesLabel:"Categories",emojiUnsupportedMessage:"Your browser does not support color emoji.",favoritesLabel:"Favorites",loadingMessage:"Loading\u2026",networkErrorMessage:"Could not load emoji.",regionLabel:"Emoji picker",searchDescription:"When search results are available, press up or down to select and enter to choose.",searchLabel:"Search",searchResultsLabel:"Search results",skinToneDescription:"When expanded, press up or down to select and enter to choose.",skinToneLabel:"Choose a skin tone (currently {skinTone})",skinTonesLabel:"Skin tones",skinTones:["Default","Light","Medium-Light","Medium","Medium-Dark","Dark"],categories:{custom:"Custom","smileys-emotion":"Smileys and emoticons","people-body":"People and body","animals-nature":"Animals and nature","food-drink":"Food and drink","travel-places":"Travel and places",activities:"Activities",objects:"Objects",symbols:"Symbols",flags:"Flags"}},Vn=':host{--emoji-size:1.375rem;--emoji-padding:0.5rem;--category-emoji-size:var(--emoji-size);--category-emoji-padding:var(--emoji-padding);--indicator-height:3px;--input-border-radius:0.5rem;--input-border-size:1px;--input-font-size:1rem;--input-line-height:1.5;--input-padding:0.25rem;--num-columns:8;--outline-size:2px;--border-size:1px;--border-radius:0;--skintone-border-radius:1rem;--category-font-size:1rem;display:flex;width:min-content;height:400px}:host,:host(.light){color-scheme:light;--background:#fff;--border-color:#e0e0e0;--indicator-color:#385ac1;--input-border-color:#999;--input-font-color:#111;--input-placeholder-color:#999;--outline-color:#999;--category-font-color:#111;--button-active-background:#e6e6e6;--button-hover-background:#d9d9d9}:host(.dark){color-scheme:dark;--background:#222;--border-color:#444;--indicator-color:#5373ec;--input-border-color:#ccc;--input-font-color:#efefef;--input-placeholder-color:#ccc;--outline-color:#fff;--category-font-color:#efefef;--button-active-background:#555555;--button-hover-background:#484848}@media (prefers-color-scheme:dark){:host{color-scheme:dark;--background:#222;--border-color:#444;--indicator-color:#5373ec;--input-border-color:#ccc;--input-font-color:#efefef;--input-placeholder-color:#ccc;--outline-color:#fff;--category-font-color:#efefef;--button-active-background:#555555;--button-hover-background:#484848}}:host([hidden]){display:none}button{margin:0;padding:0;border:0;background:0 0;box-shadow:none;-webkit-tap-highlight-color:transparent}button::-moz-focus-inner{border:0}input{padding:0;margin:0;line-height:1.15;font-family:inherit}input[type=search]{-webkit-appearance:none}:focus{outline:var(--outline-color) solid var(--outline-size);outline-offset:calc(-1*var(--outline-size))}:host([data-js-focus-visible]) :focus:not([data-focus-visible-added]){outline:0}:focus:not(:focus-visible){outline:0}.hide-focus{outline:0}*{box-sizing:border-box}.picker{contain:content;display:flex;flex-direction:column;background:var(--background);border:var(--border-size) solid var(--border-color);border-radius:var(--border-radius);width:100%;height:100%;overflow:hidden;--total-emoji-size:calc(var(--emoji-size) + (2 * var(--emoji-padding)));--total-category-emoji-size:calc(var(--category-emoji-size) + (2 * var(--category-emoji-padding)))}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.hidden{opacity:0;pointer-events:none}.abs-pos{position:absolute;left:0;top:0}.gone{display:none!important}.skintone-button-wrapper,.skintone-list{background:var(--background);z-index:3}.skintone-button-wrapper.expanded{z-index:1}.skintone-list{position:absolute;inset-inline-end:0;top:0;z-index:2;overflow:visible;border-bottom:var(--border-size) solid var(--border-color);border-radius:0 0 var(--skintone-border-radius) var(--skintone-border-radius);will-change:transform;transition:transform .2s ease-in-out;transform-origin:center 0}@media (prefers-reduced-motion:reduce){.skintone-list{transition-duration:.001s}}@supports not (inset-inline-end:0){.skintone-list{right:0}}.skintone-list.no-animate{transition:none}.tabpanel{overflow-y:auto;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;will-change:transform;min-height:0;flex:1;contain:content}.emoji-menu{display:grid;grid-template-columns:repeat(var(--num-columns),var(--total-emoji-size));justify-content:space-around;align-items:flex-start;width:100%}.emoji-menu.visibility-auto{content-visibility:auto;contain-intrinsic-size:calc(var(--num-columns)*var(--total-emoji-size)) calc(var(--num-rows)*var(--total-emoji-size))}.category{padding:var(--emoji-padding);font-size:var(--category-font-size);color:var(--category-font-color)}.emoji,button.emoji{font-size:var(--emoji-size);display:flex;align-items:center;justify-content:center;border-radius:100%;height:var(--total-emoji-size);width:var(--total-emoji-size);line-height:1;overflow:hidden;font-family:var(--emoji-font-family);cursor:pointer}@media (hover:hover) and (pointer:fine){.emoji:hover,button.emoji:hover{background:var(--button-hover-background)}}.emoji.active,.emoji:active,button.emoji.active,button.emoji:active{background:var(--button-active-background)}.onscreen .custom-emoji::after{content:"";width:var(--emoji-size);height:var(--emoji-size);background-repeat:no-repeat;background-position:center center;background-size:contain;background-image:var(--custom-emoji-background)}.nav,.nav-button{align-items:center}.nav{display:grid;justify-content:space-between;contain:content}.nav-button{display:flex;justify-content:center}.nav-emoji{font-size:var(--category-emoji-size);width:var(--total-category-emoji-size);height:var(--total-category-emoji-size)}.indicator-wrapper{display:flex;border-bottom:1px solid var(--border-color)}.indicator{width:calc(100%/var(--num-groups));height:var(--indicator-height);opacity:var(--indicator-opacity);background-color:var(--indicator-color);will-change:transform,opacity;transition:opacity .1s linear,transform .25s ease-in-out}@media (prefers-reduced-motion:reduce){.indicator{will-change:opacity;transition:opacity .1s linear}}.pad-top,input.search{background:var(--background);width:100%}.pad-top{height:var(--emoji-padding);z-index:3}.search-row{display:flex;align-items:center;position:relative;padding-inline-start:var(--emoji-padding);padding-bottom:var(--emoji-padding)}.search-wrapper{flex:1;min-width:0}input.search{padding:var(--input-padding);border-radius:var(--input-border-radius);border:var(--input-border-size) solid var(--input-border-color);color:var(--input-font-color);font-size:var(--input-font-size);line-height:var(--input-line-height)}input.search::placeholder{color:var(--input-placeholder-color)}.favorites{overflow-y:auto;scrollbar-gutter:stable;display:flex;flex-direction:row;border-top:var(--border-size) solid var(--border-color);contain:content}.message{padding:var(--emoji-padding)}',Xe=["customEmoji","customCategorySorting","database","dataSource","i18n","locale","skinToneEmoji","emojiVersion"],Hn=`:host{--emoji-font-family:${He}}`,P=class extends HTMLElement{constructor(e){super(),this.attachShadow({mode:"open"});let n=document.createElement("style");n.textContent=Vn+Hn,this.shadowRoot.appendChild(n),this._ctx={locale:Kn,dataSource:Gn,skinToneEmoji:an,customCategorySorting:ln,customEmoji:null,i18n:Wn,emojiVersion:null,...e};for(let i of Xe)i!=="database"&&Object.prototype.hasOwnProperty.call(this,i)&&(this._ctx[i]=this[i],delete this[i]);this._dbFlush()}connectedCallback(){this._cmp||(this._cmp=Un(this.shadowRoot,this._ctx))}disconnectedCallback(){X(()=>{if(!this.isConnected&&this._cmp){this._cmp.$destroy(),this._cmp=void 0;let{database:e}=this._ctx;e.close().catch(n=>console.error(n))}})}static get observedAttributes(){return["locale","data-source","skin-tone-emoji","emoji-version"]}attributeChangedCallback(e,n,i){this._set(e.replace(/-([a-z])/g,(r,o)=>o.toUpperCase()),e==="emoji-version"?parseFloat(i):i)}_set(e,n){this._ctx[e]=n,this._cmp&&this._cmp.$set({[e]:n}),["locale","dataSource"].includes(e)&&this._dbFlush()}_dbCreate(){let{locale:e,dataSource:n,database:i}=this._ctx;(!i||i.locale!==e||i.dataSource!==n)&&this._set("database",new R({locale:e,dataSource:n}))}_dbFlush(){X(()=>this._dbCreate())}},Ye={};for(let t of Xe)Ye[t]={get(){return t==="database"&&this._dbCreate(),this._ctx[t]},set(e){if(t==="database")throw new Error("database is read-only");this._set(t,e)}};Object.defineProperties(P.prototype,Ye);customElements.get("emoji-picker")||customElements.define("emoji-picker",P)});var Je=J(()=>{Ze();ce()});var qn=gt(()=>{Je();document.addEventListener("DOMContentLoaded",()=>{let t=document.getElementById("emojiPicker"),e=document.getElementById("chosenEmoji"),n=document.getElementById("emojiContainer");e.addEventListener("click",r=>{n.classList.add("show"),r.stopPropagation()}),n.addEventListener("click",r=>r.stopPropagation()),document.addEventListener("click",()=>{n.classList.remove("show")}),t.addEventListener("emoji-click",r=>{e.value=r.detail.unicode,n.classList.remove("show")});let i=(r,o)=>{r.addEventListener("input",()=>o.value=r.value),o.addEventListener("input",()=>r.value=o.value)};i(document.getElementById("primaryColor"),document.getElementById("primaryHex")),i(document.getElementById("secondaryColor"),document.getElementById("secondaryHex")),i(document.getElementById("accentColor"),document.getElementById("accentHex"))})});qn();})();
+(() => {
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+
+  // node_modules/emoji-picker-element/database.js
+  function assertNonEmptyString(str) {
+    if (typeof str !== "string" || !str) {
+      throw new Error("expected a non-empty string, got: " + str);
+    }
+  }
+  function assertNumber(number) {
+    if (typeof number !== "number") {
+      throw new Error("expected a number, got: " + number);
+    }
+  }
+  function uniqBy(arr, func) {
+    const set2 = /* @__PURE__ */ new Set();
+    const res = [];
+    for (const item of arr) {
+      const key = func(item);
+      if (!set2.has(key)) {
+        set2.add(key);
+        res.push(item);
+      }
+    }
+    return res;
+  }
+  function uniqEmoji(emojis) {
+    return uniqBy(emojis, (_) => _.unicode);
+  }
+  function initialMigration(db) {
+    function createObjectStore(name, keyPath, indexes) {
+      const store = keyPath ? db.createObjectStore(name, { keyPath }) : db.createObjectStore(name);
+      if (indexes) {
+        for (const [indexName, [keyPath2, multiEntry]] of Object.entries(indexes)) {
+          store.createIndex(indexName, keyPath2, { multiEntry });
+        }
+      }
+      return store;
+    }
+    createObjectStore(STORE_KEYVALUE);
+    createObjectStore(
+      STORE_EMOJI,
+      /* keyPath */
+      FIELD_UNICODE,
+      {
+        [INDEX_TOKENS]: [
+          FIELD_TOKENS,
+          /* multiEntry */
+          true
+        ],
+        [INDEX_GROUP_AND_ORDER]: [[FIELD_GROUP, FIELD_ORDER]],
+        [INDEX_SKIN_UNICODE]: [
+          FIELD_SKIN_UNICODE,
+          /* multiEntry */
+          true
+        ]
+      }
+    );
+    createObjectStore(STORE_FAVORITES, void 0, {
+      [INDEX_COUNT]: [""]
+    });
+  }
+  function handleOpenOrDeleteReq(resolve, reject, req) {
+    req.onerror = () => reject(req.error);
+    req.onblocked = () => reject(new Error("IDB blocked"));
+    req.onsuccess = () => resolve(req.result);
+  }
+  async function createDatabase(dbName) {
+    const db = await new Promise((resolve, reject) => {
+      const req = indexedDB.open(dbName, DB_VERSION_CURRENT);
+      openIndexedDBRequests[dbName] = req;
+      req.onupgradeneeded = (e) => {
+        if (e.oldVersion < DB_VERSION_INITIAL) {
+          initialMigration(req.result);
+        }
+      };
+      handleOpenOrDeleteReq(resolve, reject, req);
+    });
+    db.onclose = () => closeDatabase(dbName);
+    return db;
+  }
+  function openDatabase(dbName) {
+    if (!databaseCache[dbName]) {
+      databaseCache[dbName] = createDatabase(dbName);
+    }
+    return databaseCache[dbName];
+  }
+  function dbPromise(db, storeName, readOnlyOrReadWrite, cb) {
+    return new Promise((resolve, reject) => {
+      const txn = db.transaction(storeName, readOnlyOrReadWrite, { durability: "relaxed" });
+      const store = typeof storeName === "string" ? txn.objectStore(storeName) : storeName.map((name) => txn.objectStore(name));
+      let res;
+      cb(store, txn, (result) => {
+        res = result;
+      });
+      txn.oncomplete = () => resolve(res);
+      txn.onerror = () => reject(txn.error);
+    });
+  }
+  function closeDatabase(dbName) {
+    const req = openIndexedDBRequests[dbName];
+    const db = req && req.result;
+    if (db) {
+      db.close();
+      const listeners = onCloseListeners[dbName];
+      if (listeners) {
+        for (const listener of listeners) {
+          listener();
+        }
+      }
+    }
+    delete openIndexedDBRequests[dbName];
+    delete databaseCache[dbName];
+    delete onCloseListeners[dbName];
+  }
+  function deleteDatabase(dbName) {
+    return new Promise((resolve, reject) => {
+      closeDatabase(dbName);
+      const req = indexedDB.deleteDatabase(dbName);
+      handleOpenOrDeleteReq(resolve, reject, req);
+    });
+  }
+  function addOnCloseListener(dbName, listener) {
+    let listeners = onCloseListeners[dbName];
+    if (!listeners) {
+      listeners = onCloseListeners[dbName] = [];
+    }
+    listeners.push(listener);
+  }
+  function extractTokens(str) {
+    return str.split(/[\s_]+/).map((word) => {
+      if (!word.match(/\w/) || irregularEmoticons.has(word)) {
+        return word.toLowerCase();
+      }
+      return word.replace(/[)(:,]/g, "").replace(/’/g, "'").toLowerCase();
+    }).filter(Boolean);
+  }
+  function normalizeTokens(str) {
+    return str.filter(Boolean).map((_) => _.toLowerCase()).filter((_) => _.length >= MIN_SEARCH_TEXT_LENGTH);
+  }
+  function transformEmojiData(emojiData) {
+    const res = emojiData.map(({ annotation, emoticon, group, order, shortcodes, skins, tags, emoji, version }) => {
+      const tokens = [...new Set(
+        normalizeTokens([
+          ...(shortcodes || []).map(extractTokens).flat(),
+          ...(tags || []).map(extractTokens).flat(),
+          ...extractTokens(annotation),
+          emoticon
+        ])
+      )].sort();
+      const res2 = {
+        annotation,
+        group,
+        order,
+        tags,
+        tokens,
+        unicode: emoji,
+        version
+      };
+      if (emoticon) {
+        res2.emoticon = emoticon;
+      }
+      if (shortcodes) {
+        res2.shortcodes = shortcodes;
+      }
+      if (skins) {
+        res2.skinTones = [];
+        res2.skinUnicodes = [];
+        res2.skinVersions = [];
+        for (const { tone, emoji: emoji2, version: version2 } of skins) {
+          res2.skinTones.push(tone);
+          res2.skinUnicodes.push(emoji2);
+          res2.skinVersions.push(version2);
+        }
+      }
+      return res2;
+    });
+    return res;
+  }
+  function callStore(store, method, key, cb) {
+    store[method](key).onsuccess = (e) => cb && cb(e.target.result);
+  }
+  function getIDB(store, key, cb) {
+    callStore(store, "get", key, cb);
+  }
+  function getAllIDB(store, key, cb) {
+    callStore(store, "getAll", key, cb);
+  }
+  function commit(txn) {
+    if (txn.commit) {
+      txn.commit();
+    }
+  }
+  function minBy(array, func) {
+    let minItem = array[0];
+    for (let i = 1; i < array.length; i++) {
+      const item = array[i];
+      if (func(minItem) > func(item)) {
+        minItem = item;
+      }
+    }
+    return minItem;
+  }
+  function findCommonMembers(arrays, uniqByFunc) {
+    const shortestArray = minBy(arrays, (_) => _.length);
+    const results = [];
+    for (const item of shortestArray) {
+      if (!arrays.some((array) => array.findIndex((_) => uniqByFunc(_) === uniqByFunc(item)) === -1)) {
+        results.push(item);
+      }
+    }
+    return results;
+  }
+  async function isEmpty(db) {
+    return !await get(db, STORE_KEYVALUE, KEY_URL);
+  }
+  async function hasData(db, url, eTag) {
+    const [oldETag, oldUrl] = await Promise.all([KEY_ETAG, KEY_URL].map((key) => get(db, STORE_KEYVALUE, key)));
+    return oldETag === eTag && oldUrl === url;
+  }
+  async function doFullDatabaseScanForSingleResult(db, predicate) {
+    const BATCH_SIZE = 50;
+    return dbPromise(db, STORE_EMOJI, MODE_READONLY, (emojiStore, txn, cb) => {
+      let lastKey;
+      const processNextBatch = () => {
+        emojiStore.getAll(lastKey && IDBKeyRange.lowerBound(lastKey, true), BATCH_SIZE).onsuccess = (e) => {
+          const results = e.target.result;
+          for (const result of results) {
+            lastKey = result.unicode;
+            if (predicate(result)) {
+              return cb(result);
+            }
+          }
+          if (results.length < BATCH_SIZE) {
+            return cb();
+          }
+          processNextBatch();
+        };
+      };
+      processNextBatch();
+    });
+  }
+  async function loadData(db, emojiData, url, eTag) {
+    try {
+      const transformedData = transformEmojiData(emojiData);
+      await dbPromise(db, [STORE_EMOJI, STORE_KEYVALUE], MODE_READWRITE, ([emojiStore, metaStore], txn) => {
+        let oldETag;
+        let oldUrl;
+        let todo = 0;
+        function checkFetched() {
+          if (++todo === 2) {
+            onFetched();
+          }
+        }
+        function onFetched() {
+          if (oldETag === eTag && oldUrl === url) {
+            return;
+          }
+          emojiStore.clear();
+          for (const data of transformedData) {
+            emojiStore.put(data);
+          }
+          metaStore.put(eTag, KEY_ETAG);
+          metaStore.put(url, KEY_URL);
+          commit(txn);
+        }
+        getIDB(metaStore, KEY_ETAG, (result) => {
+          oldETag = result;
+          checkFetched();
+        });
+        getIDB(metaStore, KEY_URL, (result) => {
+          oldUrl = result;
+          checkFetched();
+        });
+      });
+    } finally {
+    }
+  }
+  async function getEmojiByGroup(db, group) {
+    return dbPromise(db, STORE_EMOJI, MODE_READONLY, (emojiStore, txn, cb) => {
+      const range = IDBKeyRange.bound([group, 0], [group + 1, 0], false, true);
+      getAllIDB(emojiStore.index(INDEX_GROUP_AND_ORDER), range, cb);
+    });
+  }
+  async function getEmojiBySearchQuery(db, query) {
+    const tokens = normalizeTokens(extractTokens(query));
+    if (!tokens.length) {
+      return [];
+    }
+    return dbPromise(db, STORE_EMOJI, MODE_READONLY, (emojiStore, txn, cb) => {
+      const intermediateResults = [];
+      const checkDone = () => {
+        if (intermediateResults.length === tokens.length) {
+          onDone();
+        }
+      };
+      const onDone = () => {
+        const results = findCommonMembers(intermediateResults, (_) => _.unicode);
+        cb(results.sort((a, b) => a.order < b.order ? -1 : 1));
+      };
+      for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        const range = i === tokens.length - 1 ? IDBKeyRange.bound(token, token + "\uFFFF", false, true) : IDBKeyRange.only(token);
+        getAllIDB(emojiStore.index(INDEX_TOKENS), range, (result) => {
+          intermediateResults.push(result);
+          checkDone();
+        });
+      }
+    });
+  }
+  async function getEmojiByShortcode(db, shortcode) {
+    const emojis = await getEmojiBySearchQuery(db, shortcode);
+    if (!emojis.length) {
+      const predicate = (_) => (_.shortcodes || []).includes(shortcode.toLowerCase());
+      return await doFullDatabaseScanForSingleResult(db, predicate) || null;
+    }
+    return emojis.filter((_) => {
+      const lowerShortcodes = (_.shortcodes || []).map((_2) => _2.toLowerCase());
+      return lowerShortcodes.includes(shortcode.toLowerCase());
+    })[0] || null;
+  }
+  async function getEmojiByUnicode(db, unicode) {
+    return dbPromise(db, STORE_EMOJI, MODE_READONLY, (emojiStore, txn, cb) => getIDB(emojiStore, unicode, (result) => {
+      if (result) {
+        return cb(result);
+      }
+      getIDB(emojiStore.index(INDEX_SKIN_UNICODE), unicode, (result2) => cb(result2 || null));
+    }));
+  }
+  function get(db, storeName, key) {
+    return dbPromise(db, storeName, MODE_READONLY, (store, txn, cb) => getIDB(store, key, cb));
+  }
+  function set(db, storeName, key, value) {
+    return dbPromise(db, storeName, MODE_READWRITE, (store, txn) => {
+      store.put(value, key);
+      commit(txn);
+    });
+  }
+  function incrementFavoriteEmojiCount(db, unicode) {
+    return dbPromise(db, STORE_FAVORITES, MODE_READWRITE, (store, txn) => getIDB(store, unicode, (result) => {
+      store.put((result || 0) + 1, unicode);
+      commit(txn);
+    }));
+  }
+  function getTopFavoriteEmoji(db, customEmojiIndex2, limit) {
+    if (limit === 0) {
+      return [];
+    }
+    return dbPromise(db, [STORE_FAVORITES, STORE_EMOJI], MODE_READONLY, ([favoritesStore, emojiStore], txn, cb) => {
+      const results = [];
+      favoritesStore.index(INDEX_COUNT).openCursor(void 0, "prev").onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (!cursor) {
+          return cb(results);
+        }
+        function addResult(result) {
+          results.push(result);
+          if (results.length === limit) {
+            return cb(results);
+          }
+          cursor.continue();
+        }
+        const unicodeOrName = cursor.primaryKey;
+        const custom = customEmojiIndex2.byName(unicodeOrName);
+        if (custom) {
+          return addResult(custom);
+        }
+        getIDB(emojiStore, unicodeOrName, (emoji) => {
+          if (emoji) {
+            return addResult(emoji);
+          }
+          cursor.continue();
+        });
+      };
+    });
+  }
+  function trie(arr, itemToTokens) {
+    const map = /* @__PURE__ */ new Map();
+    for (const item of arr) {
+      const tokens = itemToTokens(item);
+      for (const token of tokens) {
+        let currentMap = map;
+        for (let i = 0; i < token.length; i++) {
+          const char = token.charAt(i);
+          let nextMap = currentMap.get(char);
+          if (!nextMap) {
+            nextMap = /* @__PURE__ */ new Map();
+            currentMap.set(char, nextMap);
+          }
+          currentMap = nextMap;
+        }
+        let valuesAtCoda = currentMap.get(CODA_MARKER);
+        if (!valuesAtCoda) {
+          valuesAtCoda = [];
+          currentMap.set(CODA_MARKER, valuesAtCoda);
+        }
+        valuesAtCoda.push(item);
+      }
+    }
+    const search = (query, exact) => {
+      let currentMap = map;
+      for (let i = 0; i < query.length; i++) {
+        const char = query.charAt(i);
+        const nextMap = currentMap.get(char);
+        if (nextMap) {
+          currentMap = nextMap;
+        } else {
+          return [];
+        }
+      }
+      if (exact) {
+        const results2 = currentMap.get(CODA_MARKER);
+        return results2 || [];
+      }
+      const results = [];
+      const queue = [currentMap];
+      while (queue.length) {
+        const currentMap2 = queue.shift();
+        const entriesSortedByKey = [...currentMap2.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+        for (const [key, value] of entriesSortedByKey) {
+          if (key === CODA_MARKER) {
+            results.push(...value);
+          } else {
+            queue.push(value);
+          }
+        }
+      }
+      return results;
+    };
+    return search;
+  }
+  function assertCustomEmojis(customEmojis) {
+    const isArray = customEmojis && Array.isArray(customEmojis);
+    const firstItemIsFaulty = isArray && customEmojis.length && (!customEmojis[0] || requiredKeys$1.some((key) => !(key in customEmojis[0])));
+    if (!isArray || firstItemIsFaulty) {
+      throw new Error("Custom emojis are in the wrong format");
+    }
+  }
+  function customEmojiIndex(customEmojis) {
+    assertCustomEmojis(customEmojis);
+    const sortByName = (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+    const all = customEmojis.sort(sortByName);
+    const emojiToTokens = (emoji) => {
+      const set2 = /* @__PURE__ */ new Set();
+      if (emoji.shortcodes) {
+        for (const shortcode of emoji.shortcodes) {
+          for (const token of extractTokens(shortcode)) {
+            set2.add(token);
+          }
+        }
+      }
+      return set2;
+    };
+    const searchTrie = trie(customEmojis, emojiToTokens);
+    const searchByExactMatch = (_) => searchTrie(_, true);
+    const searchByPrefix = (_) => searchTrie(_, false);
+    const search = (query) => {
+      const tokens = extractTokens(query);
+      const intermediateResults = tokens.map((token, i) => (i < tokens.length - 1 ? searchByExactMatch : searchByPrefix)(token));
+      return findCommonMembers(intermediateResults, (_) => _.name).sort(sortByName);
+    };
+    const shortcodeToEmoji = /* @__PURE__ */ new Map();
+    const nameToEmoji = /* @__PURE__ */ new Map();
+    for (const customEmoji of customEmojis) {
+      nameToEmoji.set(customEmoji.name.toLowerCase(), customEmoji);
+      for (const shortcode of customEmoji.shortcodes || []) {
+        shortcodeToEmoji.set(shortcode.toLowerCase(), customEmoji);
+      }
+    }
+    const byShortcode = (shortcode) => shortcodeToEmoji.get(shortcode.toLowerCase());
+    const byName = (name) => nameToEmoji.get(name.toLowerCase());
+    return {
+      all,
+      search,
+      byShortcode,
+      byName
+    };
+  }
+  function cleanEmoji(emoji) {
+    if (!emoji) {
+      return emoji;
+    }
+    if (isFirefoxContentScript) {
+      emoji = structuredClone(emoji);
+    }
+    delete emoji.tokens;
+    if (emoji.skinTones) {
+      const len = emoji.skinTones.length;
+      emoji.skins = Array(len);
+      for (let i = 0; i < len; i++) {
+        emoji.skins[i] = {
+          tone: emoji.skinTones[i],
+          unicode: emoji.skinUnicodes[i],
+          version: emoji.skinVersions[i]
+        };
+      }
+      delete emoji.skinTones;
+      delete emoji.skinUnicodes;
+      delete emoji.skinVersions;
+    }
+    return emoji;
+  }
+  function warnETag(eTag) {
+    if (!eTag) {
+      console.warn("emoji-picker-element is more efficient if the dataSource server exposes an ETag header.");
+    }
+  }
+  function assertEmojiData(emojiData) {
+    if (!emojiData || !Array.isArray(emojiData) || !emojiData[0] || typeof emojiData[0] !== "object" || requiredKeys.some((key) => !(key in emojiData[0]))) {
+      throw new Error("Emoji data is in the wrong format");
+    }
+  }
+  function assertStatus(response, dataSource) {
+    if (Math.floor(response.status / 100) !== 2) {
+      throw new Error("Failed to fetch: " + dataSource + ":  " + response.status);
+    }
+  }
+  async function getETag(dataSource) {
+    const response = await fetch(dataSource, { method: "HEAD" });
+    assertStatus(response, dataSource);
+    const eTag = response.headers.get("etag");
+    warnETag(eTag);
+    return eTag;
+  }
+  async function getETagAndData(dataSource) {
+    const response = await fetch(dataSource);
+    assertStatus(response, dataSource);
+    const eTag = response.headers.get("etag");
+    warnETag(eTag);
+    const emojiData = await response.json();
+    assertEmojiData(emojiData);
+    return [eTag, emojiData];
+  }
+  function arrayBufferToBinaryString(buffer) {
+    var binary = "";
+    var bytes = new Uint8Array(buffer);
+    var length = bytes.byteLength;
+    var i = -1;
+    while (++i < length) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return binary;
+  }
+  function binaryStringToArrayBuffer(binary) {
+    var length = binary.length;
+    var buf = new ArrayBuffer(length);
+    var arr = new Uint8Array(buf);
+    var i = -1;
+    while (++i < length) {
+      arr[i] = binary.charCodeAt(i);
+    }
+    return buf;
+  }
+  async function jsonChecksum(object) {
+    const inString = JSON.stringify(object);
+    let inBuffer = binaryStringToArrayBuffer(inString);
+    const outBuffer = await crypto.subtle.digest("SHA-1", inBuffer);
+    const outBinString = arrayBufferToBinaryString(outBuffer);
+    const res = btoa(outBinString);
+    return res;
+  }
+  async function doCheckForUpdates(db, dataSource) {
+    let emojiData;
+    let eTag = await getETag(dataSource);
+    if (!eTag) {
+      const eTagAndData = await getETagAndData(dataSource);
+      eTag = eTagAndData[0];
+      emojiData = eTagAndData[1];
+      if (!eTag) {
+        eTag = await jsonChecksum(emojiData);
+      }
+    }
+    if (await hasData(db, dataSource, eTag)) ;
+    else {
+      if (!emojiData) {
+        const eTagAndData = await getETagAndData(dataSource);
+        emojiData = eTagAndData[1];
+      }
+      await loadData(db, emojiData, dataSource, eTag);
+    }
+  }
+  async function loadDataForFirstTime(db, dataSource) {
+    let [eTag, emojiData] = await getETagAndData(dataSource);
+    if (!eTag) {
+      eTag = await jsonChecksum(emojiData);
+    }
+    await loadData(db, emojiData, dataSource, eTag);
+  }
+  async function checkForUpdates(db, dataSource) {
+    try {
+      await doCheckForUpdates(db, dataSource);
+    } catch (err) {
+      if (err.name !== "InvalidStateError") {
+        throw err;
+      }
+    }
+  }
+  var DB_VERSION_CURRENT, DB_VERSION_INITIAL, STORE_EMOJI, STORE_KEYVALUE, STORE_FAVORITES, FIELD_TOKENS, INDEX_TOKENS, FIELD_UNICODE, INDEX_COUNT, FIELD_GROUP, FIELD_ORDER, INDEX_GROUP_AND_ORDER, KEY_ETAG, KEY_URL, KEY_PREFERRED_SKINTONE, MODE_READONLY, MODE_READWRITE, INDEX_SKIN_UNICODE, FIELD_SKIN_UNICODE, DEFAULT_DATA_SOURCE, DEFAULT_LOCALE, openIndexedDBRequests, databaseCache, onCloseListeners, irregularEmoticons, MIN_SEARCH_TEXT_LENGTH, CODA_MARKER, requiredKeys$1, isFirefoxContentScript, requiredKeys, Database;
+  var init_database = __esm({
+    "node_modules/emoji-picker-element/database.js"() {
+      DB_VERSION_CURRENT = 1;
+      DB_VERSION_INITIAL = 1;
+      STORE_EMOJI = "emoji";
+      STORE_KEYVALUE = "keyvalue";
+      STORE_FAVORITES = "favorites";
+      FIELD_TOKENS = "tokens";
+      INDEX_TOKENS = "tokens";
+      FIELD_UNICODE = "unicode";
+      INDEX_COUNT = "count";
+      FIELD_GROUP = "group";
+      FIELD_ORDER = "order";
+      INDEX_GROUP_AND_ORDER = "group-order";
+      KEY_ETAG = "eTag";
+      KEY_URL = "url";
+      KEY_PREFERRED_SKINTONE = "skinTone";
+      MODE_READONLY = "readonly";
+      MODE_READWRITE = "readwrite";
+      INDEX_SKIN_UNICODE = "skinUnicodes";
+      FIELD_SKIN_UNICODE = "skinUnicodes";
+      DEFAULT_DATA_SOURCE = "https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json";
+      DEFAULT_LOCALE = "en";
+      openIndexedDBRequests = {};
+      databaseCache = {};
+      onCloseListeners = {};
+      irregularEmoticons = /* @__PURE__ */ new Set([
+        ":D",
+        "XD",
+        ":'D",
+        "O:)",
+        ":X",
+        ":P",
+        ";P",
+        "XP",
+        ":L",
+        ":Z",
+        ":j",
+        "8D",
+        "XO",
+        "8)",
+        ":B",
+        ":O",
+        ":S",
+        ":'o",
+        "Dx",
+        "X(",
+        "D:",
+        ":C",
+        ">0)",
+        ":3",
+        "</3",
+        "<3",
+        "\\M/",
+        ":E",
+        "8#"
+      ]);
+      MIN_SEARCH_TEXT_LENGTH = 2;
+      CODA_MARKER = "";
+      requiredKeys$1 = [
+        "name",
+        "url"
+      ];
+      isFirefoxContentScript = typeof wrappedJSObject !== "undefined";
+      requiredKeys = [
+        "annotation",
+        "emoji",
+        "group",
+        "order",
+        "version"
+      ];
+      Database = class {
+        constructor({ dataSource = DEFAULT_DATA_SOURCE, locale = DEFAULT_LOCALE, customEmoji = [] } = {}) {
+          this.dataSource = dataSource;
+          this.locale = locale;
+          this._dbName = `emoji-picker-element-${this.locale}`;
+          this._db = void 0;
+          this._lazyUpdate = void 0;
+          this._custom = customEmojiIndex(customEmoji);
+          this._clear = this._clear.bind(this);
+          this._ready = this._init();
+        }
+        async _init() {
+          const db = this._db = await openDatabase(this._dbName);
+          addOnCloseListener(this._dbName, this._clear);
+          const dataSource = this.dataSource;
+          const empty = await isEmpty(db);
+          if (empty) {
+            await loadDataForFirstTime(db, dataSource);
+          } else {
+            this._lazyUpdate = checkForUpdates(db, dataSource);
+          }
+        }
+        async ready() {
+          const checkReady = async () => {
+            if (!this._ready) {
+              this._ready = this._init();
+            }
+            return this._ready;
+          };
+          await checkReady();
+          if (!this._db) {
+            await checkReady();
+          }
+        }
+        async getEmojiByGroup(group) {
+          assertNumber(group);
+          await this.ready();
+          return uniqEmoji(await getEmojiByGroup(this._db, group)).map(cleanEmoji);
+        }
+        async getEmojiBySearchQuery(query) {
+          assertNonEmptyString(query);
+          await this.ready();
+          const customs = this._custom.search(query);
+          const natives = uniqEmoji(await getEmojiBySearchQuery(this._db, query)).map(cleanEmoji);
+          return [
+            ...customs,
+            ...natives
+          ];
+        }
+        async getEmojiByShortcode(shortcode) {
+          assertNonEmptyString(shortcode);
+          await this.ready();
+          const custom = this._custom.byShortcode(shortcode);
+          if (custom) {
+            return custom;
+          }
+          return cleanEmoji(await getEmojiByShortcode(this._db, shortcode));
+        }
+        async getEmojiByUnicodeOrName(unicodeOrName) {
+          assertNonEmptyString(unicodeOrName);
+          await this.ready();
+          const custom = this._custom.byName(unicodeOrName);
+          if (custom) {
+            return custom;
+          }
+          return cleanEmoji(await getEmojiByUnicode(this._db, unicodeOrName));
+        }
+        async getPreferredSkinTone() {
+          await this.ready();
+          return await get(this._db, STORE_KEYVALUE, KEY_PREFERRED_SKINTONE) || 0;
+        }
+        async setPreferredSkinTone(skinTone) {
+          assertNumber(skinTone);
+          await this.ready();
+          return set(this._db, STORE_KEYVALUE, KEY_PREFERRED_SKINTONE, skinTone);
+        }
+        async incrementFavoriteEmojiCount(unicodeOrName) {
+          assertNonEmptyString(unicodeOrName);
+          await this.ready();
+          return incrementFavoriteEmojiCount(this._db, unicodeOrName);
+        }
+        async getTopFavoriteEmoji(limit) {
+          assertNumber(limit);
+          await this.ready();
+          return (await getTopFavoriteEmoji(this._db, this._custom, limit)).map(cleanEmoji);
+        }
+        set customEmoji(customEmojis) {
+          this._custom = customEmojiIndex(customEmojis);
+        }
+        get customEmoji() {
+          return this._custom.all;
+        }
+        async _shutdown() {
+          await this.ready();
+          try {
+            await this._lazyUpdate;
+          } catch (err) {
+          }
+        }
+        // clear references to IDB, e.g. during a close event
+        _clear() {
+          this._db = this._ready = this._lazyUpdate = void 0;
+        }
+        async close() {
+          await this._shutdown();
+          await closeDatabase(this._dbName);
+        }
+        async delete() {
+          await this._shutdown();
+          await deleteDatabase(this._dbName);
+        }
+      };
+    }
+  });
+
+  // node_modules/emoji-picker-element/picker.js
+  function hasZwj(emoji) {
+    return emoji.unicode.includes("\u200D");
+  }
+  function testColorEmojiSupported(text) {
+    const feature1 = getTextFeature(text, "#000");
+    const feature2 = getTextFeature(text, "#fff");
+    return feature1 && feature2 && compareFeatures(feature1, feature2);
+  }
+  function determineEmojiSupportLevel() {
+    const entries = Object.entries(versionsAndTestEmoji);
+    try {
+      for (const [emoji, version] of entries) {
+        if (testColorEmojiSupported(emoji)) {
+          return version;
+        }
+      }
+    } catch (e) {
+    } finally {
+    }
+    return entries[0][1];
+  }
+  function applySkinTone(str, skinTone) {
+    if (skinTone === 0) {
+      return str;
+    }
+    const zwjIndex = str.indexOf(ZWJ);
+    if (zwjIndex !== -1) {
+      return str.substring(0, zwjIndex) + String.fromCodePoint(LIGHT_SKIN_TONE + skinTone - 1) + str.substring(zwjIndex);
+    }
+    if (str.endsWith(VARIATION_SELECTOR)) {
+      str = str.substring(0, str.length - 1);
+    }
+    return str + SKINTONE_MODIFIER + String.fromCodePoint(LIGHT_SKIN_TONE_MODIFIER + skinTone - 1);
+  }
+  function halt(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  function incrementOrDecrement(decrement, val, arr) {
+    val += decrement ? -1 : 1;
+    if (val < 0) {
+      val = arr.length - 1;
+    } else if (val >= arr.length) {
+      val = 0;
+    }
+    return val;
+  }
+  function uniqBy2(arr, func) {
+    const set2 = /* @__PURE__ */ new Set();
+    const res = [];
+    for (const item of arr) {
+      const key = func(item);
+      if (!set2.has(key)) {
+        set2.add(key);
+        res.push(item);
+      }
+    }
+    return res;
+  }
+  function summarizeEmojisForUI(emojis, emojiSupportLevel) {
+    const toSimpleSkinsMap = (skins) => {
+      const res = {};
+      for (const skin of skins) {
+        if (typeof skin.tone === "number" && skin.version <= emojiSupportLevel) {
+          res[skin.tone] = skin.unicode;
+        }
+      }
+      return res;
+    };
+    return emojis.map(({ unicode, skins, shortcodes, url, name, category, annotation }) => ({
+      unicode,
+      name,
+      shortcodes,
+      url,
+      category,
+      annotation,
+      id: unicode || name,
+      skins: skins && toSimpleSkinsMap(skins)
+    }));
+  }
+  function resizeObserverAction(node, abortSignal, onUpdate) {
+    let resizeObserver;
+    if (resizeObserverSupported) {
+      resizeObserver = new ResizeObserver(onUpdate);
+      resizeObserver.observe(node);
+    } else {
+      rAF(onUpdate);
+    }
+    abortSignal.addEventListener("abort", () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    });
+  }
+  function calculateTextWidth(node) {
+    {
+      const range = document.createRange();
+      range.selectNode(node.firstChild);
+      return range.getBoundingClientRect().width;
+    }
+  }
+  function checkZwjSupport(zwjEmojisToCheck, baselineEmoji, emojiToDomNode) {
+    let allSupported = true;
+    for (const emoji of zwjEmojisToCheck) {
+      const domNode = emojiToDomNode(emoji);
+      if (!domNode) {
+        continue;
+      }
+      const emojiWidth = calculateTextWidth(domNode);
+      if (typeof baselineEmojiWidth === "undefined") {
+        baselineEmojiWidth = calculateTextWidth(baselineEmoji);
+      }
+      const supported = emojiWidth / 1.8 < baselineEmojiWidth;
+      supportedZwjEmojis.set(emoji.unicode, supported);
+      if (!supported) {
+        allSupported = false;
+      }
+    }
+    return allSupported;
+  }
+  function uniq(arr) {
+    return uniqBy2(arr, (_) => _);
+  }
+  function resetScrollTopIfPossible(element) {
+    if (element) {
+      element.scrollTop = 0;
+    }
+  }
+  function getFromMap(cache, key, func) {
+    let cached = cache.get(key);
+    if (!cached) {
+      cached = func();
+      cache.set(key, cached);
+    }
+    return cached;
+  }
+  function toString(value) {
+    return "" + value;
+  }
+  function parseTemplate(htmlString) {
+    const template = document.createElement("template");
+    template.innerHTML = htmlString;
+    return template;
+  }
+  function replaceChildren(parentNode, newChildren) {
+    if (hasReplaceChildren) {
+      parentNode.replaceChildren(...newChildren);
+    } else {
+      parentNode.innerHTML = "";
+      parentNode.append(...newChildren);
+    }
+  }
+  function doChildrenNeedRerender(parentNode, newChildren) {
+    let oldChild = parentNode.firstChild;
+    let oldChildrenCount = 0;
+    while (oldChild) {
+      const newChild = newChildren[oldChildrenCount];
+      if (newChild !== oldChild) {
+        return true;
+      }
+      oldChild = oldChild.nextSibling;
+      oldChildrenCount++;
+    }
+    return oldChildrenCount !== newChildren.length;
+  }
+  function patchChildren(newChildren, instanceBinding) {
+    const { targetNode } = instanceBinding;
+    let { targetParentNode } = instanceBinding;
+    let needsRerender = false;
+    if (targetParentNode) {
+      needsRerender = doChildrenNeedRerender(targetParentNode, newChildren);
+    } else {
+      needsRerender = true;
+      instanceBinding.targetNode = void 0;
+      instanceBinding.targetParentNode = targetParentNode = targetNode.parentNode;
+    }
+    if (needsRerender) {
+      replaceChildren(targetParentNode, newChildren);
+    }
+  }
+  function patch(expressions, instanceBindings) {
+    for (const instanceBinding of instanceBindings) {
+      const {
+        targetNode,
+        currentExpression,
+        binding: {
+          expressionIndex,
+          attributeName,
+          attributeValuePre,
+          attributeValuePost
+        }
+      } = instanceBinding;
+      const expression = expressions[expressionIndex];
+      if (currentExpression === expression) {
+        continue;
+      }
+      instanceBinding.currentExpression = expression;
+      if (attributeName) {
+        if (expression === null) {
+          targetNode.removeAttribute(attributeName);
+        } else {
+          const newValue = attributeValuePre + toString(expression) + attributeValuePost;
+          targetNode.setAttribute(attributeName, newValue);
+        }
+      } else {
+        let newNode;
+        if (Array.isArray(expression)) {
+          patchChildren(expression, instanceBinding);
+        } else if (expression instanceof Element) {
+          newNode = expression;
+          targetNode.replaceWith(newNode);
+        } else {
+          targetNode.nodeValue = toString(expression);
+        }
+        if (newNode) {
+          instanceBinding.targetNode = newNode;
+        }
+      }
+    }
+  }
+  function parse(tokens) {
+    let htmlString = "";
+    let withinTag = false;
+    let withinAttribute = false;
+    let elementIndexCounter = -1;
+    const elementsToBindings = /* @__PURE__ */ new Map();
+    const elementIndexes = [];
+    let skipTokenChars = 0;
+    for (let i = 0, len = tokens.length; i < len; i++) {
+      const token = tokens[i];
+      htmlString += token.slice(skipTokenChars);
+      if (i === len - 1) {
+        break;
+      }
+      for (let j = 0; j < token.length; j++) {
+        const char = token.charAt(j);
+        switch (char) {
+          case "<": {
+            const nextChar = token.charAt(j + 1);
+            if (nextChar === "/") {
+              elementIndexes.pop();
+            } else {
+              withinTag = true;
+              elementIndexes.push(++elementIndexCounter);
+            }
+            break;
+          }
+          case ">": {
+            withinTag = false;
+            withinAttribute = false;
+            break;
+          }
+          case "=": {
+            withinAttribute = true;
+            break;
+          }
+        }
+      }
+      const elementIndex = elementIndexes[elementIndexes.length - 1];
+      const bindings = getFromMap(elementsToBindings, elementIndex, () => []);
+      let attributeName;
+      let attributeValuePre;
+      let attributeValuePost;
+      if (withinAttribute) {
+        const attributePreMatch = /(\S+)="?([^"=]*)$/.exec(token);
+        attributeName = attributePreMatch[1];
+        attributeValuePre = attributePreMatch[2];
+        const attributePostMatch = /^([^">]*)("?)/.exec(tokens[i + 1]);
+        attributeValuePost = attributePostMatch[1];
+        htmlString = htmlString.slice(0, -1 * attributePreMatch[0].length);
+        skipTokenChars = attributePostMatch[0].length;
+      } else {
+        skipTokenChars = 0;
+      }
+      const binding = {
+        attributeName,
+        attributeValuePre,
+        attributeValuePost,
+        expressionIndex: i
+      };
+      bindings.push(binding);
+      if (!withinTag && !withinAttribute) {
+        htmlString += " ";
+      }
+    }
+    const template = parseTemplate(htmlString);
+    return {
+      template,
+      elementsToBindings
+    };
+  }
+  function applyBindings(bindings, element, instanceBindings) {
+    for (let i = 0; i < bindings.length; i++) {
+      const binding = bindings[i];
+      const targetNode = binding.attributeName ? element : element.firstChild;
+      const instanceBinding = {
+        binding,
+        targetNode,
+        targetParentNode: void 0,
+        currentExpression: void 0
+      };
+      instanceBindings.push(instanceBinding);
+    }
+  }
+  function traverseAndSetupBindings(rootElement, elementsToBindings) {
+    const instanceBindings = [];
+    let topLevelBindings;
+    if (elementsToBindings.size === 1 && (topLevelBindings = elementsToBindings.get(0))) {
+      applyBindings(topLevelBindings, rootElement, instanceBindings);
+    } else {
+      const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_ELEMENT);
+      let element = rootElement;
+      let elementIndex = -1;
+      do {
+        const bindings = elementsToBindings.get(++elementIndex);
+        if (bindings) {
+          applyBindings(bindings, element, instanceBindings);
+        }
+      } while (element = treeWalker.nextNode());
+    }
+    return instanceBindings;
+  }
+  function parseHtml(tokens) {
+    const { template, elementsToBindings } = getFromMap(parseCache, tokens, () => parse(tokens));
+    const dom = template.cloneNode(true).content.firstElementChild;
+    const instanceBindings = traverseAndSetupBindings(dom, elementsToBindings);
+    return function updateDomInstance(expressions) {
+      patch(expressions, instanceBindings);
+      return dom;
+    };
+  }
+  function createFramework(state) {
+    const domInstances = getFromMap(domInstancesCache, state, () => /* @__PURE__ */ new Map());
+    let domInstanceCacheKey = unkeyedSymbol;
+    function html(tokens, ...expressions) {
+      const domInstancesForTokens = getFromMap(domInstances, tokens, () => /* @__PURE__ */ new Map());
+      const updateDomInstance = getFromMap(domInstancesForTokens, domInstanceCacheKey, () => parseHtml(tokens));
+      return updateDomInstance(expressions);
+    }
+    function map(array, callback, keyFunction) {
+      return array.map((item, index) => {
+        const originalCacheKey = domInstanceCacheKey;
+        domInstanceCacheKey = keyFunction(item);
+        try {
+          return callback(item, index);
+        } finally {
+          domInstanceCacheKey = originalCacheKey;
+        }
+      });
+    }
+    return { map, html };
+  }
+  function render(container, state, helpers, events, actions, refs, abortSignal, actionContext, firstRender) {
+    const { labelWithSkin, titleForEmoji, unicodeWithSkin } = helpers;
+    const { html, map } = createFramework(state);
+    function emojiList(emojis, searchMode, prefix) {
+      return map(emojis, (emoji, i) => {
+        return html`<button role="${searchMode ? "option" : "menuitem"}" aria-selected="${searchMode ? i === state.activeSearchItem : null}" aria-label="${labelWithSkin(emoji, state.currentSkinTone)}" title="${titleForEmoji(emoji)}" class="${"emoji" + (searchMode && i === state.activeSearchItem ? " active" : "") + (emoji.unicode ? "" : " custom-emoji")}" id="${`${prefix}-${emoji.id}`}" style="${emoji.unicode ? null : `--custom-emoji-background: url(${JSON.stringify(emoji.url)})`}">${emoji.unicode ? unicodeWithSkin(emoji, state.currentSkinTone) : ""}</button>`;
+      }, (emoji) => `${prefix}-${emoji.id}`);
+    }
+    const section = () => {
+      return html`<section data-ref="rootElement" class="picker" aria-label="${state.i18n.regionLabel}" style="${state.pickerStyle || ""}"><div class="pad-top"></div><div class="search-row"><div class="search-wrapper"><input id="search" class="search" type="search" role="combobox" enterkeyhint="search" placeholder="${state.i18n.searchLabel}" autocapitalize="none" autocomplete="off" spellcheck="true" aria-expanded="${!!(state.searchMode && state.currentEmojis.length)}" aria-controls="search-results" aria-describedby="search-description" aria-autocomplete="list" aria-activedescendant="${state.activeSearchItemId ? `emo-${state.activeSearchItemId}` : null}" data-ref="searchElement" data-on-input="onSearchInput" data-on-keydown="onSearchKeydown"><label class="sr-only" for="search">${state.i18n.searchLabel}</label> <span id="search-description" class="sr-only">${state.i18n.searchDescription}</span></div><div class="skintone-button-wrapper ${state.skinTonePickerExpandedAfterAnimation ? "expanded" : ""}"><button id="skintone-button" class="emoji ${state.skinTonePickerExpanded ? "hide-focus" : ""}" aria-label="${state.skinToneButtonLabel}" title="${state.skinToneButtonLabel}" aria-describedby="skintone-description" aria-haspopup="listbox" aria-expanded="${state.skinTonePickerExpanded}" aria-controls="skintone-list" data-on-click="onClickSkinToneButton">${state.skinToneButtonText || ""}</button></div><span id="skintone-description" class="sr-only">${state.i18n.skinToneDescription}</span><div data-ref="skinToneDropdown" id="skintone-list" class="skintone-list hide-focus ${state.skinTonePickerExpanded ? "" : "hidden no-animate"}" style="transform:translateY(${state.skinTonePickerExpanded ? 0 : "calc(-1 * var(--num-skintones) * var(--total-emoji-size))"})" role="listbox" aria-label="${state.i18n.skinTonesLabel}" aria-activedescendant="skintone-${state.activeSkinTone}" aria-hidden="${!state.skinTonePickerExpanded}" tabIndex="-1" data-on-focusout="onSkinToneOptionsFocusOut" data-on-click="onSkinToneOptionsClick" data-on-keydown="onSkinToneOptionsKeydown" data-on-keyup="onSkinToneOptionsKeyup">${map(state.skinTones, (skinTone, i) => {
+        return html`<div id="skintone-${i}" class="emoji ${i === state.activeSkinTone ? "active" : ""}" aria-selected="${i === state.activeSkinTone}" role="option" title="${state.i18n.skinTones[i]}" aria-label="${state.i18n.skinTones[i]}">${skinTone}</div>`;
+      }, (skinTone) => skinTone)}</div></div><div class="nav" role="tablist" style="grid-template-columns:repeat(${state.groups.length},1fr)" aria-label="${state.i18n.categoriesLabel}" data-on-keydown="onNavKeydown" data-on-click="onNavClick">${map(state.groups, (group) => {
+        return html`<button role="tab" class="nav-button" aria-controls="tab-${group.id}" aria-label="${state.i18n.categories[group.name]}" aria-selected="${!state.searchMode && state.currentGroup.id === group.id}" title="${state.i18n.categories[group.name]}" data-group-id="${group.id}"><div class="nav-emoji emoji">${group.emoji}</div></button>`;
+      }, (group) => group.id)}</div><div class="indicator-wrapper"><div class="indicator" style="transform:translateX(${/* istanbul ignore next */
+      (state.isRtl ? -1 : 1) * state.currentGroupIndex * 100}%)"></div></div><div class="message ${state.message ? "" : "gone"}" role="alert" aria-live="polite">${state.message || ""}</div><div data-ref="tabpanelElement" class="tabpanel ${!state.databaseLoaded || state.message ? "gone" : ""}" role="${state.searchMode ? "region" : "tabpanel"}" aria-label="${state.searchMode ? state.i18n.searchResultsLabel : state.i18n.categories[state.currentGroup.name]}" id="${state.searchMode ? null : `tab-${state.currentGroup.id}`}" tabIndex="0" data-on-click="onEmojiClick"><div data-action="calculateEmojiGridStyle">${map(state.currentEmojisWithCategories, (emojiWithCategory, i) => {
+        return html`<div><div id="menu-label-${i}" class="category ${state.currentEmojisWithCategories.length === 1 && state.currentEmojisWithCategories[0].category === "" ? "gone" : ""}" aria-hidden="true">${state.searchMode ? state.i18n.searchResultsLabel : emojiWithCategory.category ? emojiWithCategory.category : state.currentEmojisWithCategories.length > 1 ? state.i18n.categories.custom : state.i18n.categories[state.currentGroup.name]}</div><div class="emoji-menu ${i !== 0 && !state.searchMode && state.currentGroup.id === -1 ? "visibility-auto" : ""}" style="${`--num-rows: ${Math.ceil(emojiWithCategory.emojis.length / state.numColumns)}`}" data-action="updateOnIntersection" role="${state.searchMode ? "listbox" : "menu"}" aria-labelledby="menu-label-${i}" id="${state.searchMode ? "search-results" : null}">${emojiList(
+          emojiWithCategory.emojis,
+          state.searchMode,
+          /* prefix */
+          "emo"
+        )}</div></div>`;
+      }, (emojiWithCategory) => emojiWithCategory.category)}</div></div><div class="favorites onscreen emoji-menu ${state.message ? "gone" : ""}" role="menu" aria-label="${state.i18n.favoritesLabel}" data-on-click="onEmojiClick">${emojiList(
+        state.currentFavorites,
+        /* searchMode */
+        false,
+        /* prefix */
+        "fav"
+      )}</div><button data-ref="baselineEmoji" aria-hidden="true" tabindex="-1" class="abs-pos hidden emoji baseline-emoji">😀</button></section>`;
+    };
+    const rootDom = section();
+    const forElementWithAttribute = (attributeName, callback) => {
+      for (const element of container.querySelectorAll(`[${attributeName}]`)) {
+        callback(element, element.getAttribute(attributeName));
+      }
+    };
+    if (firstRender) {
+      container.appendChild(rootDom);
+      for (const eventName of ["click", "focusout", "input", "keydown", "keyup"]) {
+        forElementWithAttribute(`data-on-${eventName}`, (element, listenerName) => {
+          element.addEventListener(eventName, events[listenerName]);
+        });
+      }
+      forElementWithAttribute("data-ref", (element, ref) => {
+        refs[ref] = element;
+      });
+      abortSignal.addEventListener("abort", () => {
+        container.removeChild(rootDom);
+      });
+    }
+    forElementWithAttribute("data-action", (element, action) => {
+      let boundActions = actionContext.get(action);
+      if (!boundActions) {
+        actionContext.set(action, boundActions = /* @__PURE__ */ new WeakSet());
+      }
+      if (!boundActions.has(element)) {
+        boundActions.add(element);
+        actions[action](element);
+      }
+    });
+  }
+  function createState(abortSignal) {
+    let destroyed = false;
+    let currentObserver;
+    const propsToObservers = /* @__PURE__ */ new Map();
+    const dirtyObservers = /* @__PURE__ */ new Set();
+    let queued;
+    const flush = () => {
+      if (destroyed) {
+        return;
+      }
+      const observersToRun = [...dirtyObservers];
+      dirtyObservers.clear();
+      try {
+        for (const observer of observersToRun) {
+          observer();
+        }
+      } finally {
+        queued = false;
+        if (dirtyObservers.size) {
+          queued = true;
+          qM(flush);
+        }
+      }
+    };
+    const state = new Proxy({}, {
+      get(target, prop) {
+        if (currentObserver) {
+          let observers = propsToObservers.get(prop);
+          if (!observers) {
+            observers = /* @__PURE__ */ new Set();
+            propsToObservers.set(prop, observers);
+          }
+          observers.add(currentObserver);
+        }
+        return target[prop];
+      },
+      set(target, prop, newValue) {
+        if (target[prop] !== newValue) {
+          target[prop] = newValue;
+          const observers = propsToObservers.get(prop);
+          if (observers) {
+            for (const observer of observers) {
+              dirtyObservers.add(observer);
+            }
+            if (!queued) {
+              queued = true;
+              qM(flush);
+            }
+          }
+        }
+        return true;
+      }
+    });
+    const createEffect = (callback) => {
+      const runnable = () => {
+        const oldObserver = currentObserver;
+        currentObserver = runnable;
+        try {
+          return callback();
+        } finally {
+          currentObserver = oldObserver;
+        }
+      };
+      return runnable();
+    };
+    abortSignal.addEventListener("abort", () => {
+      destroyed = true;
+    });
+    return {
+      state,
+      createEffect
+    };
+  }
+  function arraysAreEqualByFunction(left, right, areEqualFunc) {
+    if (left.length !== right.length) {
+      return false;
+    }
+    for (let i = 0; i < left.length; i++) {
+      if (!areEqualFunc(left[i], right[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function intersectionObserverAction(node, abortSignal, listener) {
+    {
+      const root = node.closest(".tabpanel");
+      let observer = intersectionObserverCache.get(root);
+      if (!observer) {
+        observer = new IntersectionObserver(listener, {
+          root,
+          // trigger if we are 1/2 scroll container height away so that the images load a bit quicker while scrolling
+          rootMargin: "50% 0px 50% 0px",
+          // trigger if any part of the emoji grid is intersecting
+          threshold: 0
+        });
+        intersectionObserverCache.set(root, observer);
+        abortSignal.addEventListener("abort", () => {
+          observer.disconnect();
+        });
+      }
+      observer.observe(node);
+    }
+  }
+  function createRoot(shadowRoot, props) {
+    const refs = {};
+    const abortController = new AbortController();
+    const abortSignal = abortController.signal;
+    const { state, createEffect } = createState(abortSignal);
+    const actionContext = /* @__PURE__ */ new Map();
+    assign(state, {
+      skinToneEmoji: void 0,
+      i18n: void 0,
+      database: void 0,
+      customEmoji: void 0,
+      customCategorySorting: void 0,
+      emojiVersion: void 0
+    });
+    assign(state, props);
+    assign(state, {
+      initialLoad: true,
+      currentEmojis: [],
+      currentEmojisWithCategories: [],
+      rawSearchText: "",
+      searchText: "",
+      searchMode: false,
+      activeSearchItem: -1,
+      message: void 0,
+      skinTonePickerExpanded: false,
+      skinTonePickerExpandedAfterAnimation: false,
+      currentSkinTone: 0,
+      activeSkinTone: 0,
+      skinToneButtonText: void 0,
+      pickerStyle: void 0,
+      skinToneButtonLabel: "",
+      skinTones: [],
+      currentFavorites: [],
+      defaultFavoriteEmojis: void 0,
+      numColumns: DEFAULT_NUM_COLUMNS,
+      isRtl: false,
+      currentGroupIndex: 0,
+      groups,
+      databaseLoaded: false,
+      activeSearchItemId: void 0
+    });
+    createEffect(() => {
+      if (state.currentGroup !== state.groups[state.currentGroupIndex]) {
+        state.currentGroup = state.groups[state.currentGroupIndex];
+      }
+    });
+    const focus = (id) => {
+      shadowRoot.getElementById(id).focus();
+    };
+    const emojiToDomNode = (emoji) => shadowRoot.getElementById(`emo-${emoji.id}`);
+    const fireEvent = (name, detail) => {
+      refs.rootElement.dispatchEvent(new CustomEvent(name, {
+        detail,
+        bubbles: true,
+        composed: true
+      }));
+    };
+    const compareEmojiArrays = (a, b) => a.id === b.id;
+    const compareCurrentEmojisWithCategories = (a, b) => {
+      const { category: aCategory, emojis: aEmojis } = a;
+      const { category: bCategory, emojis: bEmojis } = b;
+      if (aCategory !== bCategory) {
+        return false;
+      }
+      return arraysAreEqualByFunction(aEmojis, bEmojis, compareEmojiArrays);
+    };
+    const updateCurrentEmojis = (newEmojis) => {
+      if (!arraysAreEqualByFunction(state.currentEmojis, newEmojis, compareEmojiArrays)) {
+        state.currentEmojis = newEmojis;
+      }
+    };
+    const updateSearchMode = (newSearchMode) => {
+      if (state.searchMode !== newSearchMode) {
+        state.searchMode = newSearchMode;
+      }
+    };
+    const updateCurrentEmojisWithCategories = (newEmojisWithCategories) => {
+      if (!arraysAreEqualByFunction(state.currentEmojisWithCategories, newEmojisWithCategories, compareCurrentEmojisWithCategories)) {
+        state.currentEmojisWithCategories = newEmojisWithCategories;
+      }
+    };
+    const unicodeWithSkin = (emoji, currentSkinTone) => currentSkinTone && emoji.skins && emoji.skins[currentSkinTone] || emoji.unicode;
+    const labelWithSkin = (emoji, currentSkinTone) => uniq([
+      emoji.name || unicodeWithSkin(emoji, currentSkinTone),
+      emoji.annotation,
+      ...emoji.shortcodes || EMPTY_ARRAY
+    ].filter(Boolean)).join(", ");
+    const titleForEmoji = (emoji) => emoji.annotation || (emoji.shortcodes || EMPTY_ARRAY).join(", ");
+    const helpers = {
+      labelWithSkin,
+      titleForEmoji,
+      unicodeWithSkin
+    };
+    const events = {
+      onClickSkinToneButton,
+      onEmojiClick,
+      onNavClick,
+      onNavKeydown,
+      onSearchKeydown,
+      onSkinToneOptionsClick,
+      onSkinToneOptionsFocusOut,
+      onSkinToneOptionsKeydown,
+      onSkinToneOptionsKeyup,
+      onSearchInput
+    };
+    const actions = {
+      calculateEmojiGridStyle,
+      updateOnIntersection
+    };
+    let firstRender = true;
+    createEffect(() => {
+      render(shadowRoot, state, helpers, events, actions, refs, abortSignal, actionContext, firstRender);
+      firstRender = false;
+    });
+    if (!state.emojiVersion) {
+      detectEmojiSupportLevel().then((level) => {
+        if (!level) {
+          state.message = state.i18n.emojiUnsupportedMessage;
+        }
+      });
+    }
+    createEffect(() => {
+      async function handleDatabaseLoading() {
+        let showingLoadingMessage = false;
+        const timeoutHandle = setTimeout(() => {
+          showingLoadingMessage = true;
+          state.message = state.i18n.loadingMessage;
+        }, TIMEOUT_BEFORE_LOADING_MESSAGE);
+        try {
+          await state.database.ready();
+          state.databaseLoaded = true;
+        } catch (err) {
+          console.error(err);
+          state.message = state.i18n.networkErrorMessage;
+        } finally {
+          clearTimeout(timeoutHandle);
+          if (showingLoadingMessage) {
+            showingLoadingMessage = false;
+            state.message = "";
+          }
+        }
+      }
+      if (state.database) {
+        handleDatabaseLoading();
+      }
+    });
+    createEffect(() => {
+      state.pickerStyle = `
+      --num-groups: ${state.groups.length}; 
+      --indicator-opacity: ${state.searchMode ? 0 : 1}; 
+      --num-skintones: ${NUM_SKIN_TONES};`;
+    });
+    createEffect(() => {
+      if (state.customEmoji && state.database) {
+        updateCustomEmoji();
+      }
+    });
+    createEffect(() => {
+      if (state.customEmoji && state.customEmoji.length) {
+        if (state.groups !== allGroups) {
+          state.groups = allGroups;
+        }
+      } else if (state.groups !== groups) {
+        if (state.currentGroupIndex) {
+          state.currentGroupIndex--;
+        }
+        state.groups = groups;
+      }
+    });
+    createEffect(() => {
+      async function updatePreferredSkinTone() {
+        if (state.databaseLoaded) {
+          state.currentSkinTone = await state.database.getPreferredSkinTone();
+        }
+      }
+      updatePreferredSkinTone();
+    });
+    createEffect(() => {
+      state.skinTones = Array(NUM_SKIN_TONES).fill().map((_, i) => applySkinTone(state.skinToneEmoji, i));
+    });
+    createEffect(() => {
+      state.skinToneButtonText = state.skinTones[state.currentSkinTone];
+    });
+    createEffect(() => {
+      state.skinToneButtonLabel = state.i18n.skinToneLabel.replace("{skinTone}", state.i18n.skinTones[state.currentSkinTone]);
+    });
+    createEffect(() => {
+      async function updateDefaultFavoriteEmojis() {
+        const { database } = state;
+        const favs = (await Promise.all(MOST_COMMONLY_USED_EMOJI.map((unicode) => database.getEmojiByUnicodeOrName(unicode)))).filter(Boolean);
+        state.defaultFavoriteEmojis = favs;
+      }
+      if (state.databaseLoaded) {
+        updateDefaultFavoriteEmojis();
+      }
+    });
+    function updateCustomEmoji() {
+      const { customEmoji, database } = state;
+      const databaseCustomEmoji = customEmoji || EMPTY_ARRAY;
+      if (database.customEmoji !== databaseCustomEmoji) {
+        database.customEmoji = databaseCustomEmoji;
+      }
+    }
+    createEffect(() => {
+      async function updateFavorites() {
+        updateCustomEmoji();
+        const { database, defaultFavoriteEmojis, numColumns } = state;
+        const dbFavorites = await database.getTopFavoriteEmoji(numColumns);
+        const favorites = await summarizeEmojis(uniqBy2([
+          ...dbFavorites,
+          ...defaultFavoriteEmojis
+        ], (_) => _.unicode || _.name).slice(0, numColumns));
+        state.currentFavorites = favorites;
+      }
+      if (state.databaseLoaded && state.defaultFavoriteEmojis) {
+        updateFavorites();
+      }
+    });
+    function calculateEmojiGridStyle(node) {
+      resizeObserverAction(node, abortSignal, () => {
+        {
+          const style = getComputedStyle(refs.rootElement);
+          const newNumColumns = parseInt(style.getPropertyValue("--num-columns"), 10);
+          const newIsRtl = style.getPropertyValue("direction") === "rtl";
+          state.numColumns = newNumColumns;
+          state.isRtl = newIsRtl;
+        }
+      });
+    }
+    function updateOnIntersection(node) {
+      intersectionObserverAction(node, abortSignal, (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          target.classList.toggle("onscreen", isIntersecting);
+        }
+      });
+    }
+    createEffect(() => {
+      async function updateEmojis() {
+        const { searchText, currentGroup, databaseLoaded, customEmoji } = state;
+        if (!databaseLoaded) {
+          state.currentEmojis = [];
+          state.searchMode = false;
+        } else if (searchText.length >= MIN_SEARCH_TEXT_LENGTH2) {
+          const newEmojis = await getEmojisBySearchQuery(searchText);
+          if (state.searchText === searchText) {
+            updateCurrentEmojis(newEmojis);
+            updateSearchMode(true);
+          }
+        } else {
+          const { id: currentGroupId } = currentGroup;
+          if (currentGroupId !== -1 || customEmoji && customEmoji.length) {
+            const newEmojis = await getEmojisByGroup(currentGroupId);
+            if (state.currentGroup.id === currentGroupId) {
+              updateCurrentEmojis(newEmojis);
+              updateSearchMode(false);
+            }
+          }
+        }
+      }
+      updateEmojis();
+    });
+    const resetScrollTopInRaf = () => {
+      rAF(() => resetScrollTopIfPossible(refs.tabpanelElement));
+    };
+    createEffect(() => {
+      const { currentEmojis, emojiVersion } = state;
+      const zwjEmojisToCheck = currentEmojis.filter((emoji) => emoji.unicode).filter((emoji) => hasZwj(emoji) && !supportedZwjEmojis.has(emoji.unicode));
+      if (!emojiVersion && zwjEmojisToCheck.length) {
+        updateCurrentEmojis(currentEmojis);
+        rAF(() => checkZwjSupportAndUpdate(zwjEmojisToCheck));
+      } else {
+        const newEmojis = emojiVersion ? currentEmojis : currentEmojis.filter(isZwjSupported);
+        updateCurrentEmojis(newEmojis);
+        resetScrollTopInRaf();
+      }
+    });
+    function checkZwjSupportAndUpdate(zwjEmojisToCheck) {
+      const allSupported = checkZwjSupport(zwjEmojisToCheck, refs.baselineEmoji, emojiToDomNode);
+      if (allSupported) {
+        resetScrollTopInRaf();
+      } else {
+        state.currentEmojis = [...state.currentEmojis];
+      }
+    }
+    function isZwjSupported(emoji) {
+      return !emoji.unicode || !hasZwj(emoji) || supportedZwjEmojis.get(emoji.unicode);
+    }
+    async function filterEmojisByVersion(emojis) {
+      const emojiSupportLevel = state.emojiVersion || await detectEmojiSupportLevel();
+      return emojis.filter(({ version }) => !version || version <= emojiSupportLevel);
+    }
+    async function summarizeEmojis(emojis) {
+      return summarizeEmojisForUI(emojis, state.emojiVersion || await detectEmojiSupportLevel());
+    }
+    async function getEmojisByGroup(group) {
+      const emoji = group === -1 ? state.customEmoji : await state.database.getEmojiByGroup(group);
+      return summarizeEmojis(await filterEmojisByVersion(emoji));
+    }
+    async function getEmojisBySearchQuery(query) {
+      return summarizeEmojis(await filterEmojisByVersion(await state.database.getEmojiBySearchQuery(query)));
+    }
+    createEffect(() => {
+    });
+    createEffect(() => {
+      function calculateCurrentEmojisWithCategories() {
+        const { searchMode, currentEmojis } = state;
+        if (searchMode) {
+          return [
+            {
+              category: "",
+              emojis: currentEmojis
+            }
+          ];
+        }
+        const categoriesToEmoji = /* @__PURE__ */ new Map();
+        for (const emoji of currentEmojis) {
+          const category = emoji.category || "";
+          let emojis = categoriesToEmoji.get(category);
+          if (!emojis) {
+            emojis = [];
+            categoriesToEmoji.set(category, emojis);
+          }
+          emojis.push(emoji);
+        }
+        return [...categoriesToEmoji.entries()].map(([category, emojis]) => ({ category, emojis })).sort((a, b) => state.customCategorySorting(a.category, b.category));
+      }
+      const newEmojisWithCategories = calculateCurrentEmojisWithCategories();
+      updateCurrentEmojisWithCategories(newEmojisWithCategories);
+    });
+    createEffect(() => {
+      state.activeSearchItemId = state.activeSearchItem !== -1 && state.currentEmojis[state.activeSearchItem].id;
+    });
+    createEffect(() => {
+      const { rawSearchText } = state;
+      rIC(() => {
+        state.searchText = (rawSearchText || "").trim();
+        state.activeSearchItem = -1;
+      });
+    });
+    function onSearchKeydown(event) {
+      if (!state.searchMode || !state.currentEmojis.length) {
+        return;
+      }
+      const goToNextOrPrevious = (previous) => {
+        halt(event);
+        state.activeSearchItem = incrementOrDecrement(previous, state.activeSearchItem, state.currentEmojis);
+      };
+      switch (event.key) {
+        case "ArrowDown":
+          return goToNextOrPrevious(false);
+        case "ArrowUp":
+          return goToNextOrPrevious(true);
+        case "Enter":
+          if (state.activeSearchItem === -1) {
+            state.activeSearchItem = 0;
+          } else {
+            halt(event);
+            return clickEmoji(state.currentEmojis[state.activeSearchItem].id);
+          }
+      }
+    }
+    function onNavClick(event) {
+      const { target } = event;
+      const closestTarget = target.closest(".nav-button");
+      if (!closestTarget) {
+        return;
+      }
+      const groupId = parseInt(closestTarget.dataset.groupId, 10);
+      refs.searchElement.value = "";
+      state.rawSearchText = "";
+      state.searchText = "";
+      state.activeSearchItem = -1;
+      state.currentGroupIndex = state.groups.findIndex((_) => _.id === groupId);
+    }
+    function onNavKeydown(event) {
+      const { target, key } = event;
+      const doFocus = (el) => {
+        if (el) {
+          halt(event);
+          el.focus();
+        }
+      };
+      switch (key) {
+        case "ArrowLeft":
+          return doFocus(target.previousElementSibling);
+        case "ArrowRight":
+          return doFocus(target.nextElementSibling);
+        case "Home":
+          return doFocus(target.parentElement.firstElementChild);
+        case "End":
+          return doFocus(target.parentElement.lastElementChild);
+      }
+    }
+    async function getDetailForClickEvent(unicodeOrName) {
+      const emoji = await state.database.getEmojiByUnicodeOrName(unicodeOrName);
+      const emojiSummary = [...state.currentEmojis, ...state.currentFavorites].find((_) => _.id === unicodeOrName);
+      const skinTonedUnicode = emojiSummary.unicode && unicodeWithSkin(emojiSummary, state.currentSkinTone);
+      await state.database.incrementFavoriteEmojiCount(unicodeOrName);
+      return {
+        emoji,
+        skinTone: state.currentSkinTone,
+        ...skinTonedUnicode && { unicode: skinTonedUnicode },
+        ...emojiSummary.name && { name: emojiSummary.name }
+      };
+    }
+    async function clickEmoji(unicodeOrName) {
+      const promiseForDetail = getDetailForClickEvent(unicodeOrName);
+      fireEvent("emoji-click-sync", promiseForDetail);
+      fireEvent("emoji-click", await promiseForDetail);
+    }
+    function onEmojiClick(event) {
+      const { target } = event;
+      if (!target.classList.contains("emoji")) {
+        return;
+      }
+      halt(event);
+      const id = target.id.substring(4);
+      clickEmoji(id);
+    }
+    function changeSkinTone(skinTone) {
+      state.currentSkinTone = skinTone;
+      state.skinTonePickerExpanded = false;
+      focus("skintone-button");
+      fireEvent("skin-tone-change", { skinTone });
+      state.database.setPreferredSkinTone(skinTone);
+    }
+    function onSkinToneOptionsClick(event) {
+      const { target: { id } } = event;
+      const match = id && id.match(/^skintone-(\d)/);
+      if (!match) {
+        return;
+      }
+      halt(event);
+      const skinTone = parseInt(match[1], 10);
+      changeSkinTone(skinTone);
+    }
+    function onClickSkinToneButton(event) {
+      state.skinTonePickerExpanded = !state.skinTonePickerExpanded;
+      state.activeSkinTone = state.currentSkinTone;
+      if (state.skinTonePickerExpanded) {
+        halt(event);
+        rAF(() => focus("skintone-list"));
+      }
+    }
+    createEffect(() => {
+      if (state.skinTonePickerExpanded) {
+        refs.skinToneDropdown.addEventListener("transitionend", () => {
+          state.skinTonePickerExpandedAfterAnimation = true;
+        }, { once: true });
+      } else {
+        state.skinTonePickerExpandedAfterAnimation = false;
+      }
+    });
+    function onSkinToneOptionsKeydown(event) {
+      if (!state.skinTonePickerExpanded) {
+        return;
+      }
+      const changeActiveSkinTone = async (nextSkinTone) => {
+        halt(event);
+        state.activeSkinTone = nextSkinTone;
+      };
+      switch (event.key) {
+        case "ArrowUp":
+          return changeActiveSkinTone(incrementOrDecrement(true, state.activeSkinTone, state.skinTones));
+        case "ArrowDown":
+          return changeActiveSkinTone(incrementOrDecrement(false, state.activeSkinTone, state.skinTones));
+        case "Home":
+          return changeActiveSkinTone(0);
+        case "End":
+          return changeActiveSkinTone(state.skinTones.length - 1);
+        case "Enter":
+          halt(event);
+          return changeSkinTone(state.activeSkinTone);
+        case "Escape":
+          halt(event);
+          state.skinTonePickerExpanded = false;
+          return focus("skintone-button");
+      }
+    }
+    function onSkinToneOptionsKeyup(event) {
+      if (!state.skinTonePickerExpanded) {
+        return;
+      }
+      switch (event.key) {
+        case " ":
+          halt(event);
+          return changeSkinTone(state.activeSkinTone);
+      }
+    }
+    async function onSkinToneOptionsFocusOut(event) {
+      const { relatedTarget } = event;
+      if (!relatedTarget || relatedTarget.id !== "skintone-list") {
+        state.skinTonePickerExpanded = false;
+      }
+    }
+    function onSearchInput(event) {
+      state.rawSearchText = event.target.value;
+    }
+    return {
+      $set(newState) {
+        assign(state, newState);
+      },
+      $destroy() {
+        abortController.abort();
+      }
+    };
+  }
+  var allGroups, groups, MIN_SEARCH_TEXT_LENGTH2, NUM_SKIN_TONES, rIC, versionsAndTestEmoji, TIMEOUT_BEFORE_LOADING_MESSAGE, DEFAULT_SKIN_TONE_EMOJI, DEFAULT_NUM_COLUMNS, MOST_COMMONLY_USED_EMOJI, FONT_FAMILY, DEFAULT_CATEGORY_SORTING, getTextFeature, compareFeatures, promise, detectEmojiSupportLevel, supportedZwjEmojis, VARIATION_SELECTOR, SKINTONE_MODIFIER, ZWJ, LIGHT_SKIN_TONE, LIGHT_SKIN_TONE_MODIFIER, rAF, resizeObserverSupported, baselineEmojiWidth, parseCache, domInstancesCache, unkeyedSymbol, hasReplaceChildren, qM, intersectionObserverCache, EMPTY_ARRAY, assign, DEFAULT_DATA_SOURCE2, DEFAULT_LOCALE2, enI18n, baseStyles, PROPS, EXTRA_STYLES, PickerElement, definitions;
+  var init_picker = __esm({
+    "node_modules/emoji-picker-element/picker.js"() {
+      init_database();
+      allGroups = [
+        [-1, "\u2728", "custom"],
+        [0, "\u{1F600}", "smileys-emotion"],
+        [1, "\u{1F44B}", "people-body"],
+        [3, "\u{1F431}", "animals-nature"],
+        [4, "\u{1F34E}", "food-drink"],
+        [5, "\u{1F3E0}\uFE0F", "travel-places"],
+        [6, "\u26BD", "activities"],
+        [7, "\u{1F4DD}", "objects"],
+        [8, "\u26D4\uFE0F", "symbols"],
+        [9, "\u{1F3C1}", "flags"]
+      ].map(([id, emoji, name]) => ({ id, emoji, name }));
+      groups = allGroups.slice(1);
+      MIN_SEARCH_TEXT_LENGTH2 = 2;
+      NUM_SKIN_TONES = 6;
+      rIC = typeof requestIdleCallback === "function" ? requestIdleCallback : setTimeout;
+      versionsAndTestEmoji = {
+        "\u{1FAE9}": 16,
+        // face with bags under eyes
+        "\u{1FAE8}": 15.1,
+        // shaking head, technically from v15 but see note above
+        "\u{1FAE0}": 14,
+        "\u{1F972}": 13.1,
+        // smiling face with tear, technically from v13 but see note above
+        "\u{1F97B}": 12.1,
+        // sari, technically from v12 but see note above
+        "\u{1F970}": 11,
+        "\u{1F929}": 5,
+        "\u{1F471}\u200D\u2640\uFE0F": 4,
+        "\u{1F923}": 3,
+        "\u{1F441}\uFE0F\u200D\u{1F5E8}\uFE0F": 2,
+        "\u{1F600}": 1,
+        "\u{1F610}\uFE0F": 0.7,
+        "\u{1F603}": 0.6
+      };
+      TIMEOUT_BEFORE_LOADING_MESSAGE = 1e3;
+      DEFAULT_SKIN_TONE_EMOJI = "\u{1F590}\uFE0F";
+      DEFAULT_NUM_COLUMNS = 8;
+      MOST_COMMONLY_USED_EMOJI = [
+        "\u{1F60A}",
+        "\u{1F612}",
+        "\u2764\uFE0F",
+        "\u{1F44D}\uFE0F",
+        "\u{1F60D}",
+        "\u{1F602}",
+        "\u{1F62D}",
+        "\u263A\uFE0F",
+        "\u{1F614}",
+        "\u{1F629}",
+        "\u{1F60F}",
+        "\u{1F495}",
+        "\u{1F64C}",
+        "\u{1F618}"
+      ];
+      FONT_FAMILY = '"Twemoji Mozilla","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji","EmojiOne Color","Android Emoji",sans-serif';
+      DEFAULT_CATEGORY_SORTING = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+      getTextFeature = (text, color) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 1;
+        const ctx = canvas.getContext("2d", {
+          // Improves the performance of `getImageData()`
+          // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getContextAttributes#willreadfrequently
+          willReadFrequently: true
+        });
+        ctx.textBaseline = "top";
+        ctx.font = `100px ${FONT_FAMILY}`;
+        ctx.fillStyle = color;
+        ctx.scale(0.01, 0.01);
+        ctx.fillText(text, 0, 0);
+        return ctx.getImageData(0, 0, 1, 1).data;
+      };
+      compareFeatures = (feature1, feature2) => {
+        const feature1Str = [...feature1].join(",");
+        const feature2Str = [...feature2].join(",");
+        return feature1Str === feature2Str && !feature1Str.startsWith("0,0,0,");
+      };
+      detectEmojiSupportLevel = () => {
+        if (!promise) {
+          promise = new Promise((resolve) => rIC(() => resolve(determineEmojiSupportLevel())));
+        }
+        return promise;
+      };
+      supportedZwjEmojis = /* @__PURE__ */ new Map();
+      VARIATION_SELECTOR = "\uFE0F";
+      SKINTONE_MODIFIER = "\uD83C";
+      ZWJ = "\u200D";
+      LIGHT_SKIN_TONE = 127995;
+      LIGHT_SKIN_TONE_MODIFIER = 57339;
+      rAF = requestAnimationFrame;
+      resizeObserverSupported = typeof ResizeObserver === "function";
+      parseCache = /* @__PURE__ */ new WeakMap();
+      domInstancesCache = /* @__PURE__ */ new WeakMap();
+      unkeyedSymbol = Symbol("un-keyed");
+      hasReplaceChildren = "replaceChildren" in Element.prototype;
+      qM = typeof queueMicrotask === "function" ? queueMicrotask : (callback) => Promise.resolve().then(callback);
+      intersectionObserverCache = /* @__PURE__ */ new WeakMap();
+      EMPTY_ARRAY = [];
+      ({ assign } = Object);
+      DEFAULT_DATA_SOURCE2 = "https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json";
+      DEFAULT_LOCALE2 = "en";
+      enI18n = {
+        categoriesLabel: "Categories",
+        emojiUnsupportedMessage: "Your browser does not support color emoji.",
+        favoritesLabel: "Favorites",
+        loadingMessage: "Loading\u2026",
+        networkErrorMessage: "Could not load emoji.",
+        regionLabel: "Emoji picker",
+        searchDescription: "When search results are available, press up or down to select and enter to choose.",
+        searchLabel: "Search",
+        searchResultsLabel: "Search results",
+        skinToneDescription: "When expanded, press up or down to select and enter to choose.",
+        skinToneLabel: "Choose a skin tone (currently {skinTone})",
+        skinTonesLabel: "Skin tones",
+        skinTones: [
+          "Default",
+          "Light",
+          "Medium-Light",
+          "Medium",
+          "Medium-Dark",
+          "Dark"
+        ],
+        categories: {
+          custom: "Custom",
+          "smileys-emotion": "Smileys and emoticons",
+          "people-body": "People and body",
+          "animals-nature": "Animals and nature",
+          "food-drink": "Food and drink",
+          "travel-places": "Travel and places",
+          activities: "Activities",
+          objects: "Objects",
+          symbols: "Symbols",
+          flags: "Flags"
+        }
+      };
+      baseStyles = ':host{--emoji-size:1.375rem;--emoji-padding:0.5rem;--category-emoji-size:var(--emoji-size);--category-emoji-padding:var(--emoji-padding);--indicator-height:3px;--input-border-radius:0.5rem;--input-border-size:1px;--input-font-size:1rem;--input-line-height:1.5;--input-padding:0.25rem;--num-columns:8;--outline-size:2px;--border-size:1px;--border-radius:0;--skintone-border-radius:1rem;--category-font-size:1rem;display:flex;width:min-content;height:400px}:host,:host(.light){color-scheme:light;--background:#fff;--border-color:#e0e0e0;--indicator-color:#385ac1;--input-border-color:#999;--input-font-color:#111;--input-placeholder-color:#999;--outline-color:#999;--category-font-color:#111;--button-active-background:#e6e6e6;--button-hover-background:#d9d9d9}:host(.dark){color-scheme:dark;--background:#222;--border-color:#444;--indicator-color:#5373ec;--input-border-color:#ccc;--input-font-color:#efefef;--input-placeholder-color:#ccc;--outline-color:#fff;--category-font-color:#efefef;--button-active-background:#555555;--button-hover-background:#484848}@media (prefers-color-scheme:dark){:host{color-scheme:dark;--background:#222;--border-color:#444;--indicator-color:#5373ec;--input-border-color:#ccc;--input-font-color:#efefef;--input-placeholder-color:#ccc;--outline-color:#fff;--category-font-color:#efefef;--button-active-background:#555555;--button-hover-background:#484848}}:host([hidden]){display:none}button{margin:0;padding:0;border:0;background:0 0;box-shadow:none;-webkit-tap-highlight-color:transparent}button::-moz-focus-inner{border:0}input{padding:0;margin:0;line-height:1.15;font-family:inherit}input[type=search]{-webkit-appearance:none}:focus{outline:var(--outline-color) solid var(--outline-size);outline-offset:calc(-1*var(--outline-size))}:host([data-js-focus-visible]) :focus:not([data-focus-visible-added]){outline:0}:focus:not(:focus-visible){outline:0}.hide-focus{outline:0}*{box-sizing:border-box}.picker{contain:content;display:flex;flex-direction:column;background:var(--background);border:var(--border-size) solid var(--border-color);border-radius:var(--border-radius);width:100%;height:100%;overflow:hidden;--total-emoji-size:calc(var(--emoji-size) + (2 * var(--emoji-padding)));--total-category-emoji-size:calc(var(--category-emoji-size) + (2 * var(--category-emoji-padding)))}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.hidden{opacity:0;pointer-events:none}.abs-pos{position:absolute;left:0;top:0}.gone{display:none!important}.skintone-button-wrapper,.skintone-list{background:var(--background);z-index:3}.skintone-button-wrapper.expanded{z-index:1}.skintone-list{position:absolute;inset-inline-end:0;top:0;z-index:2;overflow:visible;border-bottom:var(--border-size) solid var(--border-color);border-radius:0 0 var(--skintone-border-radius) var(--skintone-border-radius);will-change:transform;transition:transform .2s ease-in-out;transform-origin:center 0}@media (prefers-reduced-motion:reduce){.skintone-list{transition-duration:.001s}}@supports not (inset-inline-end:0){.skintone-list{right:0}}.skintone-list.no-animate{transition:none}.tabpanel{overflow-y:auto;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;will-change:transform;min-height:0;flex:1;contain:content}.emoji-menu{display:grid;grid-template-columns:repeat(var(--num-columns),var(--total-emoji-size));justify-content:space-around;align-items:flex-start;width:100%}.emoji-menu.visibility-auto{content-visibility:auto;contain-intrinsic-size:calc(var(--num-columns)*var(--total-emoji-size)) calc(var(--num-rows)*var(--total-emoji-size))}.category{padding:var(--emoji-padding);font-size:var(--category-font-size);color:var(--category-font-color)}.emoji,button.emoji{font-size:var(--emoji-size);display:flex;align-items:center;justify-content:center;border-radius:100%;height:var(--total-emoji-size);width:var(--total-emoji-size);line-height:1;overflow:hidden;font-family:var(--emoji-font-family);cursor:pointer}@media (hover:hover) and (pointer:fine){.emoji:hover,button.emoji:hover{background:var(--button-hover-background)}}.emoji.active,.emoji:active,button.emoji.active,button.emoji:active{background:var(--button-active-background)}.onscreen .custom-emoji::after{content:"";width:var(--emoji-size);height:var(--emoji-size);background-repeat:no-repeat;background-position:center center;background-size:contain;background-image:var(--custom-emoji-background)}.nav,.nav-button{align-items:center}.nav{display:grid;justify-content:space-between;contain:content}.nav-button{display:flex;justify-content:center}.nav-emoji{font-size:var(--category-emoji-size);width:var(--total-category-emoji-size);height:var(--total-category-emoji-size)}.indicator-wrapper{display:flex;border-bottom:1px solid var(--border-color)}.indicator{width:calc(100%/var(--num-groups));height:var(--indicator-height);opacity:var(--indicator-opacity);background-color:var(--indicator-color);will-change:transform,opacity;transition:opacity .1s linear,transform .25s ease-in-out}@media (prefers-reduced-motion:reduce){.indicator{will-change:opacity;transition:opacity .1s linear}}.pad-top,input.search{background:var(--background);width:100%}.pad-top{height:var(--emoji-padding);z-index:3}.search-row{display:flex;align-items:center;position:relative;padding-inline-start:var(--emoji-padding);padding-bottom:var(--emoji-padding)}.search-wrapper{flex:1;min-width:0}input.search{padding:var(--input-padding);border-radius:var(--input-border-radius);border:var(--input-border-size) solid var(--input-border-color);color:var(--input-font-color);font-size:var(--input-font-size);line-height:var(--input-line-height)}input.search::placeholder{color:var(--input-placeholder-color)}.favorites{overflow-y:auto;scrollbar-gutter:stable;display:flex;flex-direction:row;border-top:var(--border-size) solid var(--border-color);contain:content}.message{padding:var(--emoji-padding)}';
+      PROPS = [
+        "customEmoji",
+        "customCategorySorting",
+        "database",
+        "dataSource",
+        "i18n",
+        "locale",
+        "skinToneEmoji",
+        "emojiVersion"
+      ];
+      EXTRA_STYLES = `:host{--emoji-font-family:${FONT_FAMILY}}`;
+      PickerElement = class extends HTMLElement {
+        constructor(props) {
+          super();
+          this.attachShadow({ mode: "open" });
+          const style = document.createElement("style");
+          style.textContent = baseStyles + EXTRA_STYLES;
+          this.shadowRoot.appendChild(style);
+          this._ctx = {
+            // Set defaults
+            locale: DEFAULT_LOCALE2,
+            dataSource: DEFAULT_DATA_SOURCE2,
+            skinToneEmoji: DEFAULT_SKIN_TONE_EMOJI,
+            customCategorySorting: DEFAULT_CATEGORY_SORTING,
+            customEmoji: null,
+            i18n: enI18n,
+            emojiVersion: null,
+            ...props
+          };
+          for (const prop of PROPS) {
+            if (prop !== "database" && Object.prototype.hasOwnProperty.call(this, prop)) {
+              this._ctx[prop] = this[prop];
+              delete this[prop];
+            }
+          }
+          this._dbFlush();
+        }
+        connectedCallback() {
+          if (!this._cmp) {
+            this._cmp = createRoot(this.shadowRoot, this._ctx);
+          }
+        }
+        disconnectedCallback() {
+          qM(() => {
+            if (!this.isConnected && this._cmp) {
+              this._cmp.$destroy();
+              this._cmp = void 0;
+              const { database } = this._ctx;
+              database.close().catch((err) => console.error(err));
+            }
+          });
+        }
+        static get observedAttributes() {
+          return ["locale", "data-source", "skin-tone-emoji", "emoji-version"];
+        }
+        attributeChangedCallback(attrName, oldValue, newValue) {
+          this._set(
+            // convert from kebab-case to camelcase
+            // see https://github.com/sveltejs/svelte/issues/3852#issuecomment-665037015
+            attrName.replace(/-([a-z])/g, (_, up) => up.toUpperCase()),
+            // convert string attribute to float if necessary
+            attrName === "emoji-version" ? parseFloat(newValue) : newValue
+          );
+        }
+        _set(prop, newValue) {
+          this._ctx[prop] = newValue;
+          if (this._cmp) {
+            this._cmp.$set({ [prop]: newValue });
+          }
+          if (["locale", "dataSource"].includes(prop)) {
+            this._dbFlush();
+          }
+        }
+        _dbCreate() {
+          const { locale, dataSource, database } = this._ctx;
+          if (!database || database.locale !== locale || database.dataSource !== dataSource) {
+            this._set("database", new Database({ locale, dataSource }));
+          }
+        }
+        // Update the Database in one microtask if the locale/dataSource change. We do one microtask
+        // so we don't create two Databases if e.g. both the locale and the dataSource change
+        _dbFlush() {
+          qM(() => this._dbCreate());
+        }
+      };
+      definitions = {};
+      for (const prop of PROPS) {
+        definitions[prop] = {
+          get() {
+            if (prop === "database") {
+              this._dbCreate();
+            }
+            return this._ctx[prop];
+          },
+          set(val) {
+            if (prop === "database") {
+              throw new Error("database is read-only");
+            }
+            this._set(prop, val);
+          }
+        };
+      }
+      Object.defineProperties(PickerElement.prototype, definitions);
+      if (!customElements.get("emoji-picker")) {
+        customElements.define("emoji-picker", PickerElement);
+      }
+    }
+  });
+
+  // node_modules/emoji-picker-element/index.js
+  var init_emoji_picker_element = __esm({
+    "node_modules/emoji-picker-element/index.js"() {
+      init_picker();
+      init_database();
+    }
+  });
+
+  // settings/settings.js
+  var require_settings = __commonJS({
+    "settings/settings.js"() {
+      init_emoji_picker_element();
+      document.addEventListener("DOMContentLoaded", () => {
+        const picker = document.getElementById("emojiPicker");
+        const emojiInput = document.getElementById("chosenEmoji");
+        const emojiContainer = document.getElementById("emojiContainer");
+        emojiInput.addEventListener("click", (e) => {
+          emojiContainer.classList.add("show");
+          e.stopPropagation();
+        });
+        emojiContainer.addEventListener("click", (e) => e.stopPropagation());
+        document.addEventListener("click", () => emojiContainer.classList.remove("show"));
+        picker.addEventListener("emoji-click", (event) => {
+          emojiInput.value = event.detail.unicode;
+          emojiContainer.classList.remove("show");
+        });
+        const primaryColor = document.getElementById("primaryColor");
+        const primaryHex = document.getElementById("primaryHex");
+        const secondaryColor = document.getElementById("secondaryColor");
+        const secondaryHex = document.getElementById("secondaryHex");
+        const accentColor = document.getElementById("accentColor");
+        const accentHex = document.getElementById("accentHex");
+        const syncInput = (input1, input2) => {
+          input1.addEventListener("input", () => input2.value = input1.value);
+          input2.addEventListener("input", () => input1.value = input2.value);
+        };
+        syncInput(primaryColor, primaryHex);
+        syncInput(secondaryColor, secondaryHex);
+        syncInput(accentColor, accentHex);
+        chrome.storage.sync.get(["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"], (settingsData) => {
+          if (settingsData.primaryColor) primaryColor.value = primaryHex.value = settingsData.primaryColor;
+          if (settingsData.secondaryColor) secondaryColor.value = secondaryHex.value = settingsData.secondaryColor;
+          if (settingsData.accentColor) accentColor.value = accentHex.value = settingsData.accentColor;
+          if (settingsData.chosenEmoji) emojiInput.value = settingsData.chosenEmoji;
+        });
+        const saveSettings = () => {
+          chrome.storage.sync.set({
+            primaryColor: primaryColor.value,
+            secondaryColor: secondaryColor.value,
+            accentColor: accentColor.value,
+            chosenEmoji: emojiInput.value
+          });
+        };
+        [primaryColor, secondaryColor, accentColor].forEach((el) => {
+          el.addEventListener("change", saveSettings);
+        });
+        emojiInput.addEventListener("blur", saveSettings);
+      });
+    }
+  });
+  require_settings();
+})();
