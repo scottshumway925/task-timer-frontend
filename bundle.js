@@ -12444,7 +12444,7 @@
     let minutes = Math.floor(tempSeconds / 60);
     tempSeconds -= minutes * 60;
     let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#seconds").innerText = output;
+    document.querySelector("#timerSeconds").innerText = output;
   }
   var seconds, isRunning, intervalId;
   var init_timer = __esm({
@@ -12454,17 +12454,39 @@
     }
   });
 
+  // classInfo.js
+  function getInfo() {
+    assignmentName = document.querySelectorAll("#breadcrumbs li")[3].innerText;
+    console.log(assignmentName);
+    const classStr = document.querySelectorAll("#breadcrumbs li")[1].innerText;
+    const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+    const match = classStr.match(classCodeRegex);
+    if (match) {
+      className = match[1] + match[2];
+    } else {
+      className = classStr;
+    }
+    console.log(className);
+  }
+  var className, assignmentName;
+  var init_classInfo = __esm({
+    "classInfo.js"() {
+      className = "";
+      assignmentName = "";
+    }
+  });
+
   // content.js
   var require_content = __commonJS({
     "content.js"() {
       init_bell_curve();
       init_timer();
+      init_classInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
   <div id="mySidebarContent">
-    <h2>Mean Time:</h2>
-    <h2>00:00:00</h2>
+    <h2>Mean Time: <span id="meanTime">00:00:00</span></h2>
     <div class="timeData">
         <div>
             <p>Median:</p>
@@ -12550,8 +12572,8 @@
       var timer = document.createElement("div");
       timer.id = "timer";
       timer.innerHTML = `
-    <h2>Timer</h2>
-    <p id="seconds">0</p>
+    <p>Timer</p>
+    <h2 id="timerSeconds">0</h2>
     <button id="pause">Start</button>
 `;
       document.getElementById("mySidebarContent").appendChild(timer);
@@ -12591,7 +12613,7 @@
       secondInput.min = "0";
       secondInput.max = "59";
       secondInput.placeholder = "sec";
-      secondInput.id = "seconds";
+      secondInput.id = "inputSeconds";
       var submitButton = document.createElement("button");
       submitButton.type = "submit";
       submitButton.textContent = "Add Time";
@@ -12626,25 +12648,28 @@
         minuteInput.value = "";
         secondInput.value = "";
       });
-      function updateStats() {
-        const mean2 = times.reduce((a, b) => a + b, 0) / times.length;
-        const median = calculateMedian(times);
-        const mode = calculateMode(times);
-        document.getElementById("meanTime").textContent = formatTime(mean2);
-        document.getElementById("medianTime").textContent = formatTime(median);
-        document.getElementById("modeTime").textContent = formatTime(mode);
-      }
-      function calculateMedian(arr) {
-        const sorted = [...arr].sort((a, b) => a - b);
-        const mid = Math.floor(sorted.length / 2);
-        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-      }
-      function calculateMode(arr) {
-        const freq = {};
-        arr.forEach((num) => freq[num] = (freq[num] || 0) + 1);
-        const maxFreq = Math.max(...Object.values(freq));
-        const mode = Object.keys(freq).find((k) => freq[k] === maxFreq);
-        return parseFloat(mode);
+      async function updateStats() {
+        if (!times || times.length === 0) return;
+        try {
+          const response = await fetch(
+            "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ times }),
+              times
+            }
+          );
+          const result = await response.json();
+          const meanElem = document.getElementById("meanTime");
+          const medianElem = document.getElementById("medianTime");
+          const modeElem = document.getElementById("modeTime");
+          if (meanElem) meanElem.textContent = formatTime(result.mean);
+          if (medianElem) medianElem.textContent = formatTime(result.median);
+          if (modeElem) modeElem.textContent = formatTime(result.mode);
+        } catch (err) {
+          console.error("Error updating stats:", err);
+        }
       }
       function formatTime(totalSeconds) {
         const hrs = Math.floor(totalSeconds / 3600);
@@ -12652,6 +12677,7 @@
         const secs = Math.floor(totalSeconds % 60);
         return `${hrs}h ${mins}m ${secs}s`;
       }
+<<<<<<< HEAD
       chrome.storage.sync.get(
         ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
         (data) => {
@@ -12662,6 +12688,11 @@
           timerInit();
         }
       );
+=======
+      displayGraph();
+      timerInit();
+      getInfo();
+>>>>>>> 4b3ca730660b0e23a66d2671cb408b78c13f1fd4
     }
   });
   require_content();

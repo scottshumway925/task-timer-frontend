@@ -37,6 +37,9 @@ body {
 .timeData {
     display: flex;
     width: 100%;
+    margin-bottom: 1%;
+    padding-bottom: 1%;
+    border-bottom: 1px solid darkgray;
     div {
         flex: 1;
         text-align: center;
@@ -48,6 +51,13 @@ body {
 
 #mySidebarContent {
     text-align: center;
+}
+
+#timer {
+    margin-bottom: 1%;
+    p {
+        margin: 0;
+    }
 }
 
 /* Making the sidebar disappear on a smaller screen */
