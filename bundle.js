@@ -12677,7 +12677,6 @@
         const secs = Math.floor(totalSeconds % 60);
         return `${hrs}h ${mins}m ${secs}s`;
       }
-<<<<<<< HEAD
       chrome.storage.sync.get(
         ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
         (data) => {
@@ -12688,11 +12687,7 @@
           timerInit();
         }
       );
-=======
-      displayGraph();
-      timerInit();
       getInfo();
->>>>>>> 4b3ca730660b0e23a66d2671cb408b78c13f1fd4
     }
   });
   require_content();
