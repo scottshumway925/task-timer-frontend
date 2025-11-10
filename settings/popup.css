@@ -1,0 +1,40 @@
+/* Reset margins and padding */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  width: 220px;
+  height: 150px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#popup-container {
+  display: flex;
+  flex-direction: column; /* vertical layout */
+  align-items: center;
+  gap: 16px; /* vertical spacing */
+}
+
+h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 12px; /* rounded button */
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #0056b3; /* darker on hover */
+}
