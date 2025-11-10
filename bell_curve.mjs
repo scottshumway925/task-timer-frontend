@@ -55,7 +55,7 @@ function makeBellCurvePoints(stdDev, mean, points) {
     return data;
 }
 
-export default function displayGraph(primaryColor, secondaryColor, chosenEmoji) {
+export default function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
     const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
 
     // Build histogram data
@@ -118,7 +118,7 @@ if (window._taskTimerChart) {
                     label: "Histogram",
                     data: histogram,
                     backgroundColor: secondaryColor,
-                    //borderColor: "rgba(255, 99, 132, 1)",
+                    borderColor: accentColor,
                     borderWidth: 1,
                     barPercentage: 1.0,
                     categoryPercentage: 1.0

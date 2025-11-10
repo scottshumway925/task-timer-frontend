@@ -297,10 +297,11 @@ chrome.storage.sync.get(
   (data) => {
     const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
     const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+    const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
     const chosenEmoji = data.chosenEmoji || "🔥";
 
     // Call displayGraph() with user settings
-    displayGraph(primaryColor, secondaryColor, chosenEmoji);
+    displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
 
     // Then start the timer
     timerInit();

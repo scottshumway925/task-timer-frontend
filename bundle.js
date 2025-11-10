@@ -12239,7 +12239,7 @@
     }
     return data;
   }
-  function displayGraph(primaryColor, secondaryColor, chosenEmoji) {
+  function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
     const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
     const frequencies = {};
     dataPoints.forEach((num) => {
@@ -12293,7 +12293,7 @@
             label: "Histogram",
             data: histogram,
             backgroundColor: secondaryColor,
-            //borderColor: "rgba(255, 99, 132, 1)",
+            borderColor: accentColor,
             borderWidth: 1,
             barPercentage: 1,
             categoryPercentage: 1
@@ -12680,10 +12680,11 @@
       chrome.storage.sync.get(
         ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
         (data) => {
-          const primaryColor = data.primaryColor || "rgba(12, 0, 240, 1)";
-          const secondaryColor = data.secondaryColor || "rgba(152, 254, 234, 1)";
-          const chosenEmoji = data.chosenEmoji || "\u{1F605}";
-          displayGraph(primaryColor, secondaryColor, chosenEmoji);
+          const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+          const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+          const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+          const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+          displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
           timerInit();
         }
       );
