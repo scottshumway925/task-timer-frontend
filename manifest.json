@@ -5,7 +5,7 @@
     "description": "This extension helps students who use canvas to better estimate the amount of time that their assignment will be taking.",
     "content_scripts": [
         {
-            "matches": ["*://*.instructure.com/courses/*/assignments/*", "*://*.instructure.com/courses/*/quizzes*"],
+            "matches": ["*://*.instructure.com/courses/*/assignments/*", "*://*.instructure.com/courses/*/quizzes/*"],
             "js": ["bundle.js"],
             "css": ["content.css"]
         }

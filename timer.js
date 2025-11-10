@@ -1,47 +1,46 @@
 let seconds = 0;
-let isRunning = false;
 let intervalId;
+let id; // will hold the dynamic ID
+
+function extractId() {
+    const urlPlace = window.location.href;
+    const match = urlPlace.match(/\/(quizzes|assignments)\/(\d+)/);
+    if (match) {
+        return match[2];
+    }
+    return null;
+}
 
 // Load state from storage
 export function timerInit() {
+    id = extractId();
+    if (!id) return; // no valid ID, stop
+
     const button = document.querySelector("#pause");
 
-    // Load stored values
-    chrome.storage.sync.get(["seconds", "isRunning"], (data) => {
-        seconds = data.seconds || 0;
-        isRunning = data.isRunning || false;
+    // Load stored value for this ID
+    chrome.storage.sync.get([id], (data) => {
+        seconds = data[id] || 0;
         updateTimer();
-
-        // If it was running, restart the interval
-        if (isRunning) {
-            intervalId = setInterval(incrementSeconds, 1000);
-            button.innerText = "Pause";
-        } else {
-            button.innerText = "Resume";
-        }
     });
 
     button.addEventListener("click", () => {
-        if (isRunning) {
-            isRunning = false;
+        if (intervalId) {
             clearInterval(intervalId);
+            intervalId = null;
             button.innerText = "Resume";
         } else {
-            isRunning = true;
             intervalId = setInterval(incrementSeconds, 1000);
             button.innerText = "Pause";
         }
-
-        // Save the running state
-        chrome.storage.sync.set({ isRunning });
     });
 }
 
-// Increment seconds and persist
+// Increment seconds and save under the ID key
 export function incrementSeconds() {
     seconds++;
     updateTimer();
-    chrome.storage.sync.set({ seconds });
+    chrome.storage.sync.set({ [id]: seconds });
 }
 
 // Format and display
