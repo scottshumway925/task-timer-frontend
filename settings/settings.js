@@ -37,27 +37,39 @@ document.addEventListener("DOMContentLoaded", () => {
   syncInput(accentColor, accentHex);
 
   // === Load Settings from Chrome Storage ===
-  chrome.storage.sync.get(["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"], (settingsData) => {
-    if (settingsData.primaryColor) primaryColor.value = primaryHex.value = settingsData.primaryColor;
-    if (settingsData.secondaryColor) secondaryColor.value = secondaryHex.value = settingsData.secondaryColor;
-    if (settingsData.accentColor) accentColor.value = accentHex.value = settingsData.accentColor;
-    if (settingsData.chosenEmoji) emojiInput.value = settingsData.chosenEmoji;
-  });
+  chrome.storage.sync.get(
+    ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+    (settingsData) => {
+      if (settingsData.primaryColor) primaryColor.value = primaryHex.value = settingsData.primaryColor;
+      if (settingsData.secondaryColor) secondaryColor.value = secondaryHex.value = settingsData.secondaryColor;
+      if (settingsData.accentColor) accentColor.value = accentHex.value = settingsData.accentColor;
+      if (settingsData.chosenEmoji) emojiInput.value = settingsData.chosenEmoji;
+    }
+  );
 
-  // === Save Settings to Chrome Storage ===
+  // === Save Settings Function ===
   const saveSettings = () => {
-    chrome.storage.sync.set({
+    const settings = {
       primaryColor: primaryColor.value,
       secondaryColor: secondaryColor.value,
       accentColor: accentColor.value,
       chosenEmoji: emojiInput.value
+    };
+
+    chrome.storage.sync.set(settings, () => {
+      console.log("Settings saved:", settings);
+
+      // Optionally notify frontend immediately
+      chrome.runtime.sendMessage({ type: "UPDATE_SETTINGS", data: settings });
     });
   };
 
-  [primaryColor, secondaryColor, accentColor].forEach((el) => {
-    el.addEventListener("change", saveSettings);
-  });
+  // === Create Save Button ===
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Save Settings";
+  saveBtn.type = "button"; // prevent form submission
+  saveBtn.style.marginTop = "1em";
+  document.getElementById("settings-form").appendChild(saveBtn);
 
-  // Save emoji when user manually edits or selects it
-  emojiInput.addEventListener("blur", saveSettings);
+  saveBtn.addEventListener("click", saveSettings);
 });

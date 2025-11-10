@@ -295,9 +295,9 @@ function formatTime(totalSeconds) {
 chrome.storage.sync.get(
   ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
   (data) => {
-    const primaryColor = data.primaryColor || "rgba(12, 0, 240, 1)";
-    const secondaryColor = data.secondaryColor || "rgba(152, 254, 234, 1)";
-    const chosenEmoji = data.chosenEmoji || "😅";
+    const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+    const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+    const chosenEmoji = data.chosenEmoji || "🔥";
 
     // Call displayGraph() with user settings
     displayGraph(primaryColor, secondaryColor, chosenEmoji);
