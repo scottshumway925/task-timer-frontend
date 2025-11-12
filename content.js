@@ -1,6 +1,11 @@
+console.warn("--- HELLO WORLD from content.js! If you see this, the correct file is running. ---");
+
 import displayGraph from "./bell_curve.mjs";
 import {timerInit} from "./timer";
 import {getInfo} from "./classInfo";
+
+// Get Class/Assignment Info
+const { assignmentName, className } = getInfo();
 // Create sidebar
 const sidebar = document.createElement("div");
 sidebar.id = "mySidebar";
@@ -207,62 +212,82 @@ form.appendChild(submitButton);
 document.getElementById("mySidebarContent").appendChild(form);
 
 // --- Handle submission ---
-let times = []; // store total seconds for each assignment
+// --- CHANGE: Removed local 'times' array ---
+//let times = []; // We no longer manage state here.
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const assignment = nameInput.value.trim();
+  //const assignment = nameInput.value.trim();
   const hours = parseInt(hourInput.value) || 0;
   const minutes = parseInt(minuteInput.value) || 0;
   const seconds = parseInt(secondInput.value) || 0;
 
-  if (!assignment || (hours === 0 && minutes === 0 && seconds === 0)) {
+  if (/*!assignment ||*/ (hours === 0 && minutes === 0 && seconds === 0)) {
     alert("Please enter an assignment name and a valid time.");
     return;
   }
 
   // convert total time to seconds
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-  times.push(totalSeconds);
-  updateStats();
+
+    // --- CHANGE: Pass totalSeconds to updateStats ---
+ // times.push(totalSeconds);
+  updateStats(totalSeconds); // Pass the single time to the function
 
   // clear fields
-  nameInput.value = "";
+ // nameInput.value = "";
   hourInput.value = "";
   minuteInput.value = "";
   secondInput.value = "";
 });
 
 
-// --- Calculate and display stats (new version connected to backend)
-async function updateStats() {
-  // Only continue if there’s actually data to send
-  if (!times || times.length === 0) return;
-
-  try {
-    const response = await fetch(
-      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ times }),times
-      }
-    );
-
-    const result = await response.json();
-
-    // Update each element only if it exists
-    const meanElem = document.getElementById("meanTime");
-    const medianElem = document.getElementById("medianTime");
-    const modeElem = document.getElementById("modeTime");
-
-    if (meanElem) meanElem.textContent = formatTime(result.mean);
-    if (medianElem) medianElem.textContent = formatTime(result.median);
-    if (modeElem) modeElem.textContent = formatTime(result.mode);
-  } catch (err) {
-    console.error("Error updating stats:", err);
+// --- Calculate and display stats (new version connected to backend) ---
+async function updateStats(timeInSeconds) {
+  // Validate the single time
+  if (typeof timeInSeconds !== 'number' || timeInSeconds <= 0) {
+    console.warn("updateStats called with invalid time:", timeInSeconds);
+    return;
   }
+
+  try {
+  // 🚨 DEBUG LOG: Check what data we are sending! 🚨
+    console.log("Sending to Backend:", { timeInSeconds, assignmentName, className });
+    const response = await fetch(
+      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            timeInSeconds: timeInSeconds,
+            assignmentName: assignmentName,
+            className: className
+          }),
+      }
+    );
+    
+    if (!response.ok) {
+        throw new Error(`Backend error: ${response.statusText} ${await response.text()}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Update each element only if it exists
+      const meanElem = document.getElementById("meanTime");
+      const medianElem = document.getElementById("medianTime");
+      const modeElem = document.getElementById("modeTime");
+
+      if (meanElem) meanElem.textContent = formatTime(result.mean);
+      if (medianElem) medianElem.textContent = formatTime(result.median);
+      if (modeElem) medianElem.textContent = formatTime(result.mode);
+    } else {
+      console.error("Error from backend:", result.error);
+    }
+  } catch (err) {
+    console.error("Error updating stats:", err);
+  }
 }
 
 
@@ -304,10 +329,11 @@ chrome.storage.sync.get(
     displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
 
     // Then start the timer
-    timerInit();
+    timerInit(updateStats);
   }
 );
-getInfo();
+
+//getInfo();
 
 
 

@@ -12414,19 +12414,28 @@
     }
     return null;
   }
-  function timerInit() {
+  function timerInit(updateStatsCallback) {
     id = extractId();
     if (!id) return;
     const button = document.querySelector("#pause");
     chrome.storage.sync.get([id], (data) => {
       seconds = data[id] || 0;
       updateTimer();
+      if (seconds > 0) {
+        button.innerText = "Resume";
+      } else {
+        button.innerText = "Start";
+      }
     });
     button.addEventListener("click", () => {
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
         button.innerText = "Resume";
+        if (seconds > 0 && typeof updateStatsCallback === "function") {
+          console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+          updateStatsCallback(seconds);
+        }
       } else {
         intervalId = setInterval(incrementSeconds, 1e3);
         button.innerText = "Pause";
@@ -12439,13 +12448,15 @@
     chrome.storage.sync.set({ [id]: seconds });
   }
   function updateTimer() {
+    const timerDisplay = document.querySelector("#timerSeconds");
+    if (!timerDisplay) return;
     let tempSeconds = seconds;
     let hours = Math.floor(tempSeconds / 3600);
     tempSeconds -= hours * 3600;
     let minutes = Math.floor(tempSeconds / 60);
-    tempSeconds -= minutes * 60;
-    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#timerSeconds").innerText = output;
+    let currentSeconds = Math.floor(tempSeconds % 60);
+    const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
+    timerDisplay.innerText = output;
   }
   var seconds, intervalId, id;
   var init_timer = __esm({
@@ -12456,17 +12467,26 @@
 
   // classInfo.js
   function getInfo() {
-    assignmentName = document.querySelectorAll("#breadcrumbs li")[3].innerText;
-    console.log(assignmentName);
-    const classStr = document.querySelectorAll("#breadcrumbs li")[1].innerText;
-    const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
-    const match = classStr.match(classCodeRegex);
-    if (match) {
-      className = match[1] + match[2];
-    } else {
-      className = classStr;
+    try {
+      const assignmentNode = document.querySelector("#breadcrumbs li:nth-child(4) .ellipsible");
+      assignmentName = assignmentNode ? assignmentNode.innerText.trim() : "Unknown Assignment";
+      console.log(assignmentName);
+      const classNode = document.querySelector("#breadcrumbs li:nth-child(2) .ellipsible");
+      const classStr = classNode ? classNode.innerText.trim() : "Unknown Class";
+      const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+      const match = classStr.match(classCodeRegex);
+      if (match && match[1] && match[2]) {
+        className = (match[1] || "") + match[2];
+      } else {
+        className = classStr;
+      }
+      console.log(className);
+    } catch (e) {
+      console.error("Error scraping breadcrumbs:", e);
+      assignmentName = "Unknown Assignment";
+      className = "Unknown Class";
     }
-    console.log(className);
+    return { assignmentName, className };
   }
   var className, assignmentName;
   var init_classInfo = __esm({
@@ -12482,6 +12502,8 @@
       init_bell_curve();
       init_timer();
       init_classInfo();
+      console.warn("--- HELLO WORLD from content.js! If you see this, the correct file is running. ---");
+      var { assignmentName: assignmentName2, className: className2 } = getInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
@@ -12629,44 +12651,57 @@
       form.appendChild(document.createElement("br"));
       form.appendChild(submitButton);
       document.getElementById("mySidebarContent").appendChild(form);
-      var times = [];
       form.addEventListener("submit", (event) => {
         event.preventDefault();
-        const assignment = nameInput.value.trim();
         const hours = parseInt(hourInput.value) || 0;
         const minutes = parseInt(minuteInput.value) || 0;
         const seconds2 = parseInt(secondInput.value) || 0;
-        if (!assignment || hours === 0 && minutes === 0 && seconds2 === 0) {
+        if (
+          /*!assignment ||*/
+          hours === 0 && minutes === 0 && seconds2 === 0
+        ) {
           alert("Please enter an assignment name and a valid time.");
           return;
         }
         const totalSeconds = hours * 3600 + minutes * 60 + seconds2;
-        times.push(totalSeconds);
-        updateStats();
-        nameInput.value = "";
+        updateStats(totalSeconds);
         hourInput.value = "";
         minuteInput.value = "";
         secondInput.value = "";
       });
-      async function updateStats() {
-        if (!times || times.length === 0) return;
+      async function updateStats(timeInSeconds) {
+        if (typeof timeInSeconds !== "number" || timeInSeconds <= 0) {
+          console.warn("updateStats called with invalid time:", timeInSeconds);
+          return;
+        }
         try {
+          console.log("Sending to Backend:", { timeInSeconds, assignmentName: assignmentName2, className: className2 });
           const response = await fetch(
             "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ times }),
-              times
+              body: JSON.stringify({
+                timeInSeconds,
+                assignmentName: assignmentName2,
+                className: className2
+              })
             }
           );
+          if (!response.ok) {
+            throw new Error(`Backend error: ${response.statusText} ${await response.text()}`);
+          }
           const result = await response.json();
-          const meanElem = document.getElementById("meanTime");
-          const medianElem = document.getElementById("medianTime");
-          const modeElem = document.getElementById("modeTime");
-          if (meanElem) meanElem.textContent = formatTime(result.mean);
-          if (medianElem) medianElem.textContent = formatTime(result.median);
-          if (modeElem) modeElem.textContent = formatTime(result.mode);
+          if (result.success) {
+            const meanElem = document.getElementById("meanTime");
+            const medianElem = document.getElementById("medianTime");
+            const modeElem = document.getElementById("modeTime");
+            if (meanElem) meanElem.textContent = formatTime(result.mean);
+            if (medianElem) medianElem.textContent = formatTime(result.median);
+            if (modeElem) medianElem.textContent = formatTime(result.mode);
+          } else {
+            console.error("Error from backend:", result.error);
+          }
         } catch (err) {
           console.error("Error updating stats:", err);
         }
@@ -12685,10 +12720,9 @@
           const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
           const chosenEmoji = data.chosenEmoji || "\u{1F525}";
           displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
-          timerInit();
+          timerInit(updateStats);
         }
       );
-      getInfo();
     }
   });
   require_content();

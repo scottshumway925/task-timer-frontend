@@ -16,7 +16,8 @@
   "scripting"
   ],
   "host_permissions": [
-  "https://us-central1-assignment-time.cloudfunctions.net/*"
+  "https://us-central1-assignment-time.cloudfunctions.net/*",
+  "*://*.instructure.com/*"
 ],
     "action": {
         "default_popup": "settings/popup.html",

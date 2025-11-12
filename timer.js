@@ -11,8 +11,8 @@ function extractId() {
     return null;
 }
 
-// Load state from storage
-export function timerInit() {
+// Load state from storage and initialize the button listener
+export function timerInit(updateStatsCallback) { // <-- FIX 1: Now accepts the callback
     id = extractId();
     if (!id) return; // no valid ID, stop
 
@@ -22,14 +22,28 @@ export function timerInit() {
     chrome.storage.sync.get([id], (data) => {
         seconds = data[id] || 0;
         updateTimer();
+        // Set initial button text based on stored state
+        if (seconds > 0) {
+            button.innerText = "Resume";
+        } else {
+            button.innerText = "Start";
+        }
     });
 
     button.addEventListener("click", () => {
         if (intervalId) {
+            // Timer is running, so PAUSE it
             clearInterval(intervalId);
             intervalId = null;
             button.innerText = "Resume";
+            
+            // --- FIX 2: Submit the time on PAUSE/STOP ---
+            if (seconds > 0 && typeof updateStatsCallback === 'function') {
+                console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+                updateStatsCallback(seconds); // <-- Submit the time!
+            }
         } else {
+            // Timer is stopped, so START it
             intervalId = setInterval(incrementSeconds, 1000);
             button.innerText = "Pause";
         }
@@ -45,11 +59,17 @@ export function incrementSeconds() {
 
 // Format and display
 function updateTimer() {
+    const timerDisplay = document.querySelector("#timerSeconds");
+    if (!timerDisplay) return;
+    
     let tempSeconds = seconds;
     let hours = Math.floor(tempSeconds / 3600);
     tempSeconds -= hours * 3600;
     let minutes = Math.floor(tempSeconds / 60);
-    tempSeconds -= minutes * 60;
-    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#timerSeconds").innerText = output;
+    let currentSeconds = Math.floor(tempSeconds % 60);
+
+    // Use the desired format (hh:mm:ss)
+    const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
+    
+    timerDisplay.innerText = output;
 }
