@@ -12502,7 +12502,6 @@
       init_bell_curve();
       init_timer();
       init_classInfo();
-      console.warn("--- HELLO WORLD from content.js! If you see this, the correct file is running. ---");
       var { assignmentName: assignmentName2, className: className2 } = getInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";

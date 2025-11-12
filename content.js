@@ -1,4 +1,4 @@
-console.warn("--- HELLO WORLD from content.js! If you see this, the correct file is running. ---");
+
 
 import displayGraph from "./bell_curve.mjs";
 import {timerInit} from "./timer";
