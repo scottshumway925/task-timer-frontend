@@ -53,3 +53,13 @@ function updateTimer() {
     let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
     document.querySelector("#timerSeconds").innerText = output;
 }
+
+// Export getter for current timer value
+export function getCurrentSeconds() {
+    return seconds;
+}
+
+// Export getter for assignment ID
+export function getTimerId() {
+    return id;
+}

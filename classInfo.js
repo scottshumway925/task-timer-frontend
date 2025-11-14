@@ -1,5 +1,7 @@
 let className = "";
 let assignmentName = "";
+let courseId = "";
+let assignmentId = "";
 
 export function getInfo() {
     assignmentName = document.querySelectorAll("#breadcrumbs li")[3].innerText;
@@ -16,4 +18,27 @@ export function getInfo() {
         className = classStr;
     }
     console.log(className);
+
+    // Extract course and assignment IDs from URL
+    const urlMatch = window.location.href.match(/courses\/(\d+)\/(assignments|quizzes)\/(\d+)/);
+    if (urlMatch) {
+        courseId = urlMatch[1];
+        assignmentId = urlMatch[3];
+    }
+}
+
+export function getClassName() {
+    return className;
+}
+
+export function getAssignmentName() {
+    return assignmentName;
+}
+
+export function getCourseId() {
+    return courseId;
+}
+
+export function getAssignmentId() {
+    return assignmentId;
 }

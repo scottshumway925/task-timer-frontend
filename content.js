@@ -1,6 +1,7 @@
 import displayGraph from "./bell_curve.mjs";
-import {timerInit} from "./timer";
-import {getInfo} from "./classInfo";
+import {timerInit, getCurrentSeconds} from "./timer";
+import {getInfo, getClassName, getAssignmentName, getCourseId, getAssignmentId} from "./classInfo";
+import {writeTimingData, listenToStatistics} from "./firestoreSync.js";
 // Create sidebar
 const sidebar = document.createElement("div");
 sidebar.id = "mySidebar";
@@ -209,7 +210,7 @@ document.getElementById("mySidebarContent").appendChild(form);
 // --- Handle submission ---
 let times = []; // store total seconds for each assignment
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const assignment = nameInput.value.trim();
@@ -225,6 +226,29 @@ form.addEventListener("submit", (event) => {
   // convert total time to seconds
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
   times.push(totalSeconds);
+  
+  // Write to Firestore
+  const courseId = getCourseId();
+  const assignmentId = getAssignmentId();
+  const className = getClassName();
+  const assignmentName = getAssignmentName();
+  
+  if (courseId && assignmentId) {
+    const success = await writeTimingData(courseId, assignmentId, totalSeconds, assignmentName, className);
+    if (success) {
+      console.log('Timing data submitted to Firestore');
+      // Show success message
+      submitButton.textContent = 'Submitted!';
+      setTimeout(() => {
+        submitButton.textContent = 'Add Time';
+      }, 2000);
+    } else {
+      alert('Failed to submit timing data. Please try again.');
+    }
+  } else {
+    console.warn('Could not extract course/assignment ID from URL');
+  }
+  
   updateStats();
 
   // clear fields
@@ -235,34 +259,34 @@ form.addEventListener("submit", (event) => {
 });
 
 
-// --- Calculate and display stats (new version connected to backend)
-async function updateStats() {
-  // Only continue if there’s actually data to send
-  if (!times || times.length === 0) return;
-
-  try {
-    const response = await fetch(
-      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ times }),times
-      }
-    );
-
-    const result = await response.json();
-
-    // Update each element only if it exists
+// --- Calculate and display stats from Firestore
+function updateStats() {
+  // This is now handled by the Firestore listener
+  // Kept for local display fallback
+  if (times && times.length > 0) {
+    const localMean = times.reduce((a, b) => a + b, 0) / times.length;
+    const localMedian = calculateMedian(times);
+    const localMode = calculateMode(times);
+    
+    // Only update if Firestore hasn't loaded yet
     const meanElem = document.getElementById("meanTime");
-    const medianElem = document.getElementById("medianTime");
-    const modeElem = document.getElementById("modeTime");
-
-    if (meanElem) meanElem.textContent = formatTime(result.mean);
-    if (medianElem) medianElem.textContent = formatTime(result.median);
-    if (modeElem) modeElem.textContent = formatTime(result.mode);
-  } catch (err) {
-    console.error("Error updating stats:", err);
+    if (meanElem && meanElem.textContent === "00:00:00") {
+      meanElem.textContent = formatTime(localMean);
+    }
   }
+}
+
+// Display statistics from Firestore
+function displayStatistics(stats) {
+  const meanElem = document.getElementById("meanTime");
+  const medianElem = document.getElementById("medianTime");
+  const modeElem = document.getElementById("modeTime");
+
+  if (meanElem) meanElem.textContent = formatTime(stats.mean || 0);
+  if (medianElem) medianElem.textContent = formatTime(stats.median || 0);
+  if (modeElem) modeElem.textContent = formatTime(stats.mode || 0);
+  
+  console.log(`Statistics updated: ${stats.count || 0} submissions`);
 }
 
 
@@ -307,7 +331,23 @@ chrome.storage.sync.get(
     timerInit();
   }
 );
+
+// Get assignment info
 getInfo();
+
+// Set up Firestore listener for statistics
+// Wait a bit for getInfo() to extract IDs
+setTimeout(() => {
+  const courseId = getCourseId();
+  const assignmentId = getAssignmentId();
+  
+  if (courseId && assignmentId) {
+    console.log(`Setting up statistics listener for course ${courseId}, assignment ${assignmentId}`);
+    listenToStatistics(courseId, assignmentId, displayStatistics);
+  } else {
+    console.warn('Could not extract course/assignment ID - statistics will not be loaded');
+  }
+}, 1000);
 
 
 
