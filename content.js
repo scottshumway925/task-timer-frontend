@@ -323,6 +323,9 @@ async function updateStats(timeInSeconds) {
       const medianElem = document.getElementById("medianTime");
       const modeElem = document.getElementById("modeTime");
 
+  // new standard Deviation
+  // send all datapoints in the document it's pulling from
+
       if (meanElem) meanElem.textContent = formatTime(result.mean);
       if (medianElem) medianElem.textContent = formatTime(result.median);
       if (modeElem) medianElem.textContent = formatTime(result.mode);
