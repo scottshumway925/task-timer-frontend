@@ -12457,6 +12457,7 @@
     let currentSeconds = Math.floor(tempSeconds % 60);
     const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
     timerDisplay.innerText = output;
+    timerDisplay.dataset.seconds = seconds;
   }
   var seconds, intervalId, id;
   var init_timer = __esm({
@@ -12650,6 +12651,33 @@
       form.appendChild(document.createElement("br"));
       form.appendChild(submitButton);
       document.getElementById("mySidebarContent").appendChild(form);
+      async function autoFillForm() {
+        console.log("Auto-fill triggered");
+        const hourField = document.getElementById("hours");
+        const minField = document.getElementById("minutes");
+        const secField = document.getElementById("inputSeconds");
+        if (!hourField || !minField || !secField) {
+          console.warn("Time fields are not fully ready yet");
+          return;
+        }
+        const timerElem = document.getElementById("timerSeconds");
+        if (timerElem) {
+          const rawSeconds = timerElem.dataset.seconds;
+          const total = parseInt(rawSeconds, 10);
+          if (!isNaN(total)) {
+            hourField.value = Math.floor(total / 3600);
+            minField.value = Math.floor(total % 3600 / 60);
+            secField.value = total % 60;
+          }
+        }
+        console.log("Auto-fill complete");
+      }
+      var observer = new MutationObserver(() => {
+        if (document.querySelector("#breadcrumbs")) {
+          autoFillForm();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         const hours = parseInt(hourInput.value) || 0;

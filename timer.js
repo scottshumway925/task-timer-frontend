@@ -72,4 +72,5 @@ function updateTimer() {
     const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
     
     timerDisplay.innerText = output;
+    timerDisplay.dataset.seconds = seconds;
 }

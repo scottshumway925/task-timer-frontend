@@ -218,40 +218,24 @@ document.getElementById("mySidebarContent").appendChild(form);
 async function autoFillForm() {
   console.log("Auto-fill triggered");
 
-  const nameField = document.getElementById("assignmentName");
   const hourField = document.getElementById("hours");
   const minField = document.getElementById("minutes");
   const secField = document.getElementById("inputSeconds");
 
-  // Ensure form exists
-  if (!nameField) {
-    console.warn("Form fields are not yet ready");
+  // Ensure fields exist
+  if (!hourField || !minField || !secField) {
+    console.warn("Time fields are not fully ready yet");
     return;
   }
 
-  // ----- Assignment Name -----
-  try {
-    const info = getInfo();
-    const name = info instanceof Promise ? await info : info;
-    if (name) nameField.value = name;
-  } catch (err) {
-    console.warn("getInfo() failed:", err);
-  }
+  // ----- Timer Parsing (ONLY auto-fill needed now) -----
+  const timerElem = document.getElementById("timerSeconds");
 
-  if (!nameField.value) {
-    const bc = document.querySelectorAll("#breadcrumbs li");
-    if (bc.length) {
-      nameField.value = bc[bc.length - 1].innerText.trim();
-    }
-  }
+  if (timerElem) {
+    // Read raw seconds from dataset (set inside updateTimer())
+    const rawSeconds = timerElem.dataset.seconds;
+    const total = parseInt(rawSeconds, 10);
 
-  // ----- Timer parsing -----
-  const timer = document.getElementById("timerSeconds");
-  if (timer) {
-    const value = timer.textContent.trim();
-
-    // convert seconds → h/m/s
-    const total = parseInt(value, 10);
     if (!isNaN(total)) {
       hourField.value = Math.floor(total / 3600);
       minField.value = Math.floor((total % 3600) / 60);
