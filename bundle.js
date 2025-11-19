@@ -12610,13 +12610,6 @@
       document.getElementById("mySidebarContent").appendChild(bellCurve);
       var form = document.createElement("form");
       form.id = "timeForm";
-      var nameLabel = document.createElement("label");
-      nameLabel.textContent = "Assignment Name:";
-      nameLabel.setAttribute("for", "assignmentName");
-      var nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.id = "assignmentName";
-      nameInput.placeholder = "e.g. Essay 1";
       var timeLabel = document.createElement("label");
       timeLabel.textContent = "Time Spent:";
       var hourInput = document.createElement("input");
@@ -12639,9 +12632,6 @@
       var submitButton = document.createElement("button");
       submitButton.type = "submit";
       submitButton.textContent = "Add Time";
-      form.appendChild(nameLabel);
-      form.appendChild(document.createElement("br"));
-      form.appendChild(nameInput);
       form.appendChild(document.createElement("br"));
       form.appendChild(timeLabel);
       form.appendChild(document.createElement("br"));
