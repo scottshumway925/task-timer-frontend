@@ -206,6 +206,66 @@ form.appendChild(submitButton);
 // Add form to sidebar
 document.getElementById("mySidebarContent").appendChild(form);
 
+// --- Auto-fill form fields from sidebar data ---
+
+// Wait for the page and sidebar to be ready
+// --- Auto-fill form fields from sidebar data (Canvas SPA-safe) ---
+async function autoFillForm() {
+  console.log("Auto-fill triggered");
+
+  const nameField = document.getElementById("assignmentName");
+  const hourField = document.getElementById("hours");
+  const minField = document.getElementById("minutes");
+  const secField = document.getElementById("inputSeconds");
+
+  // Ensure form exists
+  if (!nameField) {
+    console.warn("Form fields are not yet ready");
+    return;
+  }
+
+  // ----- Assignment Name -----
+  try {
+    const info = getInfo();
+    const name = info instanceof Promise ? await info : info;
+    if (name) nameField.value = name;
+  } catch (err) {
+    console.warn("getInfo() failed:", err);
+  }
+
+  if (!nameField.value) {
+    const bc = document.querySelectorAll("#breadcrumbs li");
+    if (bc.length) {
+      nameField.value = bc[bc.length - 1].innerText.trim();
+    }
+  }
+
+  // ----- Timer parsing -----
+  const timer = document.getElementById("timerSeconds");
+  if (timer) {
+    const value = timer.textContent.trim();
+
+    // convert seconds → h/m/s
+    const total = parseInt(value, 10);
+    if (!isNaN(total)) {
+      hourField.value = Math.floor(total / 3600);
+      minField.value = Math.floor((total % 3600) / 60);
+      secField.value = total % 60;
+    }
+  }
+
+  console.log("Auto-fill complete");
+}
+
+// Re-run auto-fill whenever Canvas dynamically changes pages
+const observer = new MutationObserver(() => {
+  if (document.querySelector("#breadcrumbs")) {
+    autoFillForm();
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
+
+
 // --- Handle submission ---
 let times = []; // store total seconds for each assignment
 
@@ -303,14 +363,10 @@ chrome.storage.sync.get(
     displayGraph(primaryColor, secondaryColor, chosenEmoji);
 
     // Then start the timer
+
     timerInit();
   }
 );
+
 getInfo();
-
-
-
-
-
-
 
