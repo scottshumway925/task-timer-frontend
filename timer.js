@@ -1,56 +1,75 @@
 let seconds = 0;
-let isRunning = false;
 let intervalId;
+let id; // will hold the dynamic ID
 
-// Load state from storage
-export function timerInit() {
+function extractId() {
+    const urlPlace = window.location.href;
+    const match = urlPlace.match(/\/(quizzes|assignments)\/(\d+)/);
+    if (match) {
+        return match[2];
+    }
+    return null;
+}
+
+// Load state from storage and initialize the button listener
+export function timerInit(updateStatsCallback) { // <-- FIX 1: Now accepts the callback
+    id = extractId();
+    if (!id) return; // no valid ID, stop
+
     const button = document.querySelector("#pause");
 
-    // Load stored values
-    chrome.storage.sync.get(["seconds", "isRunning"], (data) => {
-        seconds = data.seconds || 0;
-        isRunning = data.isRunning || false;
+    // Load stored value for this ID
+    chrome.storage.sync.get([id], (data) => {
+        seconds = data[id] || 0;
         updateTimer();
-
-        // If it was running, restart the interval
-        if (isRunning) {
-            intervalId = setInterval(incrementSeconds, 1000);
-            button.innerText = "Pause";
-        } else {
+        // Set initial button text based on stored state
+        if (seconds > 0) {
             button.innerText = "Resume";
+        } else {
+            button.innerText = "Start";
         }
     });
 
     button.addEventListener("click", () => {
-        if (isRunning) {
-            isRunning = false;
+        if (intervalId) {
+            // Timer is running, so PAUSE it
             clearInterval(intervalId);
+            intervalId = null;
             button.innerText = "Resume";
+            
+            // --- FIX 2: Submit the time on PAUSE/STOP ---
+            if (seconds > 0 && typeof updateStatsCallback === 'function') {
+                console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+                updateStatsCallback(seconds); // <-- Submit the time!
+            }
         } else {
-            isRunning = true;
+            // Timer is stopped, so START it
             intervalId = setInterval(incrementSeconds, 1000);
             button.innerText = "Pause";
         }
-
-        // Save the running state
-        chrome.storage.sync.set({ isRunning });
     });
 }
 
-// Increment seconds and persist
+// Increment seconds and save under the ID key
 export function incrementSeconds() {
     seconds++;
     updateTimer();
-    chrome.storage.sync.set({ seconds });
+    chrome.storage.sync.set({ [id]: seconds });
 }
 
 // Format and display
 function updateTimer() {
+    const timerDisplay = document.querySelector("#timerSeconds");
+    if (!timerDisplay) return;
+    
     let tempSeconds = seconds;
     let hours = Math.floor(tempSeconds / 3600);
     tempSeconds -= hours * 3600;
     let minutes = Math.floor(tempSeconds / 60);
-    tempSeconds -= minutes * 60;
-    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#timerSeconds").innerText = output;
+    let currentSeconds = Math.floor(tempSeconds % 60);
+
+    // Use the desired format (hh:mm:ss)
+    const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
+    
+    timerDisplay.innerText = output;
 }

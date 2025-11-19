@@ -2,29 +2,34 @@ let className = "";
 let assignmentName = "";
 
 export function getInfo() {
-  assignmentName = document.querySelectorAll("#breadcrumbs li")[3]?.innerText || "";
-  console.log("Assignment:", assignmentName);
+  try {
+    
+    // Use querySelector for robustness, innerText.trim() to clean.
+    const assignmentNode = document.querySelector("#breadcrumbs li:nth-child(4) .ellipsible");
+    assignmentName = assignmentNode ? assignmentNode.innerText.trim() : "Unknown Assignment";
+    console.log(assignmentName);
 
-  const classStr = document.querySelectorAll("#breadcrumbs li")[1]?.innerText || "";
-  const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
-  const match = classStr.match(classCodeRegex);
+    const classNode = document.querySelector("#breadcrumbs li:nth-child(2) .ellipsible");
+    const classStr = classNode ? classNode.innerText.trim() : "Unknown Class";
 
-  if (match) {
-    className = (match[1] || "") + match[2];
-  } else {
-    className = classStr;
+    const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+    const match = classStr.match(classCodeRegex);
+
+    if (match && match[1] && match[2]) {
+      // Re-combine to get a clean code like 'FD100' or 'CS210'
+      className = (match[1] || '') + match[2];
+    } else {
+      // Fallback to the full string if regex fails
+      className = classStr;
+    }
+    console.log(className);
+
+  } catch (e) {
+    console.error("Error scraping breadcrumbs:", e);
+    // Set fallbacks if DOM structure is not as expected
+    assignmentName = "Unknown Assignment";
+    className = "Unknown Class";
   }
 
-  console.log("Class:", className);
-
-  // Return both values so the sidebar can use them
-  return { className, assignmentName };
-}
-
-export function getInfo() {
-  const breadcrumb = document.querySelector("#breadcrumbs li:nth-child(4)");
-  if (breadcrumb) {
-    return breadcrumb.innerText.trim();
-  }
-  return "Unknown Assignment";
+  return { assignmentName, className };
 }

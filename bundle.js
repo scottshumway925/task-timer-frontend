@@ -2603,8 +2603,8 @@
     "node_modules/chart.js/dist/chunks/helpers.dataset.js"() {
       init_color_esm();
       uid = /* @__PURE__ */ (() => {
-        let id = 0;
-        return () => id++;
+        let id2 = 0;
+        return () => id2++;
       })();
       toDimension = (value, dimension) => typeof value === "string" && value.endsWith("%") ? parseFloat(value) / 100 * dimension : +value;
       keyResolvers = {
@@ -4239,8 +4239,8 @@
     const result = [];
     const context = chart.getContext();
     for (const plugin of plugins) {
-      const id = plugin.id;
-      const opts = getOpts(options[id], all);
+      const id2 = plugin.id;
+      const opts = getOpts(options[id2], all);
       if (opts === null) {
         continue;
       }
@@ -4248,7 +4248,7 @@
         plugin,
         options: pluginOpts(chart.config, {
           plugin,
-          local: localIds[id]
+          local: localIds[id2]
         }, opts, context)
       });
     }
@@ -4273,11 +4273,11 @@
     const datasetOptions = (options.datasets || {})[type] || {};
     return datasetOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || "x";
   }
-  function getAxisFromDefaultScaleID(id, indexAxis) {
-    let axis = id;
-    if (id === "_index_") {
+  function getAxisFromDefaultScaleID(id2, indexAxis) {
+    let axis = id2;
+    if (id2 === "_index_") {
       axis = indexAxis;
-    } else if (id === "_value_") {
+    } else if (id2 === "_value_") {
       axis = indexAxis === "x" ? "y" : "x";
     }
     return axis;
@@ -4285,9 +4285,9 @@
   function getDefaultScaleIDFromAxis(axis, indexAxis) {
     return axis === indexAxis ? "_index_" : "_value_";
   }
-  function idMatchesAxis(id) {
-    if (id === "x" || id === "y" || id === "r") {
-      return id;
+  function idMatchesAxis(id2) {
+    if (id2 === "x" || id2 === "y" || id2 === "r") {
+      return id2;
     }
   }
   function axisFromPosition(position) {
@@ -4298,30 +4298,30 @@
       return "y";
     }
   }
-  function determineAxis(id, ...scaleOptions) {
-    if (idMatchesAxis(id)) {
-      return id;
+  function determineAxis(id2, ...scaleOptions) {
+    if (idMatchesAxis(id2)) {
+      return id2;
     }
     for (const opts of scaleOptions) {
-      const axis = opts.axis || axisFromPosition(opts.position) || id.length > 1 && idMatchesAxis(id[0].toLowerCase());
+      const axis = opts.axis || axisFromPosition(opts.position) || id2.length > 1 && idMatchesAxis(id2[0].toLowerCase());
       if (axis) {
         return axis;
       }
     }
-    throw new Error(`Cannot determine type of '${id}' axis. Please provide 'axis' or 'position' option.`);
+    throw new Error(`Cannot determine type of '${id2}' axis. Please provide 'axis' or 'position' option.`);
   }
-  function getAxisFromDataset(id, axis, dataset) {
-    if (dataset[axis + "AxisID"] === id) {
+  function getAxisFromDataset(id2, axis, dataset) {
+    if (dataset[axis + "AxisID"] === id2) {
       return {
         axis
       };
     }
   }
-  function retrieveAxisFromDatasets(id, config) {
+  function retrieveAxisFromDatasets(id2, config) {
     if (config.data && config.data.datasets) {
-      const boundDs = config.data.datasets.filter((d) => d.xAxisID === id || d.yAxisID === id);
+      const boundDs = config.data.datasets.filter((d) => d.xAxisID === id2 || d.yAxisID === id2);
       if (boundDs.length) {
-        return getAxisFromDataset(id, "x", boundDs[0]) || getAxisFromDataset(id, "y", boundDs[0]);
+        return getAxisFromDataset(id2, "x", boundDs[0]) || getAxisFromDataset(id2, "y", boundDs[0]);
       }
     }
     return {};
@@ -4333,18 +4333,18 @@
     const configScales = options.scales || {};
     const chartIndexAxis = getIndexAxis(config.type, options);
     const scales = /* @__PURE__ */ Object.create(null);
-    Object.keys(configScales).forEach((id) => {
-      const scaleConf = configScales[id];
+    Object.keys(configScales).forEach((id2) => {
+      const scaleConf = configScales[id2];
       if (!isObject(scaleConf)) {
-        return console.error(`Invalid scale configuration for scale: ${id}`);
+        return console.error(`Invalid scale configuration for scale: ${id2}`);
       }
       if (scaleConf._proxy) {
-        return console.warn(`Ignoring resolver passed as options for scale: ${id}`);
+        return console.warn(`Ignoring resolver passed as options for scale: ${id2}`);
       }
-      const axis = determineAxis(id, scaleConf, retrieveAxisFromDatasets(id, config), defaults.scales[scaleConf.type]);
+      const axis = determineAxis(id2, scaleConf, retrieveAxisFromDatasets(id2, config), defaults.scales[scaleConf.type]);
       const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
       const defaultScaleOptions = chartDefaults.scales || {};
-      scales[id] = mergeIf(/* @__PURE__ */ Object.create(null), [
+      scales[id2] = mergeIf(/* @__PURE__ */ Object.create(null), [
         {
           axis
         },
@@ -4360,13 +4360,13 @@
       const defaultScaleOptions = datasetDefaults.scales || {};
       Object.keys(defaultScaleOptions).forEach((defaultID) => {
         const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
-        const id = dataset[axis + "AxisID"] || axis;
-        scales[id] = scales[id] || /* @__PURE__ */ Object.create(null);
-        mergeIf(scales[id], [
+        const id2 = dataset[axis + "AxisID"] || axis;
+        scales[id2] = scales[id2] || /* @__PURE__ */ Object.create(null);
+        mergeIf(scales[id2], [
           {
             axis
           },
-          configScales[id],
+          configScales[id2],
           defaultScaleOptions[defaultID]
         ]);
       });
@@ -8425,35 +8425,35 @@
             parentScope = this.register(proto);
           }
           const items = this.items;
-          const id = item.id;
-          const scope = this.scope + "." + id;
-          if (!id) {
+          const id2 = item.id;
+          const scope = this.scope + "." + id2;
+          if (!id2) {
             throw new Error("class does not have id: " + item);
           }
-          if (id in items) {
+          if (id2 in items) {
             return scope;
           }
-          items[id] = item;
+          items[id2] = item;
           registerDefaults(item, scope, parentScope);
           if (this.override) {
             defaults.override(item.id, item.overrides);
           }
           return scope;
         }
-        get(id) {
-          return this.items[id];
+        get(id2) {
+          return this.items[id2];
         }
         unregister(item) {
           const items = this.items;
-          const id = item.id;
+          const id2 = item.id;
           const scope = this.scope;
-          if (id in items) {
-            delete items[id];
+          if (id2 in items) {
+            delete items[id2];
           }
-          if (scope && id in defaults[scope]) {
-            delete defaults[scope][id];
+          if (scope && id2 in defaults[scope]) {
+            delete defaults[scope][id2];
             if (this.override) {
-              delete overrides[id];
+              delete overrides[id2];
             }
           }
         }
@@ -8488,17 +8488,17 @@
         addScales(...args) {
           this._each("register", args, this.scales);
         }
-        getController(id) {
-          return this._get(id, this.controllers, "controller");
+        getController(id2) {
+          return this._get(id2, this.controllers, "controller");
         }
-        getElement(id) {
-          return this._get(id, this.elements, "element");
+        getElement(id2) {
+          return this._get(id2, this.elements, "element");
         }
-        getPlugin(id) {
-          return this._get(id, this.plugins, "plugin");
+        getPlugin(id2) {
+          return this._get(id2, this.plugins, "plugin");
         }
-        getScale(id) {
-          return this._get(id, this.scales, "scale");
+        getScale(id2) {
+          return this._get(id2, this.scales, "scale");
         }
         removeControllers(...args) {
           this._each("unregister", args, this.controllers);
@@ -8542,10 +8542,10 @@
           }
           return this.plugins;
         }
-        _get(id, typedRegistry, type) {
-          const item = typedRegistry.get(id);
+        _get(id2, typedRegistry, type) {
+          const item = typedRegistry.get(id2);
           if (item === void 0) {
-            throw new Error('"' + id + '" is not a registered ' + type + ".");
+            throw new Error('"' + id2 + '" is not a registered ' + type + ".");
           }
           return item;
         }
@@ -8694,11 +8694,11 @@
           ]);
         }
         pluginScopeKeys(plugin) {
-          const id = plugin.id;
+          const id2 = plugin.id;
           const type = this.type;
-          return cachedKeys(`${type}-plugin-${id}`, () => [
+          return cachedKeys(`${type}-plugin-${id2}`, () => [
             [
-              `plugins.${id}`,
+              `plugins.${id2}`,
               ...plugin.additionalOptionScopes || []
             ]
           ]);
@@ -8951,15 +8951,15 @@
           const options = this.options;
           const scaleOpts = options.scales;
           const scales = this.scales;
-          const updated = Object.keys(scales).reduce((obj, id) => {
-            obj[id] = false;
+          const updated = Object.keys(scales).reduce((obj, id2) => {
+            obj[id2] = false;
             return obj;
           }, {});
           let items = [];
           if (scaleOpts) {
-            items = items.concat(Object.keys(scaleOpts).map((id) => {
-              const scaleOptions = scaleOpts[id];
-              const axis = determineAxis(id, scaleOptions);
+            items = items.concat(Object.keys(scaleOpts).map((id2) => {
+              const scaleOptions = scaleOpts[id2];
+              const axis = determineAxis(id2, scaleOptions);
               const isRadial = axis === "r";
               const isHorizontal = axis === "x";
               return {
@@ -8971,20 +8971,20 @@
           }
           each(items, (item) => {
             const scaleOptions = item.options;
-            const id = scaleOptions.id;
-            const axis = determineAxis(id, scaleOptions);
+            const id2 = scaleOptions.id;
+            const axis = determineAxis(id2, scaleOptions);
             const scaleType = valueOrDefault(scaleOptions.type, item.dtype);
             if (scaleOptions.position === void 0 || positionIsHorizontal(scaleOptions.position, axis) !== positionIsHorizontal(item.dposition)) {
               scaleOptions.position = item.dposition;
             }
-            updated[id] = true;
+            updated[id2] = true;
             let scale = null;
-            if (id in scales && scales[id].type === scaleType) {
-              scale = scales[id];
+            if (id2 in scales && scales[id2].type === scaleType) {
+              scale = scales[id2];
             } else {
               const scaleClass = registry.getScale(scaleType);
               scale = new scaleClass({
-                id,
+                id: id2,
                 type: scaleType,
                 ctx: this.ctx,
                 chart: this
@@ -8993,9 +8993,9 @@
             }
             scale.init(scaleOptions, options);
           });
-          each(updated, (hasUpdated, id) => {
+          each(updated, (hasUpdated, id2) => {
             if (!hasUpdated) {
-              delete scales[id];
+              delete scales[id2];
             }
           });
           each(scales, (scale) => {
@@ -12239,7 +12239,7 @@
     }
     return data;
   }
-  function displayGraph(primaryColor, secondaryColor, chosenEmoji) {
+  function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
     const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
     const frequencies = {};
     dataPoints.forEach((num) => {
@@ -12293,7 +12293,7 @@
             label: "Histogram",
             data: histogram,
             backgroundColor: secondaryColor,
-            //borderColor: "rgba(255, 99, 132, 1)",
+            borderColor: accentColor,
             borderWidth: 1,
             barPercentage: 1,
             categoryPercentage: 1
@@ -12406,67 +12406,87 @@
   });
 
   // timer.js
-  function timerInit() {
+  function extractId() {
+    const urlPlace = window.location.href;
+    const match = urlPlace.match(/\/(quizzes|assignments)\/(\d+)/);
+    if (match) {
+      return match[2];
+    }
+    return null;
+  }
+  function timerInit(updateStatsCallback) {
+    id = extractId();
+    if (!id) return;
     const button = document.querySelector("#pause");
-    chrome.storage.sync.get(["seconds", "isRunning"], (data) => {
-      seconds = data.seconds || 0;
-      isRunning = data.isRunning || false;
+    chrome.storage.sync.get([id], (data) => {
+      seconds = data[id] || 0;
       updateTimer();
-      if (isRunning) {
-        intervalId = setInterval(incrementSeconds, 1e3);
-        button.innerText = "Pause";
-      } else {
+      if (seconds > 0) {
         button.innerText = "Resume";
+      } else {
+        button.innerText = "Start";
       }
     });
     button.addEventListener("click", () => {
-      if (isRunning) {
-        isRunning = false;
+      if (intervalId) {
         clearInterval(intervalId);
+        intervalId = null;
         button.innerText = "Resume";
+        if (seconds > 0 && typeof updateStatsCallback === "function") {
+          console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+          updateStatsCallback(seconds);
+        }
       } else {
-        isRunning = true;
         intervalId = setInterval(incrementSeconds, 1e3);
         button.innerText = "Pause";
       }
-      chrome.storage.sync.set({ isRunning });
     });
   }
   function incrementSeconds() {
     seconds++;
     updateTimer();
-    chrome.storage.sync.set({ seconds });
+    chrome.storage.sync.set({ [id]: seconds });
   }
   function updateTimer() {
+    const timerDisplay = document.querySelector("#timerSeconds");
+    if (!timerDisplay) return;
     let tempSeconds = seconds;
     let hours = Math.floor(tempSeconds / 3600);
     tempSeconds -= hours * 3600;
     let minutes = Math.floor(tempSeconds / 60);
-    tempSeconds -= minutes * 60;
-    let output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(tempSeconds).padStart(2, "0")}`;
-    document.querySelector("#timerSeconds").innerText = output;
+    let currentSeconds = Math.floor(tempSeconds % 60);
+    const output = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(currentSeconds).padStart(2, "0")}`;
+    timerDisplay.innerText = output;
   }
-  var seconds, isRunning, intervalId;
+  var seconds, intervalId, id;
   var init_timer = __esm({
     "timer.js"() {
       seconds = 0;
-      isRunning = false;
     }
   });
 
   // classInfo.js
   function getInfo() {
-    assignmentName = document.querySelectorAll("#breadcrumbs li")[3].innerText;
-    console.log(assignmentName);
-    const classStr = document.querySelectorAll("#breadcrumbs li")[1].innerText;
-    const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
-    const match = classStr.match(classCodeRegex);
-    if (match) {
-      className = match[1] + match[2];
-    } else {
-      className = classStr;
+    try {
+      const assignmentNode = document.querySelector("#breadcrumbs li:nth-child(4) .ellipsible");
+      assignmentName = assignmentNode ? assignmentNode.innerText.trim() : "Unknown Assignment";
+      console.log(assignmentName);
+      const classNode = document.querySelector("#breadcrumbs li:nth-child(2) .ellipsible");
+      const classStr = classNode ? classNode.innerText.trim() : "Unknown Class";
+      const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+      const match = classStr.match(classCodeRegex);
+      if (match && match[1] && match[2]) {
+        className = (match[1] || "") + match[2];
+      } else {
+        className = classStr;
+      }
+      console.log(className);
+    } catch (e) {
+      console.error("Error scraping breadcrumbs:", e);
+      assignmentName = "Unknown Assignment";
+      className = "Unknown Class";
     }
-    console.log(className);
+    return { assignmentName, className };
   }
   var className, assignmentName;
   var init_classInfo = __esm({
@@ -12482,6 +12502,7 @@
       init_bell_curve();
       init_timer();
       init_classInfo();
+      var { assignmentName: assignmentName2, className: className2 } = getInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
       sidebar.innerHTML = `
@@ -12629,44 +12650,57 @@
       form.appendChild(document.createElement("br"));
       form.appendChild(submitButton);
       document.getElementById("mySidebarContent").appendChild(form);
-      var times = [];
       form.addEventListener("submit", (event) => {
         event.preventDefault();
-        const assignment = nameInput.value.trim();
         const hours = parseInt(hourInput.value) || 0;
         const minutes = parseInt(minuteInput.value) || 0;
         const seconds2 = parseInt(secondInput.value) || 0;
-        if (!assignment || hours === 0 && minutes === 0 && seconds2 === 0) {
+        if (
+          /*!assignment ||*/
+          hours === 0 && minutes === 0 && seconds2 === 0
+        ) {
           alert("Please enter an assignment name and a valid time.");
           return;
         }
         const totalSeconds = hours * 3600 + minutes * 60 + seconds2;
-        times.push(totalSeconds);
-        updateStats();
-        nameInput.value = "";
+        updateStats(totalSeconds);
         hourInput.value = "";
         minuteInput.value = "";
         secondInput.value = "";
       });
-      async function updateStats() {
-        if (!times || times.length === 0) return;
+      async function updateStats(timeInSeconds) {
+        if (typeof timeInSeconds !== "number" || timeInSeconds <= 0) {
+          console.warn("updateStats called with invalid time:", timeInSeconds);
+          return;
+        }
         try {
+          console.log("Sending to Backend:", { timeInSeconds, assignmentName: assignmentName2, className: className2 });
           const response = await fetch(
             "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ times }),
-              times
+              body: JSON.stringify({
+                timeInSeconds,
+                assignmentName: assignmentName2,
+                className: className2
+              })
             }
           );
+          if (!response.ok) {
+            throw new Error(`Backend error: ${response.statusText} ${await response.text()}`);
+          }
           const result = await response.json();
-          const meanElem = document.getElementById("meanTime");
-          const medianElem = document.getElementById("medianTime");
-          const modeElem = document.getElementById("modeTime");
-          if (meanElem) meanElem.textContent = formatTime(result.mean);
-          if (medianElem) medianElem.textContent = formatTime(result.median);
-          if (modeElem) modeElem.textContent = formatTime(result.mode);
+          if (result.success) {
+            const meanElem = document.getElementById("meanTime");
+            const medianElem = document.getElementById("medianTime");
+            const modeElem = document.getElementById("modeTime");
+            if (meanElem) meanElem.textContent = formatTime(result.mean);
+            if (medianElem) medianElem.textContent = formatTime(result.median);
+            if (modeElem) medianElem.textContent = formatTime(result.mode);
+          } else {
+            console.error("Error from backend:", result.error);
+          }
         } catch (err) {
           console.error("Error updating stats:", err);
         }
@@ -12680,14 +12714,14 @@
       chrome.storage.sync.get(
         ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
         (data) => {
-          const primaryColor = data.primaryColor || "rgba(12, 0, 240, 1)";
-          const secondaryColor = data.secondaryColor || "rgba(152, 254, 234, 1)";
-          const chosenEmoji = data.chosenEmoji || "\u{1F605}";
-          displayGraph(primaryColor, secondaryColor, chosenEmoji);
-          timerInit();
+          const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+          const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+          const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+          const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+          displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+          timerInit(updateStats);
         }
       );
-      getInfo();
     }
   });
   require_content();
