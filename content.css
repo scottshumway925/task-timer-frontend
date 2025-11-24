@@ -127,6 +127,12 @@ body.sidebar-collapsed {
   height: auto !important;
 }
 
+body.sidebar-collapsed .rubric,
+body.sidebar-collapsed .rubric_table {
+  transform: scale(1) !important;
+  transform-origin: top left;
+}
+
 /* Shrink only rubric tables or sections on smaller screens */
 @media (max-width: 1400px) {
   .rubric,
