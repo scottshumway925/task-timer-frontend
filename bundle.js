@@ -12715,12 +12715,85 @@
             const modeElem = document.getElementById("modeTime");
             if (meanElem) meanElem.textContent = formatTime(result.mean);
             if (medianElem) medianElem.textContent = formatTime(result.median);
-            if (modeElem) medianElem.textContent = formatTime(result.mode);
+            if (modeElem) modeElem.textContent = formatTime(result.mode);
+            console.log("\u{1F4E6} UPDATE STATS DATA CHECK:", {
+              "User Score": timeInSeconds,
+              "New Standard Deviation": result.stdDev,
+              "Updated Times Array": result.allTimes
+            });
+            const graphData = {
+              allTimes: result.allTimes || [],
+              mean: result.mean || 0,
+              stdDev: result.stdDev || 0,
+              // IMPORTANT: We include the user's specific score here
+              // so the graph can plot the "You Scored" line/emoji
+              userScore: timeInSeconds,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            };
+            window._assignmentStatsData = graphData;
+            const event = new CustomEvent("assignment-stats-updated", {
+              detail: graphData
+            });
+            window.dispatchEvent(event);
+            console.log("Stats updated and dispatched to frontend:", graphData);
           } else {
             console.error("Error from backend:", result.error);
           }
         } catch (err) {
           console.error("Error updating stats:", err);
+        }
+      }
+      async function loadInitialStats() {
+        if (!assignmentName2 || !className2) {
+          console.warn("Cannot load stats: Missing Class or Assignment name.");
+          return;
+        }
+        try {
+          console.log("Fetching initial stats for:", { assignmentName: assignmentName2, className: className2 });
+          const response = await fetch(
+            "https://us-central1-assignment-time.cloudfunctions.net/fetchStats",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                assignmentName: assignmentName2,
+                className: className2
+              })
+            }
+          );
+          if (!response.ok) {
+            throw new Error(`Backend error: ${response.statusText}`);
+          }
+          const result = await response.json();
+          if (result.success) {
+            const meanElem = document.getElementById("meanTime");
+            const medianElem = document.getElementById("medianTime");
+            const modeElem = document.getElementById("modeTime");
+            if (meanElem) meanElem.textContent = formatTime(result.mean);
+            if (medianElem) medianElem.textContent = formatTime(result.median);
+            if (modeElem) modeElem.textContent = formatTime(result.mode);
+            console.log("\u{1F4E6} LOAD STATS DATA CHECK:", {
+              "Total Data Points": result.allTimes ? result.allTimes.length : 0,
+              "Standard Deviation": result.stdDev,
+              "Raw Times Array": result.allTimes
+            });
+            const graphData = {
+              allTimes: result.allTimes || [],
+              mean: result.mean || 0,
+              stdDev: result.stdDev || 0,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            };
+            window._assignmentStatsData = graphData;
+            const event = new CustomEvent("assignment-stats-loaded", {
+              detail: graphData
+            });
+            window.dispatchEvent(event);
+            console.log("Initial stats loaded and dispatched to frontend:", graphData);
+          } else {
+            console.error("Error fetching initial stats:", result.error);
+          }
+        } catch (err) {
+          console.error("Error loading initial stats:", err);
         }
       }
       function formatTime(totalSeconds) {
@@ -12737,6 +12810,7 @@
           const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
           const chosenEmoji = data.chosenEmoji || "\u{1F525}";
           displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+          loadInitialStats();
           timerInit(updateStats);
         }
       );

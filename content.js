@@ -275,54 +275,153 @@ form.addEventListener("submit", (event) => {
 
 // --- Calculate and display stats (new version connected to backend) ---
 async function updateStats(timeInSeconds) {
-  // Validate the single time
-  if (typeof timeInSeconds !== 'number' || timeInSeconds <= 0) {
+  // Validate the single time
+  if (typeof timeInSeconds !== 'number' || timeInSeconds <= 0) {
     console.warn("updateStats called with invalid time:", timeInSeconds);
     return;
   }
 
-  try {
-  // 🚨 DEBUG LOG: Check what data we are sending! 🚨
+  try {
     console.log("Sending to Backend:", { timeInSeconds, assignmentName, className });
-    const response = await fetch(
-      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+    
+    const response = await fetch(
+      "https://us-central1-assignment-time.cloudfunctions.net/calculateStats",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
             timeInSeconds: timeInSeconds,
             assignmentName: assignmentName,
             className: className
           }),
-      }
-    );
+      }
+    );
     
     if (!response.ok) {
         throw new Error(`Backend error: ${response.statusText} ${await response.text()}`);
     }
 
-    const result = await response.json();
+    const result = await response.json();
 
     if (result.success) {
-      // Update each element only if it exists
-      const meanElem = document.getElementById("meanTime");
-      const medianElem = document.getElementById("medianTime");
-      const modeElem = document.getElementById("modeTime");
+      // 1. Update Text Elements
+      const meanElem = document.getElementById("meanTime");
+      const medianElem = document.getElementById("medianTime");
+      const modeElem = document.getElementById("modeTime");
 
-  // new standard Deviation
-  // send all datapoints in the document it's pulling from
+      if (meanElem) meanElem.textContent = formatTime(result.mean);
+      if (medianElem) medianElem.textContent = formatTime(result.median);
+      if (modeElem) modeElem.textContent = formatTime(result.mode); // Fixed typo here (was medianElem)
+       
+      // 🔍 TEST LOG: Confirming data after submission
+      console.log("📦 UPDATE STATS DATA CHECK:", {
+          "User Score": timeInSeconds,
+          "New Standard Deviation": result.stdDev,
+          "Updated Times Array": result.allTimes
+      });
+      
+      // 2. HANDOFF TO FRONTEND DEVS
+      // Package the data for the bell curve
+      const graphData = {
+          allTimes: result.allTimes || [],
+          mean: result.mean || 0,
+          stdDev: result.stdDev || 0,
+          // IMPORTANT: We include the user's specific score here
+          // so the graph can plot the "You Scored" line/emoji
+          userScore: timeInSeconds, 
+          timestamp: new Date().toISOString()
+      };
 
-      if (meanElem) meanElem.textContent = formatTime(result.mean);
-      if (medianElem) medianElem.textContent = formatTime(result.median);
-      if (modeElem) medianElem.textContent = formatTime(result.mode);
+      // Method A: Attach to window
+      window._assignmentStatsData = graphData;
+
+      // Method B: Dispatch Custom Event
+      const event = new CustomEvent("assignment-stats-updated", { 
+          detail: graphData 
+      });
+      window.dispatchEvent(event);
+
+      console.log("Stats updated and dispatched to frontend:", graphData);
+
     } else {
       console.error("Error from backend:", result.error);
     }
-  } catch (err) {
-    console.error("Error updating stats:", err);
-  }
+  } catch (err) {
+    console.error("Error updating stats:", err);
+  }
 }
 
+// --- Load stats without adding new time data ---
+async function loadInitialStats() {
+  // Ensure we have the necessary identifiers
+  if (!assignmentName || !className) {
+    console.warn("Cannot load stats: Missing Class or Assignment name.");
+    return;
+  }
+
+  try {
+    console.log("Fetching initial stats for:", { assignmentName, className });
+    
+    const response = await fetch(
+      "https://us-central1-assignment-time.cloudfunctions.net/fetchStats",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            assignmentName: assignmentName,
+            className: className
+        }),
+      }
+    );
+
+    if (!response.ok) {
+        throw new Error(`Backend error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      // 1. Update Text Elements (Existing functionality)
+      const meanElem = document.getElementById("meanTime");
+      const medianElem = document.getElementById("medianTime");
+      const modeElem = document.getElementById("modeTime");
+
+      if (meanElem) meanElem.textContent = formatTime(result.mean);
+      if (medianElem) medianElem.textContent = formatTime(result.median);
+      if (modeElem) modeElem.textContent = formatTime(result.mode);
+      
+      console.log("📦 LOAD STATS DATA CHECK:", {
+          "Total Data Points": result.allTimes ? result.allTimes.length : 0,
+          "Standard Deviation": result.stdDev,
+          "Raw Times Array": result.allTimes
+      });
+      // 2. HANDOFF TO FRONTEND DEVS 
+      // specific data package for the bell curve
+      const graphData = {
+          allTimes: result.allTimes || [],
+          mean: result.mean || 0,
+          stdDev: result.stdDev || 0,
+          timestamp: new Date().toISOString()
+      };
+
+      // Method A: Attach to window (easiest for them to find in console)
+      window._assignmentStatsData = graphData;
+
+      // Method B: Dispatch a Custom Event (Best practice)
+      // The frontend devs can add an event listener for "assignment-stats-loaded"
+      const event = new CustomEvent("assignment-stats-loaded", { 
+          detail: graphData 
+      });
+      window.dispatchEvent(event);
+
+      console.log("Initial stats loaded and dispatched to frontend:", graphData);
+    } else {
+      console.error("Error fetching initial stats:", result.error);
+    }
+  } catch (err) {
+    console.error("Error loading initial stats:", err);
+  }
+}
 
 // --- Helper functions ---
 function calculateMedian(arr) {
@@ -360,6 +459,9 @@ chrome.storage.sync.get(
 
     // Call displayGraph() with user settings
     displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+
+    // 1. Load the initial stats immediately
+    loadInitialStats();
 
     // Then start the timer
     timerInit(updateStats);
