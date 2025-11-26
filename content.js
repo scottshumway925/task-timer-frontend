@@ -141,7 +141,7 @@ const bellCurve = document.createElement("div");
 bellCurve.id = "myBellCurve"
 
 bellCurve.innerHTML = `
-    <div>
+    <div id="graphWrapper">
         <canvas id="bell_curve"></canvas>
     </div>
     <p id="userTime"></p>
