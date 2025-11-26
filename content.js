@@ -132,10 +132,13 @@ timer.id = "timer";
 timer.innerHTML = `
     <p>Timer</p>
     <h2 id="timerSeconds">0</h2>
-    <button id="pause">Start</button>
+    <button id="pause" type="button">Start</button>
 `;
 
 document.getElementById("mySidebarContent").appendChild(timer);
+
+const pauseBtn = document.getElementById("pause");
+pauseBtn.type = "button";
 
 const bellCurve = document.createElement("div");
 bellCurve.id = "myBellCurve"
