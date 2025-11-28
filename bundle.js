@@ -12224,47 +12224,49 @@
   });
 
   // bell_curve.mjs
-  function getBellCurveY(x, mean2, stdDev2) {
-    const exponent = -1 * (x - mean2) ** 2 / (2 * stdDev2 ** 2);
-    const y = 1 / (stdDev2 * Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
+  function getBellCurveY(x, mean, stdDev) {
+    const exponent = -1 * (x - mean) ** 2 / (2 * stdDev ** 2);
+    const y = 1 / (stdDev * Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
     return { x, y };
   }
-  function makeBellCurvePoints(stdDev2, mean2, points) {
+  function makeBellCurvePoints(stdDev, mean, points) {
     const data = [];
-    const start = mean2 - stdDev2 * 4;
-    const end = mean2 + stdDev2 * 4;
+    const start = mean - stdDev * 4;
+    const end = mean + stdDev * 4;
     const step = (end - start) / points;
     for (let x = start; x <= end; x += step) {
-      data.push(getBellCurveY(x, mean2, stdDev2));
+      data.push(getBellCurveY(x, mean, stdDev));
     }
     return data;
   }
   function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
-    const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
+    let times = dataPoints;
+    let userScoreVal = youScored;
+    console.log(`Deviation: ${stdVal}`);
+    const bellCurve = makeBellCurvePoints(stdVal, meanVal, 100);
     const frequencies = {};
-    dataPoints.forEach((num) => {
+    times.forEach((num) => {
       frequencies[num] = (frequencies[num] || 0) + 1;
     });
+    console.log(frequencies);
     const histogram = Object.entries(frequencies).map(([num, freq]) => ({
       x: Number(num),
-      y: freq / dataPoints.length
+      y: freq / times.length
     }));
-    const personalData = [getBellCurveY(youScored, mean, stdDev)];
-    const ctx = document.querySelector("#bell_curve");
+    const personalData = userScoreVal != null ? [getBellCurveY(userScoreVal, meanVal, stdVal)] : [];
     const allX = [
       ...bellCurve.map((p) => p.x),
       ...histogram.map((p) => p.x),
-      youScored
-      // include single point if you plot it
+      ...userScoreVal != null ? [userScoreVal] : []
     ];
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
+    const ctx = document.querySelector("#bell_curve");
     if (window._taskTimerChart) {
       window._taskTimerChart.destroy();
     }
     window._taskTimerChart = new Chart(ctx, {
       type: "bar",
-      // Base chart type
       data: {
         datasets: [
           {
@@ -12286,7 +12288,7 @@
             fill: false,
             pointRadius: 0,
             tension: 0.1,
-            yAxisID: "y"
+            yAxisID: "yBell"
           },
           {
             type: "bar",
@@ -12301,32 +12303,27 @@
         ]
       },
       options: {
-        interaction: {
-          mode: null
-          // disables hover interactions entirely
-        },
+        interaction: { mode: null },
         scales: {
           x: {
             type: "linear",
             min: Math.floor(minX),
             max: Math.ceil(maxX),
-            title: {
-              display: true,
-              text: "Time"
-            }
+            title: { display: true, text: "Time" }
           },
           y: {
             beginAtZero: true,
-            title: {
-              display: true,
-              text: "Frequency"
-            }
+            title: { display: true, text: "Frequency" }
+          },
+          yBell: {
+            position: "right",
+            beginAtZero: true,
+            title: { display: true, text: "Probability Density" },
+            grid: { drawOnChartArea: false }
           }
         },
         plugins: {
-          legend: {
-            display: false
-          },
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: (tooltipItem) => `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y.toFixed(4)}`
@@ -12337,7 +12334,7 @@
       plugins: [emojiMarker(chosenEmoji)]
     });
   }
-  var dataPoints, youScored, mean, stdDev, emojiMarker;
+  var dataPoints, youScored, meanVal, stdVal, emojiMarker;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
@@ -12353,38 +12350,11 @@
         PointElement
       );
       dataPoints = [
-        24,
-        25,
-        26,
-        27,
-        28,
-        28,
-        28,
-        29,
-        29,
-        29,
-        29,
-        29,
-        30,
-        30,
-        30,
-        30,
-        30,
-        30,
-        31,
-        31,
-        31,
-        31,
-        32,
-        32,
-        33,
-        34,
-        35,
-        36
+        2
       ];
-      youScored = 28;
-      mean = 29.8929;
-      stdDev = 2.6771424759872;
+      youScored = 0;
+      meanVal = 1;
+      stdVal = 1;
       emojiMarker = (chosenEmoji) => ({
         id: "emojiMarker",
         afterDatasetsDraw(chart) {
@@ -12401,6 +12371,50 @@
           ctx.fillText(chosenEmoji, x, y - 2);
           ctx.restore();
         }
+      });
+      window.addEventListener("assignment-stats-loaded", (e) => {
+        console.log("Bell Curve: Initial stats loaded", e.detail);
+        const { allTimes, mean, stdDev } = e.detail;
+        dataPoints = allTimes;
+        meanVal = mean;
+        stdVal = stdDev;
+        chrome.storage.sync.get(
+          ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+          (data) => {
+            const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+            const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+            const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+            const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+            displayGraph(
+              primaryColor,
+              secondaryColor,
+              accentColor,
+              chosenEmoji
+            );
+          }
+        );
+      });
+      window.addEventListener("assignment-stats-updated", (e) => {
+        console.log("Bell Curve: Stats updated", e.detail);
+        const { allTimes, mean, stdDev } = e.detail;
+        dataPoints = allTimes;
+        meanVal = mean;
+        stdVal = stdDev;
+        chrome.storage.sync.get(
+          ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+          (data) => {
+            const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+            const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+            const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+            const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+            displayGraph(
+              primaryColor,
+              secondaryColor,
+              accentColor,
+              chosenEmoji
+            );
+          }
+        );
       });
     }
   });
@@ -12711,6 +12725,7 @@
             const meanElem = document.getElementById("meanTime");
             const medianElem = document.getElementById("medianTime");
             const modeElem = document.getElementById("modeTime");
+            console.log(result);
             if (meanElem) meanElem.textContent = formatTime(result.mean);
             if (medianElem) medianElem.textContent = formatTime(result.median);
             if (modeElem) modeElem.textContent = formatTime(result.mode);

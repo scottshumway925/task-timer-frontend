@@ -24,17 +24,11 @@ Chart.register(
 );
 
 let dataPoints = [
-    24, 25, 26, 27,
-    28, 28, 28,
-    29, 29, 29, 29, 29,
-    30, 30, 30, 30, 30, 30,
-    31, 31, 31, 31,
-    32, 32, 33, 34,
-    35, 36
+2
 ];
-let youScored = 28;
-let mean = 29.8929;
-let stdDev = 2.6771424759872;
+let youScored = 0;
+let meanVal = 1;
+let stdVal = 1;
 
 function getBellCurveY(x, mean, stdDev) {
     const exponent = -1 * (x - mean) ** 2 / (2 * (stdDev ** 2));
@@ -56,40 +50,68 @@ function makeBellCurvePoints(stdDev, mean, points) {
 }
 
 export default function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
-    const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
 
-    // Build histogram data
+    // If backend sent stats, override everything
+    let times = dataPoints;
+    let userScoreVal = youScored;
+
+    console.log(`Deviation: ${stdVal}`);
+
+
+    //
+    // 1. Bell curve
+    //
+    const bellCurve = makeBellCurvePoints(stdVal, meanVal, 100);
+
+    //
+    // 2. Histogram (auto-built from times array)
+    //
     const frequencies = {};
-    dataPoints.forEach((num) => {
+    times.forEach(num => {
         frequencies[num] = (frequencies[num] || 0) + 1;
     });
 
+    console.log(frequencies);
+
     const histogram = Object.entries(frequencies).map(([num, freq]) => ({
         x: Number(num),
-        y: freq / dataPoints.length,
+        y: freq / times.length
     }));
 
-    const personalData = [getBellCurveY(youScored, mean, stdDev)];
+    //
+    // 3. User point (if available)
+    //
+    const personalData = userScoreVal != null
+        ? [getBellCurveY(userScoreVal, meanVal, stdVal)]
+        : [];
 
-    const ctx = document.querySelector("#bell_curve");
-
+    //
+    // 4. Chart bounds
+    //
     const allX = [
         ...bellCurve.map(p => p.x),
         ...histogram.map(p => p.x),
-        youScored  // include single point if you plot it
+        ...(userScoreVal != null ? [userScoreVal] : [])
     ];
+
 
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
 
-    // Destroy previous instance if it exists
-if (window._taskTimerChart) {
-  window._taskTimerChart.destroy();
-}
+    //
+    // 5. Destroy old chart first
+    //
+    const ctx = document.querySelector("#bell_curve");
 
-    // Store the chart instance so other scripts can trigger a resize/update after show/hide
+    if (window._taskTimerChart) {
+        window._taskTimerChart.destroy();
+    }
+
+    //
+    // 6. Create new chart
+    //
     window._taskTimerChart = new Chart(ctx, {
-        type: "bar", // Base chart type
+        type: "bar",
         data: {
             datasets: [
                 {
@@ -111,7 +133,7 @@ if (window._taskTimerChart) {
                     fill: false,
                     pointRadius: 0,
                     tension: 0.1,
-                    yAxisID: "y"
+                    yAxisID: "yBell"
                 },
                 {
                     type: "bar",
@@ -126,31 +148,27 @@ if (window._taskTimerChart) {
             ]
         },
         options: {
-            interaction: {
-                mode: null // disables hover interactions entirely
-            },
+            interaction: { mode: null },
             scales: {
                 x: {
                     type: "linear",
                     min: Math.floor(minX),
                     max: Math.ceil(maxX),
-                    title: {
-                        display: true,
-                        text: "Time"
-                    }
+                    title: { display: true, text: "Time" }
                 },
                 y: {
                     beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Frequency"
-                    }
+                    title: { display: true, text: "Frequency" }
+                },
+                yBell: {
+                    position: 'right',
+                    beginAtZero: true,
+                    title: { display: true, text: 'Probability Density' },
+                    grid: { drawOnChartArea: false }
                 }
             },
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     callbacks: {
                         label: (tooltipItem) =>
@@ -162,6 +180,7 @@ if (window._taskTimerChart) {
         plugins: [emojiMarker(chosenEmoji)]
     });
 }
+
 
 
 const emojiMarker = (chosenEmoji) => ({
@@ -183,4 +202,72 @@ const emojiMarker = (chosenEmoji) => ({
         ctx.fillText(chosenEmoji, x, y-2); // draw emoji slightly above the point
         ctx.restore();
     }
+});
+
+
+//
+// 📊 LISTEN FOR BACKEND DATA → UPDATE GRAPH
+//
+
+// When initial stats load
+window.addEventListener("assignment-stats-loaded", (e) => {
+    console.log("Bell Curve: Initial stats loaded", e.detail);
+
+    const { allTimes, mean, stdDev } = e.detail;
+
+    dataPoints = allTimes;
+    meanVal = mean
+    stdVal = stdDev;
+
+    chrome.storage.sync.get(
+        ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+        (data) => {
+            const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+            const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+            const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+            const chosenEmoji = data.chosenEmoji || "🔥";
+
+            displayGraph(
+                primaryColor,
+                secondaryColor,
+                accentColor,
+                chosenEmoji,
+            );
+
+            // You can now use the colors below, e.g., displayGraph(...)
+        }
+    );
+});
+
+// When user adds a new time & backend updates
+window.addEventListener("assignment-stats-updated", (e) => {
+    console.log("Bell Curve: Stats updated", e.detail);
+
+    const { allTimes, mean, stdDev } = e.detail;
+
+    dataPoints = allTimes;
+    meanVal = mean
+    stdVal = stdDev;
+
+    chrome.storage.sync.get(
+        ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+        (data) => {
+            const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+            const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+            const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+            const chosenEmoji = data.chosenEmoji || "🔥";
+
+            displayGraph(
+                primaryColor,
+                secondaryColor,
+                accentColor,
+                chosenEmoji,
+            );
+
+            // You can now use the colors below, e.g., displayGraph(...)
+        }
+    );
+
+
+    // Re-render graph immediately
 });
