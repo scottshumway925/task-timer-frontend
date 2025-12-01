@@ -36,6 +36,12 @@ export function timerInit(updateStatsCallback) { // <-- FIX 1: Now accepts the c
             clearInterval(intervalId);
             intervalId = null;
             button.innerText = "Resume";
+            
+            // --- FIX 2: Submit the time on PAUSE/STOP ---
+            if (seconds > 0 && typeof updateStatsCallback === 'function') {
+                console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+                updateStatsCallback(seconds); // <-- Submit the time!
+            }
         } else {
             // Timer is stopped, so START it
             intervalId = setInterval(incrementSeconds, 1000);

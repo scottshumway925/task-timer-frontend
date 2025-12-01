@@ -12446,6 +12446,10 @@
         clearInterval(intervalId);
         intervalId = null;
         button.innerText = "Resume";
+        if (seconds > 0 && typeof updateStatsCallback === "function") {
+          console.log(`[TIMER SUBMISSION] Submitting tracked time: ${seconds} seconds.`);
+          updateStatsCallback(seconds);
+        }
       } else {
         intervalId = setInterval(incrementSeconds, 1e3);
         button.innerText = "Pause";
@@ -12606,11 +12610,9 @@
       timer.innerHTML = `
     <p>Timer</p>
     <h2 id="timerSeconds">0</h2>
-    <button id="pause" type="button">Start</button>
+    <button id="pause">Start</button>
 `;
       document.getElementById("mySidebarContent").appendChild(timer);
-      var pauseBtn = document.getElementById("pause");
-      pauseBtn.type = "button";
       var bellCurve = document.createElement("div");
       bellCurve.id = "myBellCurve";
       bellCurve.innerHTML = `
