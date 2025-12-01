@@ -312,8 +312,6 @@ async function updateStats(timeInSeconds) {
       const medianElem = document.getElementById("medianTime");
       const modeElem = document.getElementById("modeTime");
 
-      console.log(result);
-
       if (meanElem) meanElem.textContent = formatTime(result.mean);
       if (medianElem) medianElem.textContent = formatTime(result.median);
       if (modeElem) modeElem.textContent = formatTime(result.mode); // Fixed typo here (was medianElem)
@@ -419,9 +417,7 @@ async function loadInitialStats() {
       });
       window.dispatchEvent(event);
 
-
       console.log("Initial stats loaded and dispatched to frontend:", graphData);
-
     } else {
       console.error("Error fetching initial stats:", result.error);
     }
