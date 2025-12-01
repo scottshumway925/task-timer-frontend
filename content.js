@@ -465,7 +465,7 @@ chrome.storage.sync.get(
     const chosenEmoji = data.chosenEmoji || "🔥";
 
     // Call displayGraph() with user settings
-    displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+    //displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
 
     // 1. Load the initial stats immediately
     loadInitialStats();

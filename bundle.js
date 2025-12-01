@@ -12822,7 +12822,6 @@
           const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
           const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
           const chosenEmoji = data.chosenEmoji || "\u{1F525}";
-          displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
           loadInitialStats();
           timerInit(updateStats);
         }
