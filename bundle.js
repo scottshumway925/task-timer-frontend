@@ -12224,44 +12224,76 @@
   });
 
   // bell_curve.mjs
-  function getBellCurveY(x, mean2, stdDev2) {
-    const exponent = -1 * (x - mean2) ** 2 / (2 * stdDev2 ** 2);
+  function setGraphData(graphData) {
+    dataPoints = graphData.allTimes.map((point) => point / 60);
+    meanGraph = graphData.mean / 60;
+    stdDev = graphData.stdDev / 60;
+    console.log(`Graph data set to ${dataPoints}, ${meanGraph}, ${stdDev}`);
+    chrome.storage.sync.get(
+      ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+      async (data) => {
+        const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+        const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+        const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+        const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+        displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+      }
+    );
+  }
+  function getBellCurveY(x, mean, stdDev2) {
+    const exponent = -1 * (x - mean) ** 2 / (2 * stdDev2 ** 2);
     const y = 1 / (stdDev2 * Math.sqrt(2 * Math.PI)) * Math.exp(exponent);
     return { x, y };
   }
-  function makeBellCurvePoints(stdDev2, mean2, points) {
+  function makeBellCurvePoints(stdDev2, mean, points) {
+    console.log("making bell curve pointr");
     const data = [];
-    const start = mean2 - stdDev2 * 4;
-    const end = mean2 + stdDev2 * 4;
-    const step = (end - start) / points;
+    console.log("data initialized");
+    const start = mean - stdDev2 * 4;
+    console.log("start made");
+    const end = mean + stdDev2 * 4;
+    console.log("end made");
+    const step = end - start > 0 ? (end - start) / points : 1;
+    console.log("step made");
     for (let x = start; x <= end; x += step) {
-      data.push(getBellCurveY(x, mean2, stdDev2));
+      data.push(getBellCurveY(x, mean, stdDev2));
     }
+    console.log("data completed");
     return data;
   }
   function displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji) {
-    const bellCurve = makeBellCurvePoints(stdDev, mean, 100);
+    console.log("Graph display called");
+    const bellCurve = makeBellCurvePoints(stdDev, meanGraph, 100);
+    console.log("bell curve points made");
     const frequencies = {};
     dataPoints.forEach((num) => {
       frequencies[num] = (frequencies[num] || 0) + 1;
     });
+    console.log("histogram Made");
     const histogram = Object.entries(frequencies).map(([num, freq]) => ({
       x: Number(num),
       y: freq / dataPoints.length
     }));
-    const personalData = [getBellCurveY(youScored, mean, stdDev)];
+    console.log("histogram object");
+    const personalData = [getBellCurveY(youScored, meanGraph, stdDev)];
+    console.log("personal data");
     const ctx = document.querySelector("#bell_curve");
+    console.log("selected");
     const allX = [
       ...bellCurve.map((p) => p.x),
       ...histogram.map((p) => p.x),
       youScored
       // include single point if you plot it
     ];
+    console.log("all x made");
     const minX = Math.min(...allX) - 0.5;
     const maxX = Math.max(...allX) + 0.5;
+    console.log("min and max found");
     if (window._taskTimerChart) {
       window._taskTimerChart.destroy();
+      console.log("destroyed");
     }
+    console.log("destroy checked");
     window._taskTimerChart = new Chart(ctx, {
       type: "bar",
       // Base chart type
@@ -12275,7 +12307,7 @@
             backgroundColor: "white",
             pointRadius: 5,
             pointHoverRadius: 7,
-            yAxisID: "y"
+            yAxisID: "y2"
           },
           {
             type: "line",
@@ -12286,7 +12318,7 @@
             fill: false,
             pointRadius: 0,
             tension: 0.1,
-            yAxisID: "y"
+            yAxisID: "y2"
           },
           {
             type: "bar",
@@ -12296,7 +12328,8 @@
             borderColor: accentColor,
             borderWidth: 1,
             barPercentage: 1,
-            categoryPercentage: 1
+            categoryPercentage: 1,
+            yAxisID: "y1"
           }
         ]
       },
@@ -12315,11 +12348,30 @@
               text: "Time"
             }
           },
-          y: {
+          y1: {
+            type: "linear",
+            position: "left",
             beginAtZero: true,
             title: {
               display: true,
-              text: "Frequency"
+              text: "Frequency (Histogram)"
+            },
+            grid: {
+              drawOnChartArea: true
+              // Show gridlines
+            }
+          },
+          y2: {
+            type: "linear",
+            position: "right",
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "Probability Density (Bell Curve)"
+            },
+            grid: {
+              drawOnChartArea: false
+              // Don't overlap gridlines
             }
           }
         },
@@ -12336,8 +12388,9 @@
       },
       plugins: [emojiMarker(chosenEmoji)]
     });
+    console.log("graph made");
   }
-  var dataPoints, youScored, mean, stdDev, emojiMarker;
+  var dataPoints, youScored, meanGraph, stdDev, emojiMarker;
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
@@ -12382,8 +12435,8 @@
         35,
         36
       ];
-      youScored = 28;
-      mean = 29.8929;
+      youScored = 60;
+      meanGraph = 29.8929;
       stdDev = 2.6771424759872;
       emojiMarker = (chosenEmoji) => ({
         id: "emojiMarker",
@@ -12499,6 +12552,7 @@
       init_bell_curve();
       init_timer();
       init_classInfo();
+      init_bell_curve();
       var { assignmentName: assignmentName2, className: className2 } = getInfo();
       var sidebar = document.createElement("div");
       sidebar.id = "mySidebar";
@@ -12660,9 +12714,13 @@
         }
         console.log("Auto-fill complete");
       }
-      var observer = new MutationObserver(() => {
+      var isAutoFilling = false;
+      var observer = new MutationObserver(async () => {
+        if (isAutoFilling) return;
         if (document.querySelector("#breadcrumbs")) {
-          autoFillForm();
+          isAutoFilling = true;
+          await autoFillForm();
+          isAutoFilling = false;
         }
       });
       observer.observe(document.body, { childList: true, subtree: true });
@@ -12728,6 +12786,16 @@
               userScore: timeInSeconds,
               timestamp: (/* @__PURE__ */ new Date()).toISOString()
             };
+            setGraphData(graphData);
+            chrome.storage.sync.get(
+              ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+              (data) => {
+                const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+                const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+                const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+                const chosenEmoji = data.chosenEmoji || "\u{1F525}";
+              }
+            );
             window._assignmentStatsData = graphData;
             const event = new CustomEvent("assignment-stats-updated", {
               detail: graphData
@@ -12781,6 +12849,7 @@
               stdDev: result.stdDev || 0,
               timestamp: (/* @__PURE__ */ new Date()).toISOString()
             };
+            setGraphData(graphData);
             window._assignmentStatsData = graphData;
             const event = new CustomEvent("assignment-stats-loaded", {
               detail: graphData
@@ -12802,12 +12871,15 @@
       }
       chrome.storage.sync.get(
         ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
-        (data) => {
+        async (data) => {
           const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
           const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
           const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
           const chosenEmoji = data.chosenEmoji || "\u{1F525}";
-          loadInitialStats();
+          await loadInitialStats();
+          await //displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+          // 1. Load the initial stats immediately
+          // Then start the timer
           timerInit(updateStats);
         }
       );

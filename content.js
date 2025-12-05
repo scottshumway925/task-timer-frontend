@@ -3,6 +3,7 @@
 import displayGraph from "./bell_curve.mjs";
 import {timerInit} from "./timer";
 import {getInfo} from "./classInfo";
+import {setGraphData} from "./bell_curve.mjs";
 
 // Get Class/Assignment Info
 const { assignmentName, className } = getInfo();
@@ -236,10 +237,15 @@ async function autoFillForm() {
 }
 
 // Re-run auto-fill whenever Canvas dynamically changes pages
-const observer = new MutationObserver(() => {
-  if (document.querySelector("#breadcrumbs")) {
-    autoFillForm();
-  }
+let isAutoFilling = false;
+
+const observer = new MutationObserver(async () => {
+    if (isAutoFilling) return;
+    if (document.querySelector("#breadcrumbs")) {
+        isAutoFilling = true;
+        await autoFillForm();
+        isAutoFilling = false;
+    }
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
@@ -335,6 +341,21 @@ async function updateStats(timeInSeconds) {
           timestamp: new Date().toISOString()
       };
 
+        setGraphData(graphData);
+
+        chrome.storage.sync.get(
+            ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
+            (data) => {
+                const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+                const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+                const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+                const chosenEmoji = data.chosenEmoji || "🔥";
+
+                // Call displayGraph() with user settings
+                //displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+            }
+        );
+
       // Method A: Attach to window
       window._assignmentStatsData = graphData;
 
@@ -407,6 +428,8 @@ async function loadInitialStats() {
           timestamp: new Date().toISOString()
       };
 
+        setGraphData(graphData);
+
       // Method A: Attach to window (easiest for them to find in console)
       window._assignmentStatsData = graphData;
 
@@ -454,20 +477,20 @@ function formatTime(totalSeconds) {
 // Load settings first, then display the graph
 chrome.storage.sync.get(
   ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
-  (data) => {
-    const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
-    const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
-    const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
-    const chosenEmoji = data.chosenEmoji || "🔥";
+  async (data) => {
+      const primaryColor = data.primaryColor || "rgba(0, 0, 0, 1)";
+      const secondaryColor = data.secondaryColor || "rgba(122, 246, 255, 1)";
+      const accentColor = data.accentColor || "rgba(0, 0, 0, 1)";
+      const chosenEmoji = data.chosenEmoji || "🔥";
 
-    // Call displayGraph() with user settings
-    //displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
+      // Call displayGraph() with user settings
+      await loadInitialStats();
+      await //displayGraph(primaryColor, secondaryColor, accentColor, chosenEmoji);
 
-    // 1. Load the initial stats immediately
-    loadInitialStats();
+      // 1. Load the initial stats immediately
 
-    // Then start the timer
-    timerInit(updateStats);
+      // Then start the timer
+      timerInit(updateStats);
   }
 );
 
