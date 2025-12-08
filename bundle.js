@@ -12692,7 +12692,16 @@
       form.appendChild(secondInput);
       form.appendChild(document.createElement("br"));
       form.appendChild(submitButton);
-      document.getElementById("mySidebarContent").appendChild(form);
+      var checkClassInfo = getInfo();
+      var checkForSubmissionString = checkClassInfo.assignmentName + checkClassInfo.className + "Time";
+      chrome.storage.sync.get([checkForSubmissionString], (data) => {
+        const storedTime = data[checkForSubmissionString];
+        if (typeof storedTime === "undefined") {
+          document.getElementById("mySidebarContent").appendChild(form);
+        } else {
+          console.log("Form hidden \u2014 time already submitted:", storedTime);
+        }
+      });
       async function autoFillForm() {
         console.log("Auto-fill triggered");
         const hourField = document.getElementById("hours");
@@ -12737,10 +12746,13 @@
           return;
         }
         const totalSeconds = hours * 3600 + minutes * 60 + seconds2;
+        let classInfo = getInfo();
+        saveVariableString = classInfo.assignmentName + classInfo.className + "Time";
+        chrome.storage.sync.set({ [saveVariableString]: totalSeconds }, () => {
+          console.log("Saved time:", totalSeconds, "seconds");
+        });
         updateStats(totalSeconds);
-        hourInput.value = "";
-        minuteInput.value = "";
-        secondInput.value = "";
+        form.remove();
       });
       async function updateStats(timeInSeconds) {
         if (typeof timeInSeconds !== "number" || timeInSeconds <= 0) {

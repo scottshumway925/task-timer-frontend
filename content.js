@@ -199,7 +199,19 @@ form.appendChild(document.createElement("br"));
 form.appendChild(submitButton);
 
 // Add form to sidebar
-document.getElementById("mySidebarContent").appendChild(form);
+let checkClassInfo = getInfo();
+let checkForSubmissionString = checkClassInfo.assignmentName + checkClassInfo.className + "Time"
+chrome.storage.sync.get([checkForSubmissionString], (data) => {
+    const storedTime = data[checkForSubmissionString];
+
+    if (typeof storedTime === "undefined") {
+        // No submission yet → show form
+        document.getElementById("mySidebarContent").appendChild(form);
+    } else {
+        // Submission exists → hide form
+        console.log("Form hidden — time already submitted:", storedTime);
+    }
+});
 
 // --- Auto-fill form fields from sidebar data ---
 
@@ -269,16 +281,19 @@ form.addEventListener("submit", (event) => {
 
   // convert total time to seconds
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+  
+  let classInfo = getInfo();
+  saveVariableString = classInfo.assignmentName + classInfo.className + "Time"
+
+  chrome.storage.sync.set({ saveVariableString: totalSeconds }, () => {
+    console.log("Saved time:", totalSeconds, "seconds");
+  });
 
     // --- CHANGE: Pass totalSeconds to updateStats ---
  // times.push(totalSeconds);
   updateStats(totalSeconds); // Pass the single time to the function
 
-  // clear fields
- // nameInput.value = "";
-  hourInput.value = "";
-  minuteInput.value = "";
-  secondInput.value = "";
+  form.remove();
 });
 
 
