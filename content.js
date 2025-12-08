@@ -283,10 +283,10 @@ form.addEventListener("submit", (event) => {
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
   
   let classInfo = getInfo();
-  saveVariableString = classInfo.assignmentName + classInfo.className + "Time"
+  const saveVariableString = classInfo.assignmentName + classInfo.className + "Time"
 
-  chrome.storage.sync.set({ saveVariableString: totalSeconds }, () => {
-    console.log("Saved time:", totalSeconds, "seconds");
+  chrome.storage.sync.set({ [saveVariableString]: totalSeconds }, () => {
+    console.log("Saved time:", totalSeconds, `seconds to ${saveVariableString}`);
   });
 
     // --- CHANGE: Pass totalSeconds to updateStats ---

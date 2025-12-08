@@ -10,6 +10,7 @@ import {
     LineElement,
     PointElement
 } from "chart.js";
+import {getInfo} from "./classInfo.js";
 
 Chart.register(
     BarController,
@@ -36,10 +37,22 @@ let youScored = 60;
 let meanGraph = 29.8929;
 let stdDev = 2.6771424759872;
 
-export function setGraphData(graphData) {
-    dataPoints = graphData.allTimes.map(point => point/60);
-    meanGraph = graphData.mean/60;
-    stdDev = graphData.stdDev/60;
+export async function setGraphData(graphData) {
+    dataPoints = graphData.allTimes.map(point => point / 60);
+    meanGraph = graphData.mean / 60;
+    stdDev = graphData.stdDev / 60;
+
+    let classInfo = getInfo();
+    const saveVariableString = classInfo.assignmentName + classInfo.className + "Time"
+
+    if (await chrome.storage.sync.get(saveVariableString)) {
+        const result = await chrome.storage.sync.get(saveVariableString);
+        const value = result[saveVariableString];
+        console.log("got value:", value);
+        youScored = value/60;
+
+    }
+
     console.log(`Graph data set to ${dataPoints}, ${meanGraph}, ${stdDev}`);
 
     chrome.storage.sync.get(

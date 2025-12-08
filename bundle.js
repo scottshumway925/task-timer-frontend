@@ -12223,11 +12223,50 @@
     }
   });
 
+  // classInfo.js
+  function getInfo() {
+    try {
+      const assignmentNode = document.querySelector("#breadcrumbs li:nth-child(4) .ellipsible");
+      assignmentName = assignmentNode ? assignmentNode.innerText.trim() : "Unknown Assignment";
+      console.log(assignmentName);
+      const classNode = document.querySelector("#breadcrumbs li:nth-child(2) .ellipsible");
+      const classStr = classNode ? classNode.innerText.trim() : "Unknown Class";
+      const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
+      const match = classStr.match(classCodeRegex);
+      if (match && match[1] && match[2]) {
+        className = (match[1] || "") + match[2];
+      } else {
+        className = classStr;
+      }
+      console.log(className);
+    } catch (e) {
+      console.error("Error scraping breadcrumbs:", e);
+      assignmentName = "Unknown Assignment";
+      className = "Unknown Class";
+    }
+    return { assignmentName, className };
+  }
+  var className, assignmentName;
+  var init_classInfo = __esm({
+    "classInfo.js"() {
+      className = "";
+      assignmentName = "";
+    }
+  });
+
   // bell_curve.mjs
-  function setGraphData(graphData) {
+  async function setGraphData(graphData) {
     dataPoints = graphData.allTimes.map((point) => point / 60);
     meanGraph = graphData.mean / 60;
     stdDev = graphData.stdDev / 60;
+    let classInfo = getInfo();
+    const saveVariableString = classInfo.assignmentName + classInfo.className + "Time";
+    if (await chrome.storage.sync.get(saveVariableString)) {
+      const result = await chrome.storage.sync.get(saveVariableString);
+      const value = result[saveVariableString];
+      console.log("got value:", value);
+      youScored = value / 60;
+    }
     console.log(`Graph data set to ${dataPoints}, ${meanGraph}, ${stdDev}`);
     chrome.storage.sync.get(
       ["primaryColor", "secondaryColor", "accentColor", "chosenEmoji"],
@@ -12394,6 +12433,7 @@
   var init_bell_curve = __esm({
     "bell_curve.mjs"() {
       init_chart();
+      init_classInfo();
       Chart.register(
         BarController,
         LineController,
@@ -12512,37 +12552,6 @@
   var init_timer = __esm({
     "timer.js"() {
       seconds = 0;
-    }
-  });
-
-  // classInfo.js
-  function getInfo() {
-    try {
-      const assignmentNode = document.querySelector("#breadcrumbs li:nth-child(4) .ellipsible");
-      assignmentName = assignmentNode ? assignmentNode.innerText.trim() : "Unknown Assignment";
-      console.log(assignmentName);
-      const classNode = document.querySelector("#breadcrumbs li:nth-child(2) .ellipsible");
-      const classStr = classNode ? classNode.innerText.trim() : "Unknown Class";
-      const classCodeRegex = /([A-Za-z]{3,5})?\s(\d{3}[A-Za-z]?)/;
-      const match = classStr.match(classCodeRegex);
-      if (match && match[1] && match[2]) {
-        className = (match[1] || "") + match[2];
-      } else {
-        className = classStr;
-      }
-      console.log(className);
-    } catch (e) {
-      console.error("Error scraping breadcrumbs:", e);
-      assignmentName = "Unknown Assignment";
-      className = "Unknown Class";
-    }
-    return { assignmentName, className };
-  }
-  var className, assignmentName;
-  var init_classInfo = __esm({
-    "classInfo.js"() {
-      className = "";
-      assignmentName = "";
     }
   });
 
@@ -12747,9 +12756,9 @@
         }
         const totalSeconds = hours * 3600 + minutes * 60 + seconds2;
         let classInfo = getInfo();
-        saveVariableString = classInfo.assignmentName + classInfo.className + "Time";
+        const saveVariableString = classInfo.assignmentName + classInfo.className + "Time";
         chrome.storage.sync.set({ [saveVariableString]: totalSeconds }, () => {
-          console.log("Saved time:", totalSeconds, "seconds");
+          console.log("Saved time:", totalSeconds, `seconds to ${saveVariableString}`);
         });
         updateStats(totalSeconds);
         form.remove();
