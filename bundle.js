@@ -12265,7 +12265,10 @@
       const result = await chrome.storage.sync.get(saveVariableString);
       const value = result[saveVariableString];
       console.log("got value:", value);
+      document.querySelector("#userTime").innerText = `Your time: ${Math.floor(value / 60)}:${value - Math.floor(value / 60) * 60}`;
       youScored = value / 60;
+    } else {
+      youScored = meanGraph;
     }
     console.log(`Graph data set to ${dataPoints}, ${meanGraph}, ${stdDev}`);
     chrome.storage.sync.get(
