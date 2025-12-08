@@ -285,7 +285,7 @@ form.addEventListener("submit", (event) => {
   let classInfo = getInfo();
   saveVariableString = classInfo.assignmentName + classInfo.className + "Time"
 
-  chrome.storage.sync.set({ [saveVariableString]: totalSeconds }, () => {
+  chrome.storage.sync.set({ saveVariableString: totalSeconds }, () => {
     console.log("Saved time:", totalSeconds, "seconds");
   });
 
