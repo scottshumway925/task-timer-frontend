@@ -12265,7 +12265,9 @@
       const result = await chrome.storage.sync.get(saveVariableString);
       const value = result[saveVariableString];
       console.log("got value:", value);
-      document.querySelector("#userTime").innerText = `Your time: ${Math.floor(value / 60)}:${value - Math.floor(value / 60) * 60}`;
+      if (!isNaN(value)) {
+        document.querySelector("#userTime").innerText = `Your time: ${Math.floor(value / 60)}:${value - Math.floor(value / 60) * 60}`;
+      }
       youScored = value / 60;
     } else {
       youScored = meanGraph;
@@ -12396,7 +12398,7 @@
             beginAtZero: true,
             title: {
               display: true,
-              text: "Frequency (Histogram)"
+              text: "Frequency"
             },
             grid: {
               drawOnChartArea: true
@@ -12409,7 +12411,7 @@
             beginAtZero: true,
             title: {
               display: true,
-              text: "Probability Density (Bell Curve)"
+              text: ""
             },
             grid: {
               drawOnChartArea: false

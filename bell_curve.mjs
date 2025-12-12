@@ -49,7 +49,9 @@ export async function setGraphData(graphData) {
         const result = await chrome.storage.sync.get(saveVariableString);
         const value = result[saveVariableString];
         console.log("got value:", value);
-        document.querySelector("#userTime").innerText = `Your time: ${Math.floor(value/60)}:${value - Math.floor(value/60)*60}`;
+        if(!isNaN(value)) {
+            document.querySelector("#userTime").innerText = `Your time: ${Math.floor(value/60)}:${value - Math.floor(value/60)*60}`;
+        }
         youScored = value/60;
 
     } else {
@@ -206,7 +208,7 @@ export default function displayGraph(primaryColor, secondaryColor, accentColor, 
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: "Frequency (Histogram)"
+                        text: "Frequency"
                     },
                     grid: {
                         drawOnChartArea: true  // Show gridlines
@@ -218,7 +220,7 @@ export default function displayGraph(primaryColor, secondaryColor, accentColor, 
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: "Probability Density (Bell Curve)"
+                        text: ""
                     },
                     grid: {
                         drawOnChartArea: false  // Don't overlap gridlines
