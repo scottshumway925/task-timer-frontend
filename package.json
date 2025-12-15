@@ -15,7 +15,8 @@
   "type": "commonjs",
   "main": "content.js",
   "scripts": {
-    "test": "npx esbuild content.js --bundle --outfile=bundle.js"
+    "test": "npx esbuild content.js --bundle --outfile=bundle.js",
+    "build": "./deploy.sh"
   },
   "dependencies": {
     "chart.js": "^4.5.1",

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Timer Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <form id="settings-form">
+    <h1>Canvas Timer Settings</h1>
+
+    <h2>Theme Colors</h2>
+
+    <label>
+      Primary Color:
+      <input type="color" id="primaryColor" value="#000000">
+      <input type="text" id="primaryHex" value="#000000" maxlength="7">
+    </label>
+
+    <label>
+      Secondary Color:
+      <input type="color" id="secondaryColor" value="#7af6ff">
+      <input type="text" id="secondaryHex" value="#7af6ff" maxlength="7">
+    </label>
+
+    <label>
+      Accent Color:
+      <input type="color" id="accentColor" value="#000000">
+      <input type="text" id="accentHex" value="#000000" maxlength="7">
+    </label>
+
+    <h2>Personal Emoji</h2>
+    <div class="emoji-wrapper">
+      <input type="text" id="chosenEmoji" readonly placeholder="🔥">
+      <div id="emojiContainer">
+        <emoji-picker id="emojiPicker"></emoji-picker>
+      </div>
+    </div>
+
+  </form>
+
+  <script src="settings.bundle.js" defer></script>
+</body>
+</html>
